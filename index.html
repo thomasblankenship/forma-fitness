@@ -1289,7 +1289,14 @@ async function relogWorkout(name, duration, calories) {
 }
 
 function calcTotals(meals) {
-  return meals.reduce((a, m) => ({ calories: a.calories + (+m.calories||0), protein: a.protein + (+m.protein||0), carbs: a.carbs + (+m.carbs||0), fat: a.fat + (+m.fat||0), fiber: a.fiber + (+m.fiber||0) }), { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 });
+  const raw = meals.reduce((a, m) => ({ calories: a.calories + (+m.calories||0), protein: a.protein + (+m.protein||0), carbs: a.carbs + (+m.carbs||0), fat: a.fat + (+m.fat||0), fiber: a.fiber + (+m.fiber||0) }), { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 });
+  return {
+    calories: Math.round(raw.calories),
+    protein: Math.round(raw.protein * 10) / 10,
+    carbs: Math.round(raw.carbs * 10) / 10,
+    fat: Math.round(raw.fat * 10) / 10,
+    fiber: Math.round(raw.fiber * 10) / 10,
+  };
 }
 
 function updateMacroBars(t) {
@@ -1405,7 +1412,8 @@ async function showHistoryDetail(date) {
       const keys = ['calories','protein','carbs','fat'];
       const tgt = [TARGETS.calories, TARGETS.protein, TARGETS.carbs, TARGETS.fat];
       const cols = ['#0F0F0F','#2563EB','#D97706','#DC2626'];
-      const v = t[keys[i]];
+      const raw = t[keys[i]];
+      const v = i === 0 ? Math.round(raw) : (Math.round(raw * 10) / 10);
       const pct = Math.min((v / tgt[i]) * 100, 100).toFixed(1);
       return `<div class="macro-bar"><div class="macro-bar-header"><span class="macro-label">${label}</span><span class="macro-value">${v} / ${tgt[i]}${i===0?' kcal':'g'}</span></div><div class="macro-track"><div class="macro-fill" style="background:${cols[i]};width:${pct}%"></div></div></div>`;
     }).join('')}`;
