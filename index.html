@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Forma Fitness</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -177,7 +178,8 @@
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('today')">Today</button>
       <button class="tab-btn" onclick="switchTab('history')">History</button>
-      <button class="tab-btn" onclick="switchTab('progress')">Progress</button>
+      <button class="tab-btn" onclick="switchTab('meals')">Meals</button>
+      <button class="tab-btn" onclick="switchTab('progress')">Goals</button>
       <button class="tab-btn" onclick="switchTab('photos')">Photos</button>
     </div>
   </div>
@@ -271,7 +273,10 @@
             <input type="number" id="meal-carbs" placeholder="Carbs (g)" />
             <input type="number" id="meal-fat" placeholder="Fat (g)" />
           </div>
-          <button class="btn" onclick="addMeal()">Add Meal</button>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+            <button class="btn btn-secondary" onclick="saveFoodFromForm()" style="background:var(--gray-100);color:var(--black)">Save Food</button>
+            <button class="btn" onclick="addMeal()">Log Meal</button>
+          </div>
         </div>
       </div>
 
@@ -335,6 +340,57 @@
       </div>
     </div>
 
+    <!-- MEALS -->
+    <div id="tab-meals" style="display:none">
+
+      <!-- SAVED FOODS -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div class="card-title" style="margin-bottom:0">Saved Foods</div>
+          <div style="display:flex;gap:6px">
+            <button onclick="openBarcodeScanner()" style="background:#0F0F0F;color:white;border:none;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;cursor:pointer">📷 Scan</button>
+            <button onclick="openLabelModal()" style="background:#0F0F0F;color:white;border:none;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;cursor:pointer">🏷️ Label</button>
+            <button onclick="toggleAddFood()" style="background:var(--accent);color:white;border:none;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer">+ Add</button>
+          </div>
+        </div>
+        <div id="add-food-form" style="display:none;background:var(--gray-50);border-radius:10px;padding:12px;margin-bottom:12px">
+          <div class="form-group"><input type="text" id="food-name" placeholder="Food name (e.g. Chicken Breast)" /></div>
+          <div class="form-row form-group">
+            <input type="number" id="food-cals" placeholder="Cals per unit" step="0.1" />
+            <input type="text" id="food-unit" placeholder="Unit (oz, each, tbsp)" />
+          </div>
+          <div class="form-row form-group">
+            <input type="number" id="food-protein" placeholder="Protein per unit" step="0.1" />
+            <input type="number" id="food-carbs" placeholder="Carbs per unit" step="0.1" />
+          </div>
+          <div class="form-group"><input type="number" id="food-fat" placeholder="Fat per unit" step="0.1" /></div>
+          <button class="btn" onclick="saveFood()">Save Food</button>
+        </div>
+        <div id="saved-foods-list"><div class="loading">Loading...</div></div>
+      </div>
+
+      <!-- SAVED MEALS -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div class="card-title" style="margin-bottom:0">Saved Meals</div>
+          <button onclick="toggleAddSavedMeal()" style="background:var(--accent);color:white;border:none;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer">+ Add</button>
+        </div>
+        <div id="add-saved-meal-form" style="display:none;background:var(--gray-50);border-radius:10px;padding:12px;margin-bottom:12px">
+          <div class="form-group"><input type="text" id="saved-meal-name" placeholder="Meal name (e.g. Post-Workout Shake)" /></div>
+          <div class="form-row form-group">
+            <input type="number" id="saved-meal-cals" placeholder="Calories" />
+            <input type="number" id="saved-meal-protein" placeholder="Protein (g)" />
+          </div>
+          <div class="form-row form-group">
+            <input type="number" id="saved-meal-carbs" placeholder="Carbs (g)" />
+            <input type="number" id="saved-meal-fat" placeholder="Fat (g)" />
+          </div>
+          <button class="btn" onclick="saveMeal()">Save Meal</button>
+        </div>
+        <div id="saved-meals-list"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+
     <!-- PROGRESS -->
     <div id="tab-progress" style="display:none">
       <div class="card">
@@ -353,19 +409,27 @@
       </div>
 
       <div class="card">
-        <div class="card-title">Body Fat Trend</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div class="card-title" style="margin-bottom:0">Progress Trend</div>
+          <div style="display:flex;background:#F4F4F4;border-radius:20px;padding:3px;gap:2px">
+            <button id="chart-toggle-bf" onclick="switchChart('bf')" style="background:#0F0F0F;color:white;border:none;border-radius:16px;padding:4px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.2s">Body Fat</button>
+            <button id="chart-toggle-weight" onclick="switchChart('weight')" style="background:transparent;color:#888;border:none;border-radius:16px;padding:4px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.2s">Weight</button>
+          </div>
+        </div>
+        <div id="chart-empty" style="display:none;text-align:center;color:#ADADAD;font-size:13px;padding:30px 0">No scan data yet — log a body scan below</div>
         <div class="chart-wrap"><canvas id="bf-chart"></canvas></div>
       </div>
 
       <div class="card">
-        <div class="card-title">Log a Body Scan</div>
+        <div class="card-title">Log Weight or Body Scan</div>
+        <div style="font-size:12px;color:#ADADAD;margin-bottom:12px">Weight is required. Body fat % is optional — log weight only if you don't have a scan.</div>
         <div class="form-row form-group">
-          <input type="number" id="scan-bf" placeholder="Body fat %" step="0.1" />
-          <input type="number" id="scan-weight" placeholder="Weight (lbs)" step="0.1" />
+          <input type="number" id="scan-weight" placeholder="Weight (lbs) *" step="0.1" />
+          <input type="number" id="scan-bf" placeholder="Body fat % (optional)" step="0.1" />
         </div>
         <div class="form-group"><input type="number" id="scan-muscle" placeholder="Muscle mass (lbs) — optional" step="0.1" /></div>
         <div class="form-group"><input type="date" id="scan-date" /></div>
-        <button class="btn" onclick="addScan()">Save Scan</button>
+        <button class="btn" onclick="addScan()">Save</button>
       </div>
 
       <div class="card" id="scan-history-card">
@@ -374,12 +438,59 @@
       </div>
 
       <div class="card">
-        <div class="card-title">Daily Targets</div>
-        <div class="stat-grid">
-          <div class="stat-item"><div class="stat-val">2,250</div><div class="stat-label">Calories/day</div></div>
-          <div class="stat-item"><div class="stat-val">160g</div><div class="stat-label">Protein/day</div></div>
-          <div class="stat-item"><div class="stat-val">150g</div><div class="stat-label">Carbs/day</div></div>
-          <div class="stat-item"><div class="stat-val">65g</div><div class="stat-label">Fat/day</div></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div class="card-title" style="margin-bottom:0">Daily Targets</div>
+          <button onclick="toggleEditTargets()" id="edit-targets-btn" style="background:var(--accent);color:white;border:none;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer">Edit</button>
+        </div>
+        <div id="targets-display" class="stat-grid">
+          <div class="stat-item"><div class="stat-val" id="disp-calories">2,250</div><div class="stat-label">Calories/day</div></div>
+          <div class="stat-item"><div class="stat-val" id="disp-protein">160g</div><div class="stat-label">Protein/day</div></div>
+          <div class="stat-item"><div class="stat-val" id="disp-carbs">150g</div><div class="stat-label">Carbs/day</div></div>
+          <div class="stat-item"><div class="stat-val" id="disp-fat">65g</div><div class="stat-label">Fat/day</div></div>
+        </div>
+        <div id="targets-edit-form" style="display:none;margin-top:4px">
+          <div style="font-size:12px;color:#ADADAD;margin-bottom:12px">Update your daily targets — the app will recalculate everything automatically.</div>
+          <div class="form-row form-group">
+            <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Calories</div><input type="number" id="edit-calories" placeholder="2250" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
+            <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Protein (g)</div><input type="number" id="edit-protein" placeholder="160" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
+          </div>
+          <div class="form-row form-group">
+            <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Carbs (g)</div><input type="number" id="edit-carbs" placeholder="150" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
+            <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Fat (g)</div><input type="number" id="edit-fat" placeholder="65" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
+          </div>
+          <button class="btn" onclick="saveTargets()">Save Targets</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div class="card-title" style="margin-bottom:0">Body Fat Goal</div>
+          <button onclick="toggleEditBfGoal()" style="background:var(--accent);color:white;border:none;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer">Edit</button>
+        </div>
+        <div id="bf-goal-display">
+          <div class="stat-grid">
+            <div class="stat-item"><div class="stat-val" id="disp-bf-start">16.1%</div><div class="stat-label">Starting body fat</div></div>
+            <div class="stat-item"><div class="stat-val" id="disp-bf-goal">13%</div><div class="stat-label">Goal body fat</div></div>
+            <div class="stat-item"><div class="stat-val" id="disp-weight">180.6</div><div class="stat-label">Starting weight</div></div>
+            <div class="stat-item"><div class="stat-val" id="disp-muscle">88.4</div><div class="stat-label">Muscle mass (lbs)</div></div>
+          </div>
+          <div style="background:#FFF7ED;border-radius:10px;padding:14px;margin-top:4px">
+            <div style="font-size:11px;color:#F97316;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Progress to Goal</div>
+            <div style="font-size:22px;font-weight:700;color:#0F0F0F" id="disp-fat-to-lose">~8 lbs to lose</div>
+            <div style="font-size:12px;color:#ADADAD;margin-top:3px" id="disp-timeline">At 0.5–0.75 lbs/week → 10–16 weeks</div>
+          </div>
+        </div>
+        <div id="bf-goal-edit" style="display:none;margin-top:4px">
+          <div style="font-size:12px;color:#ADADAD;margin-bottom:12px">Update your body composition goal. The app will recalculate your fat to lose and timeline.</div>
+          <div class="form-row form-group">
+            <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Goal Body Fat %</div><input type="number" id="edit-bf-goal" placeholder="13" step="0.1" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
+            <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Current Weight (lbs)</div><input type="number" id="edit-weight" placeholder="180.6" step="0.1" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
+          </div>
+          <div class="form-row form-group">
+            <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Current Body Fat %</div><input type="number" id="edit-bf-current" placeholder="16.1" step="0.1" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
+            <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Muscle Mass (lbs)</div><input type="number" id="edit-muscle" placeholder="88.4" step="0.1" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
+          </div>
+          <button class="btn" onclick="saveBfGoal()">Save Goal</button>
         </div>
       </div>
     </div>
@@ -430,6 +541,71 @@
         <div class="card-title">All Photos</div>
         <div id="photos-list"><div class="loading">Loading...</div></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- BARCODE SCANNER MODAL -->
+<div id="barcode-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:600;flex-direction:column;align-items:center;justify-content:center">
+  <div style="color:white;font-size:16px;font-weight:700;margin-bottom:16px">Scan Barcode</div>
+  <div id="barcode-reader" style="width:300px;border-radius:12px;overflow:hidden"></div>
+  <div style="color:#ADADAD;font-size:13px;margin-top:16px;text-align:center;padding:0 20px">Point camera at barcode on food packaging</div>
+  <button onclick="closeBarcodeScanner()" style="margin-top:24px;background:white;color:black;border:none;border-radius:20px;padding:10px 28px;font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
+</div>
+
+<!-- LABEL PHOTO MODAL -->
+<div id="label-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:600;align-items:flex-end;justify-content:center">
+  <div style="background:white;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:520px">
+    <div style="font-size:16px;font-weight:700;margin-bottom:6px">Upload Nutrition Label</div>
+    <div style="font-size:13px;color:#ADADAD;margin-bottom:16px">Claude AI will read the label and extract nutrition facts</div>
+    <div id="label-preview-wrap" style="display:none;margin-bottom:12px">
+      <img id="label-preview-img" style="width:100%;border-radius:10px;max-height:200px;object-fit:cover" />
+    </div>
+    <label for="label-input" style="display:block;border:2px dashed #E8E8E8;border-radius:10px;padding:20px;text-align:center;color:#ADADAD;font-size:13px;cursor:pointer;margin-bottom:12px">
+      <div style="font-size:24px;margin-bottom:6px">🏷️</div>
+      <div>Tap to photo nutrition label</div>
+    </label>
+    <input type="file" id="label-input" accept="image/*" style="display:none" onchange="previewLabel(event)" />
+    <div id="label-result" style="display:none;background:#FFF7ED;border-radius:10px;padding:14px;margin-bottom:12px">
+      <div style="font-size:12px;font-weight:700;color:#F97316;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Detected Nutrition</div>
+      <div id="label-result-name" style="font-size:15px;font-weight:700;margin-bottom:6px"></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);text-align:center;gap:4px">
+        <div><div style="font-size:16px;font-weight:700;color:#F97316" id="label-cals">-</div><div style="font-size:10px;color:#ADADAD">kcal</div></div>
+        <div><div style="font-size:16px;font-weight:700;color:#F97316" id="label-protein">-</div><div style="font-size:10px;color:#ADADAD">protein</div></div>
+        <div><div style="font-size:16px;font-weight:700;color:#FB7185" id="label-carbs">-</div><div style="font-size:10px;color:#ADADAD">carbs</div></div>
+        <div><div style="font-size:16px;font-weight:700;color:#FBBF24" id="label-fat">-</div><div style="font-size:10px;color:#ADADAD">fat</div></div>
+      </div>
+    </div>
+    <div id="label-loading" style="display:none;text-align:center;padding:16px;color:#ADADAD;font-size:13px">🤖 Claude is reading the label...</div>
+    <div id="label-actions" style="display:none;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <button onclick="closeLabelModal()" style="background:#F4F4F4;color:#0F0F0F;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
+      <button onclick="saveLabelAsFood()" style="background:#F4F4F4;color:#0F0F0F;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer">Save Food</button>
+      <button onclick="logLabelAsFood()" style="background:linear-gradient(135deg,#F97316,#FB7185);color:white;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer">Log Now</button>
+    </div>
+    <button id="label-cancel-btn" onclick="closeLabelModal()" style="width:100%;background:#F4F4F4;color:#0F0F0F;border:none;border-radius:8px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;margin-top:0">Cancel</button>
+  </div>
+</div>
+
+<!-- FOOD LOG MODAL -->
+<div id="food-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;align-items:flex-end;justify-content:center">
+  <div style="background:white;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:520px">
+    <div style="font-size:16px;font-weight:700;color:#0F0F0F;margin-bottom:4px" id="food-modal-name"></div>
+    <div style="font-size:12px;color:#ADADAD;margin-bottom:16px" id="food-modal-per"></div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <input type="number" id="food-modal-qty" placeholder="Quantity" step="0.1" value="1"
+        oninput="updateFoodModalPreview()"
+        style="flex:1;padding:12px;border:1px solid #E8E8E8;border-radius:8px;font-size:16px;font-weight:600;outline:none" />
+      <div id="food-modal-unit-label" style="font-size:14px;color:#666;min-width:30px"></div>
+    </div>
+    <div style="background:#FFF7ED;border-radius:10px;padding:12px;margin-bottom:16px;display:grid;grid-template-columns:repeat(4,1fr);text-align:center">
+      <div><div style="font-size:16px;font-weight:700;color:#F97316" id="modal-cals">0</div><div style="font-size:10px;color:#ADADAD">kcal</div></div>
+      <div><div style="font-size:16px;font-weight:700;color:#F97316" id="modal-protein">0</div><div style="font-size:10px;color:#ADADAD">protein</div></div>
+      <div><div style="font-size:16px;font-weight:700;color:#FB7185" id="modal-carbs">0</div><div style="font-size:10px;color:#ADADAD">carbs</div></div>
+      <div><div style="font-size:16px;font-weight:700;color:#FBBF24" id="modal-fat">0</div><div style="font-size:10px;color:#ADADAD">fat</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="btn btn-secondary" onclick="closeFoodModal()" style="background:#F4F4F4;color:#0F0F0F">Cancel</button>
+      <button class="btn" onclick="logFoodFromModal()">Add to Today</button>
     </div>
   </div>
 </div>
@@ -537,6 +713,7 @@ function dayScore(cals, protein) {
 
 // INIT
 async function init() {
+  loadGoals();
   document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
   document.getElementById('scan-date').value = today;
   document.getElementById('photo-date').value = today;
@@ -567,7 +744,7 @@ function renderMeals() {
         <div class="meal-name">${m.name}</div>
         <div class="meal-meta">${m.time || ''} · P:${m.protein}g C:${m.carbs}g F:${m.fat}g</div>
       </div>
-      <div class="meal-cals">${m.calories}</div>
+      <div class="meal-cals">${m.calories} kcal</div>
       <button class="delete-btn" onclick="deleteMeal('${m.id}')">×</button>
     </div>`).join('');
 }
@@ -644,6 +821,18 @@ async function deleteMeal(id) {
   toast('Meal removed');
 }
 
+async function editMealName(id, currentName) {
+  const newName = prompt('Edit meal name:', currentName);
+  if (!newName || newName.trim() === currentName) return;
+  await fetch(`${SUPABASE_URL}/rest/v1/meals?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: newName.trim() })
+  });
+  await loadTodayMeals();
+  toast('Meal name updated ✓');
+}
+
 async function addWorkout() {
   const name = document.getElementById('workout-name').value.trim();
   if (!name) { toast('Enter workout name'); return; }
@@ -707,33 +896,137 @@ function renderScans() {
         <div class="meal-name">${new Date(s.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
         <div class="meal-meta">${s.weight} lbs${s.muscle_mass ? ` · ${s.muscle_mass} lbs muscle` : ''}</div>
       </div>
-      <div style="font-size:20px;font-weight:700;color:${s.body_fat<=13?'var(--green)':s.body_fat<=16?'var(--amber)':'var(--red)'}">${s.body_fat}%</div>
+      <div style="font-size:18px;font-weight:700;color:${s.body_fat ? (s.body_fat<=13?'var(--green)':s.body_fat<=16?'var(--amber)':'var(--red)') : '#ADADAD'}">
+        ${s.body_fat ? s.body_fat + '%' : '—'}
+      </div>
     </div>`).join('');
+}
+
+let activeChart = 'bf';
+
+function switchChart(type) {
+  activeChart = type;
+  document.getElementById('chart-toggle-bf').style.background = type === 'bf' ? '#0F0F0F' : 'transparent';
+  document.getElementById('chart-toggle-bf').style.color = type === 'bf' ? 'white' : '#888';
+  document.getElementById('chart-toggle-weight').style.background = type === 'weight' ? '#0F0F0F' : 'transparent';
+  document.getElementById('chart-toggle-weight').style.color = type === 'weight' ? 'white' : '#888';
+  renderBfChart();
 }
 
 function renderBfChart() {
   const canvas = document.getElementById('bf-chart');
   if (bfChart) bfChart.destroy();
-  if (!allScans.length) return;
+
+  if (!allScans.length) {
+    document.getElementById('chart-empty').style.display = 'block';
+    canvas.style.display = 'none';
+    return;
+  }
+  document.getElementById('chart-empty').style.display = 'none';
+  canvas.style.display = 'block';
+
   const labels = allScans.map(s => new Date(s.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-  const data = allScans.map(s => s.body_fat);
-  bfChart = new Chart(canvas, {
-    type: 'line',
-    data: { labels, datasets: [{ data, borderColor: '#2563EB', backgroundColor: 'rgba(37,99,235,0.08)', borderWidth: 2, pointBackgroundColor: '#2563EB', pointRadius: 4, tension: 0.3, fill: true }] },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.raw}% body fat` } } }, scales: { y: { min: 10, max: 25, grid: { color: '#F0F0F0' }, ticks: { font: { size: 11 }, callback: v => v + '%' } }, x: { grid: { display: false }, ticks: { font: { size: 11 } } } } }
-  });
+
+  if (activeChart === 'bf') {
+    const data = allScans.map(s => s.body_fat);
+    const goalLine = Array(data.length).fill(userGoals.bfGoal);
+    bfChart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Body Fat %',
+            data,
+            borderColor: '#F97316',
+            backgroundColor: 'rgba(249,115,22,0.08)',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#F97316',
+            pointRadius: 5,
+            tension: 0.3,
+            fill: true
+          },
+          {
+            label: 'Goal',
+            data: goalLine,
+            borderColor: '#16A34A',
+            borderWidth: 1.5,
+            borderDash: [6, 4],
+            pointRadius: 0,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ctx.dataset.label === 'Goal' ? `Goal: ${ctx.raw}%` : `${ctx.raw}% body fat` } }
+        },
+        scales: {
+          y: {
+            grid: { color: '#F5F5F5' },
+            ticks: { font: { size: 11 }, callback: v => v + '%' }
+          },
+          x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        }
+      }
+    });
+  } else {
+    // Weight chart
+    const weightData = allScans.filter(s => s.weight).map(s => s.weight);
+    const weightLabels = allScans.filter(s => s.weight).map(s => new Date(s.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    if (!weightData.length) {
+      document.getElementById('chart-empty').style.display = 'block';
+      canvas.style.display = 'none';
+      return;
+    }
+    bfChart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: weightLabels,
+        datasets: [{
+          label: 'Weight (lbs)',
+          data: weightData,
+          borderColor: '#FB7185',
+          backgroundColor: 'rgba(251,113,133,0.08)',
+          borderWidth: 2.5,
+          pointBackgroundColor: '#FB7185',
+          pointRadius: 5,
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => `${ctx.raw} lbs` } }
+        },
+        scales: {
+          y: {
+            grid: { color: '#F5F5F5' },
+            ticks: { font: { size: 11 }, callback: v => v + ' lbs' }
+          },
+          x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        }
+      }
+    });
+  }
 }
 
 async function addScan() {
-  const bf = +document.getElementById('scan-bf').value;
   const weight = +document.getElementById('scan-weight').value;
   const date = document.getElementById('scan-date').value;
-  if (!bf || !weight || !date) { toast('Fill in body fat, weight, and date'); return; }
+  const bf = +document.getElementById('scan-bf').value || null;
+  if (!weight || !date) { toast('Weight and date are required'); return; }
   await dbPost('scans', { date, body_fat: bf, weight, muscle_mass: +document.getElementById('scan-muscle').value || null });
   ['scan-bf','scan-weight','scan-muscle'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('scan-date').value = today;
   await loadScans();
-  toast('Scan saved ✓');
+  toast('Saved ✓');
 }
 
 // PHOTOS
@@ -879,10 +1172,13 @@ function closeLightbox() { document.getElementById('lightbox').classList.remove(
 
 // TABS
 function switchTab(tab) {
-  ['today','history','progress','photos'].forEach(t => {
+  ['today','history','meals','progress','photos'].forEach(t => {
     document.getElementById(`tab-${t}`).style.display = t === tab ? 'block' : 'none';
-    document.querySelectorAll('.tab-btn').forEach((btn, i) => btn.classList.toggle('active', ['today','history','progress','photos'][i] === tab));
   });
+  document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', ['today','history','meals','progress','photos'][i] === tab);
+  });
+  if (tab === 'meals') loadMealsTab();
 }
 
 // CALENDAR
@@ -972,6 +1268,502 @@ function renderHistoryList() {
       </div>
     </div>`;
   }).join('');
+}
+
+// MEALS TAB
+let savedFoods = [];
+let savedMeals = [];
+let activeFoodForModal = null;
+
+async function loadMealsTab() {
+  await Promise.all([loadSavedFoods(), loadSavedMeals()]);
+}
+
+async function loadSavedFoods() {
+  savedFoods = await dbGet('saved_foods', 'order=name.asc');
+  renderSavedFoods();
+}
+
+async function loadSavedMeals() {
+  savedMeals = await dbGet('saved_meals', 'order=name.asc');
+  renderSavedMeals();
+}
+
+function renderSavedFoods() {
+  const el = document.getElementById('saved-foods-list');
+  if (!savedFoods.length) { el.innerHTML = '<div class="empty">No saved foods yet</div>'; return; }
+  el.innerHTML = savedFoods.map(f => `
+    <div class="meal-row">
+      <div class="meal-info">
+        <div class="meal-name">
+          ${f.name}
+          <button onclick="editSavedFoodName('${f.id}','${f.name.replace(/'/g, "\'")}')" style="background:none;border:none;cursor:pointer;font-size:12px;color:#ADADAD;padding:0 4px;vertical-align:middle">✏️</button>
+        </div>
+        <div class="meal-meta">${f.calories_per_unit} kcal · ${f.protein_per_unit}g P per ${f.unit}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button onclick="openFoodModal('${f.id}')" style="background:var(--accent);color:white;border:none;border-radius:16px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer">+ Log</button>
+        <button onclick="deleteSavedFood('${f.id}')" style="background:none;border:none;color:#E8E8E8;cursor:pointer;font-size:20px;line-height:1">×</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderSavedMeals() {
+  const el = document.getElementById('saved-meals-list');
+  if (!savedMeals.length) { el.innerHTML = '<div class="empty">No saved meals yet</div>'; return; }
+  el.innerHTML = savedMeals.map(m => `
+    <div class="meal-row">
+      <div class="meal-info">
+        <div class="meal-name">
+          ${m.name}
+          <button onclick="editSavedMealName('${m.id}','${m.name.replace(/'/g, "\'")}')" style="background:none;border:none;cursor:pointer;font-size:12px;color:#ADADAD;padding:0 4px;vertical-align:middle">✏️</button>
+        </div>
+        <div class="meal-meta">${m.calories} kcal · P:${m.protein}g C:${m.carbs}g F:${m.fat}g</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button onclick="logSavedMeal('${m.id}')" style="background:var(--accent);color:white;border:none;border-radius:16px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer">+ Log</button>
+        <button onclick="deleteSavedMeal('${m.id}')" style="background:none;border:none;color:#E8E8E8;cursor:pointer;font-size:20px;line-height:1">×</button>
+      </div>
+    </div>`).join('');
+}
+
+function toggleAddFood() {
+  const el = document.getElementById('add-food-form');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function toggleAddSavedMeal() {
+  const el = document.getElementById('add-saved-meal-form');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+async function saveFood() {
+  const name = document.getElementById('food-name').value.trim();
+  const cals = +document.getElementById('food-cals').value;
+  const unit = document.getElementById('food-unit').value.trim() || 'oz';
+  if (!name || !cals) { toast('Enter food name and calories'); return; }
+  await dbPost('saved_foods', {
+    name, unit,
+    calories_per_unit: cals,
+    protein_per_unit: +document.getElementById('food-protein').value || 0,
+    carbs_per_unit: +document.getElementById('food-carbs').value || 0,
+    fat_per_unit: +document.getElementById('food-fat').value || 0,
+  });
+  ['food-name','food-cals','food-unit','food-protein','food-carbs','food-fat'].forEach(id => document.getElementById(id).value = '');
+  toggleAddFood();
+  await loadSavedFoods();
+  toast('Food saved ✓');
+}
+
+async function saveMeal() {
+  const name = document.getElementById('saved-meal-name').value.trim();
+  const cals = +document.getElementById('saved-meal-cals').value;
+  if (!name || !cals) { toast('Enter meal name and calories'); return; }
+  await dbPost('saved_meals', {
+    name,
+    calories: cals,
+    protein: +document.getElementById('saved-meal-protein').value || 0,
+    carbs: +document.getElementById('saved-meal-carbs').value || 0,
+    fat: +document.getElementById('saved-meal-fat').value || 0,
+  });
+  ['saved-meal-name','saved-meal-cals','saved-meal-protein','saved-meal-carbs','saved-meal-fat'].forEach(id => document.getElementById(id).value = '');
+  toggleAddSavedMeal();
+  await loadSavedMeals();
+  toast('Meal saved ✓');
+}
+
+// Save food from Today's form
+function saveFoodFromForm() {
+  const name = document.getElementById('meal-name').value.trim();
+  const cals = +document.getElementById('meal-cals').value;
+  if (!name || !cals) { toast('Fill in meal details first'); return; }
+  switchTab('meals');
+  setTimeout(() => {
+    document.getElementById('add-saved-meal-form').style.display = 'block';
+    document.getElementById('saved-meal-name').value = name;
+    document.getElementById('saved-meal-cals').value = cals;
+    document.getElementById('saved-meal-protein').value = document.getElementById('meal-protein').value;
+    document.getElementById('saved-meal-carbs').value = document.getElementById('meal-carbs').value;
+    document.getElementById('saved-meal-fat').value = document.getElementById('meal-fat').value;
+    toast('Review and save in Meals tab');
+  }, 100);
+}
+
+// Food modal
+function openFoodModal(id) {
+  activeFoodForModal = savedFoods.find(f => f.id === id);
+  if (!activeFoodForModal) return;
+  document.getElementById('food-modal-name').textContent = activeFoodForModal.name;
+  document.getElementById('food-modal-per').textContent = `${activeFoodForModal.calories_per_unit} kcal per ${activeFoodForModal.unit}`;
+  document.getElementById('food-modal-unit-label').textContent = activeFoodForModal.unit;
+  document.getElementById('food-modal-qty').value = 1;
+  updateFoodModalPreview();
+  document.getElementById('food-modal').style.display = 'flex';
+}
+
+function updateFoodModalPreview() {
+  if (!activeFoodForModal) return;
+  const qty = +document.getElementById('food-modal-qty').value || 0;
+  document.getElementById('modal-cals').textContent = Math.round(activeFoodForModal.calories_per_unit * qty);
+  document.getElementById('modal-protein').textContent = (activeFoodForModal.protein_per_unit * qty).toFixed(1) + 'g';
+  document.getElementById('modal-carbs').textContent = (activeFoodForModal.carbs_per_unit * qty).toFixed(1) + 'g';
+  document.getElementById('modal-fat').textContent = (activeFoodForModal.fat_per_unit * qty).toFixed(1) + 'g';
+}
+
+function closeFoodModal() {
+  document.getElementById('food-modal').style.display = 'none';
+  activeFoodForModal = null;
+}
+
+async function logFoodFromModal() {
+  if (!activeFoodForModal) return;
+  const qty = +document.getElementById('food-modal-qty').value || 1;
+  const meal = {
+    date: today,
+    name: `${activeFoodForModal.name} (${qty} ${activeFoodForModal.unit})`,
+    calories: Math.round(activeFoodForModal.calories_per_unit * qty),
+    protein: Math.round(activeFoodForModal.protein_per_unit * qty * 10) / 10,
+    carbs: Math.round(activeFoodForModal.carbs_per_unit * qty * 10) / 10,
+    fat: Math.round(activeFoodForModal.fat_per_unit * qty * 10) / 10,
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  };
+  await dbPost('meals', meal);
+  closeFoodModal();
+  await loadTodayMeals();
+  switchTab('today');
+  toast(`${activeFoodForModal.name} added to today ✓`);
+}
+
+async function logSavedMeal(id) {
+  const m = savedMeals.find(m => m.id === id);
+  if (!m) return;
+  await dbPost('meals', {
+    date: today, name: m.name, calories: m.calories,
+    protein: m.protein, carbs: m.carbs, fat: m.fat,
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  });
+  await loadTodayMeals();
+  switchTab('today');
+  toast(`${m.name} added to today ✓`);
+}
+
+async function editSavedFoodName(id, currentName) {
+  const newName = prompt('Edit food name:', currentName);
+  if (!newName || newName.trim() === currentName) return;
+  await fetch(`${SUPABASE_URL}/rest/v1/saved_foods?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: newName.trim() })
+  });
+  await loadSavedFoods();
+  toast('Name updated ✓');
+}
+
+async function editSavedMealName(id, currentName) {
+  const newName = prompt('Edit meal name:', currentName);
+  if (!newName || newName.trim() === currentName) return;
+  await fetch(`${SUPABASE_URL}/rest/v1/saved_meals?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: newName.trim() })
+  });
+  await loadSavedMeals();
+  toast('Name updated ✓');
+}
+
+async function deleteSavedFood(id) {
+  if (!confirm('Delete this saved food?')) return;
+  await dbDelete('saved_foods', id);
+  await loadSavedFoods();
+  toast('Food deleted');
+}
+
+async function deleteSavedMeal(id) {
+  if (!confirm('Delete this saved meal?')) return;
+  await dbDelete('saved_meals', id);
+  await loadSavedMeals();
+  toast('Meal deleted');
+}
+
+// BARCODE SCANNER
+let html5QrcodeScanner = null;
+let labelScannedData = null;
+
+function openBarcodeScanner() {
+  document.getElementById('barcode-modal').style.display = 'flex';
+  setTimeout(() => {
+    html5QrcodeScanner = new Html5Qrcode("barcode-reader");
+    html5QrcodeScanner.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 250, height: 150 } },
+      onBarcodeDetected,
+      err => {}
+    ).catch(err => {
+      toast('Camera access denied');
+      closeBarcodeScanner();
+    });
+  }, 300);
+}
+
+async function onBarcodeDetected(barcode) {
+  await closeBarcodeScanner();
+  toast('Barcode detected — looking up nutrition...');
+  try {
+    const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+    const data = await res.json();
+    if (data.status !== 1 || !data.product) {
+      toast('Product not found — try manual entry');
+      return;
+    }
+    const p = data.product;
+    const n = p.nutriments || {};
+    const name = p.product_name || p.brands || 'Scanned Food';
+    const serving = p.serving_quantity || 100;
+    const unit = p.serving_quantity_unit || 'g';
+    // Per serving values
+    const cals = Math.round(n['energy-kcal_serving'] || (n['energy-kcal'] ? n['energy-kcal'] * serving / 100 : 0));
+    const protein = parseFloat((n.proteins_serving || n.proteins * serving / 100 || 0).toFixed(1));
+    const carbs = parseFloat((n.carbohydrates_serving || n.carbohydrates * serving / 100 || 0).toFixed(1));
+    const fat = parseFloat((n.fat_serving || n.fat * serving / 100 || 0).toFixed(1));
+
+    labelScannedData = { name, calories: cals, protein, carbs, fat, unit: `${serving}${unit} serving` };
+    showLabelResult(labelScannedData);
+    openLabelModal(true);
+  } catch(e) {
+    toast('Lookup failed — check connection');
+  }
+}
+
+async function closeBarcodeScanner() {
+  if (html5QrcodeScanner) {
+    try { await html5QrcodeScanner.stop(); } catch(e) {}
+    html5QrcodeScanner = null;
+  }
+  document.getElementById('barcode-modal').style.display = 'none';
+}
+
+// LABEL PHOTO
+function openLabelModal(fromBarcode = false) {
+  document.getElementById('label-modal').style.display = 'flex';
+  if (!fromBarcode) {
+    labelScannedData = null;
+    document.getElementById('label-result').style.display = 'none';
+    document.getElementById('label-actions').style.display = 'none';
+    document.getElementById('label-cancel-btn').style.display = 'block';
+    document.getElementById('label-preview-wrap').style.display = 'none';
+    document.getElementById('label-loading').style.display = 'none';
+    document.getElementById('label-input').value = '';
+  } else {
+    document.getElementById('label-cancel-btn').style.display = 'none';
+  }
+}
+
+function closeLabelModal() {
+  document.getElementById('label-modal').style.display = 'none';
+  labelScannedData = null;
+}
+
+function previewLabel(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    document.getElementById('label-preview-img').src = ev.target.result;
+    document.getElementById('label-preview-wrap').style.display = 'block';
+    document.getElementById('label-loading').style.display = 'block';
+    document.getElementById('label-result').style.display = 'none';
+    document.getElementById('label-actions').style.display = 'none';
+    document.getElementById('label-cancel-btn').style.display = 'none';
+    readLabelWithClaude(ev.target.result, file.type);
+  };
+  reader.readAsDataURL(file);
+}
+
+async function readLabelWithClaude(base64DataUrl, mimeType) {
+  try {
+    const base64 = base64DataUrl.split(',')[1];
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 500,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: mimeType, data: base64 } },
+            { type: 'text', text: 'Read this nutrition label and respond ONLY with a JSON object, no markdown, no explanation. Format: {"name":"product name","calories":0,"protein":0,"carbs":0,"fat":0,"serving":"serving size description"}. Use per-serving values. If you cannot read the label clearly, use your best estimate.' }
+          ]
+        }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.[0]?.text || '';
+    const parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
+    labelScannedData = parsed;
+    showLabelResult(parsed);
+  } catch(e) {
+    document.getElementById('label-loading').style.display = 'none';
+    document.getElementById('label-cancel-btn').style.display = 'block';
+    toast('Could not read label — try manual entry');
+  }
+}
+
+function showLabelResult(data) {
+  document.getElementById('label-loading').style.display = 'none';
+  document.getElementById('label-result-name').textContent = data.name || 'Scanned Food';
+  document.getElementById('label-cals').textContent = data.calories;
+  document.getElementById('label-protein').textContent = (data.protein || 0) + 'g';
+  document.getElementById('label-carbs').textContent = (data.carbs || 0) + 'g';
+  document.getElementById('label-fat').textContent = (data.fat || 0) + 'g';
+  document.getElementById('label-result').style.display = 'block';
+  document.getElementById('label-actions').style.display = 'grid';
+  document.getElementById('label-cancel-btn').style.display = 'none';
+}
+
+async function logLabelAsFood() {
+  if (!labelScannedData) return;
+  await dbPost('meals', {
+    date: today,
+    name: labelScannedData.name,
+    calories: labelScannedData.calories,
+    protein: labelScannedData.protein || 0,
+    carbs: labelScannedData.carbs || 0,
+    fat: labelScannedData.fat || 0,
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  });
+  await loadTodayMeals();
+  closeLabelModal();
+  switchTab('today');
+  toast(`${labelScannedData.name} added to today ✓`);
+}
+
+async function saveLabelAsFood() {
+  if (!labelScannedData) return;
+  await dbPost('saved_meals', {
+    name: labelScannedData.name,
+    calories: labelScannedData.calories,
+    protein: labelScannedData.protein || 0,
+    carbs: labelScannedData.carbs || 0,
+    fat: labelScannedData.fat || 0,
+  });
+  await loadSavedMeals();
+  closeLabelModal();
+  toast(`${labelScannedData.name} saved ✓`);
+}
+
+// GOALS & TARGETS
+let userTargets = {
+  calories: 2250, protein: 160, carbs: 150, fat: 65
+};
+let userGoals = {
+  bfStart: 16.1, bfGoal: 13, weight: 180.6, muscle: 88.4
+};
+
+function loadGoals() {
+  const savedTargets = localStorage.getItem('ff_targets');
+  const savedGoals = localStorage.getItem('ff_goals');
+  if (savedTargets) userTargets = JSON.parse(savedTargets);
+  if (savedGoals) userGoals = JSON.parse(savedGoals);
+  // Update TARGETS constant used throughout app
+  TARGETS.calories = userTargets.calories;
+  TARGETS.protein = userTargets.protein;
+  TARGETS.carbs = userTargets.carbs;
+  TARGETS.fat = userTargets.fat;
+  updateGoalsDisplay();
+}
+
+function updateGoalsDisplay() {
+  // Targets display
+  document.getElementById('disp-calories').textContent = userTargets.calories.toLocaleString();
+  document.getElementById('disp-protein').textContent = userTargets.protein + 'g';
+  document.getElementById('disp-carbs').textContent = userTargets.carbs + 'g';
+  document.getElementById('disp-fat').textContent = userTargets.fat + 'g';
+  // BF Goal display
+  document.getElementById('disp-bf-start').textContent = userGoals.bfStart + '%';
+  document.getElementById('disp-bf-goal').textContent = userGoals.bfGoal + '%';
+  document.getElementById('disp-weight').textContent = userGoals.weight;
+  document.getElementById('disp-muscle').textContent = userGoals.muscle;
+  // Calculate fat to lose
+  const currentFatLbs = userGoals.weight * (userGoals.bfStart / 100);
+  const goalFatLbs = userGoals.weight * (userGoals.bfGoal / 100);
+  const fatToLose = Math.max(0, currentFatLbs - goalFatLbs).toFixed(1);
+  const weeksLow = Math.ceil(fatToLose / 0.75);
+  const weeksHigh = Math.ceil(fatToLose / 0.5);
+  document.getElementById('disp-fat-to-lose').textContent = `~${fatToLose} lbs to lose`;
+  document.getElementById('disp-timeline').textContent = `At 0.5–0.75 lbs/week → ${weeksLow}–${weeksHigh} weeks`;
+  // Update ring label
+  const ringLabel = document.querySelector('#tab-today .card-title');
+}
+
+function toggleEditTargets() {
+  const form = document.getElementById('targets-edit-form');
+  const display = document.getElementById('targets-display');
+  const btn = document.getElementById('edit-targets-btn');
+  const isEditing = form.style.display !== 'none';
+  form.style.display = isEditing ? 'none' : 'block';
+  display.style.display = isEditing ? 'grid' : 'none';
+  btn.textContent = isEditing ? 'Edit' : 'Cancel';
+  if (!isEditing) {
+    document.getElementById('edit-calories').value = userTargets.calories;
+    document.getElementById('edit-protein').value = userTargets.protein;
+    document.getElementById('edit-carbs').value = userTargets.carbs;
+    document.getElementById('edit-fat').value = userTargets.fat;
+  }
+}
+
+function saveTargets() {
+  const cals = +document.getElementById('edit-calories').value;
+  const protein = +document.getElementById('edit-protein').value;
+  const carbs = +document.getElementById('edit-carbs').value;
+  const fat = +document.getElementById('edit-fat').value;
+  if (!cals || !protein) { toast('Enter at least calories and protein'); return; }
+  userTargets = { calories: cals, protein, carbs: carbs || 150, fat: fat || 65 };
+  TARGETS.calories = cals;
+  TARGETS.protein = protein;
+  TARGETS.carbs = carbs || 150;
+  TARGETS.fat = fat || 65;
+  localStorage.setItem('ff_targets', JSON.stringify(userTargets));
+  toggleEditTargets();
+  updateGoalsDisplay();
+  renderMeals(); // refresh macro bars
+  toast('Targets updated ✓');
+}
+
+function toggleEditBfGoal() {
+  const form = document.getElementById('bf-goal-edit');
+  const display = document.getElementById('bf-goal-display');
+  const isEditing = form.style.display !== 'none';
+  form.style.display = isEditing ? 'none' : 'block';
+  display.style.display = isEditing ? 'block' : 'none';
+  if (!isEditing) {
+    document.getElementById('edit-bf-goal').value = userGoals.bfGoal;
+    document.getElementById('edit-weight').value = userGoals.weight;
+    document.getElementById('edit-bf-current').value = userGoals.bfStart;
+    document.getElementById('edit-muscle').value = userGoals.muscle;
+  }
+}
+
+function saveBfGoal() {
+  const bfGoal = +document.getElementById('edit-bf-goal').value;
+  const weight = +document.getElementById('edit-weight').value;
+  const bfStart = +document.getElementById('edit-bf-current').value;
+  const muscle = +document.getElementById('edit-muscle').value;
+  if (!bfGoal || !weight || !bfStart) { toast('Fill in all fields'); return; }
+  userGoals = { bfGoal, weight, bfStart, muscle: muscle || userGoals.muscle };
+  localStorage.setItem('ff_goals', JSON.stringify(userGoals));
+
+  // Auto-suggest new calorie target based on new goal
+  const leanMass = weight * (1 - bfStart / 100);
+  const suggestedProtein = Math.round(leanMass * 1.1);
+  const suggestion = bfGoal < userGoals.bfStart
+    ? `💡 Tip: With your new goal, aim for ${suggestedProtein}g protein/day`
+    : `💡 Tip: Update your Daily Targets to match your new goal`;
+
+  toggleEditBfGoal();
+  updateGoalsDisplay();
+  toast('Goal updated ✓');
+  setTimeout(() => toast(suggestion), 2000);
 }
 
 init();
