@@ -1203,7 +1203,7 @@ function renderMealSection(meals, indices, showEmpty) {
           <span>${m.name}</span>
           <button data-edit="${i}" style="background:none;border:none;cursor:pointer;font-size:11px;color:#ADADAD;padding:0 2px;flex-shrink:0">✏️</button>
         </div>
-        <div class="meal-meta">${m.time || ''} · P:${m.protein}g C:${m.carbs}g F:${m.fat}g${m.fiber ? ` Fi:${m.fiber}g` : ''}</div>
+        <div class="meal-meta">${m.time || ''} · P:${m.protein}g C:${m.carbs}g F:${m.fat}g${m.fiber && +m.fiber > 0 ? ` · Fiber:${m.fiber}g` : ''}</div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
         <span style="font-size:14px;font-weight:600;color:#111">${m.calories} kcal</span>
@@ -1348,19 +1348,21 @@ async function relogWorkout(name, duration, calories) {
 }
 
 function calcTotals(meals) {
-  const raw = meals.reduce((a, m) => ({
-    calories: a.calories + (parseFloat(m.calories)||0),
-    protein: a.protein + (parseFloat(m.protein)||0),
-    carbs: a.carbs + (parseFloat(m.carbs)||0),
-    fat: a.fat + (parseFloat(m.fat)||0),
-    fiber: a.fiber + (parseFloat(m.fiber)||0),
-  }), { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 });
+  let calories = 0, protein = 0, carbs = 0, fat = 0, fiber = 0;
+  meals.forEach(m => {
+    calories += parseFloat(m.calories) || 0;
+    protein += parseFloat(m.protein) || 0;
+    carbs += parseFloat(m.carbs) || 0;
+    fat += parseFloat(m.fat) || 0;
+    fiber += parseFloat(m.fiber) || 0;
+  });
+  console.log('calcTotals fiber total:', fiber, 'from', meals.length, 'meals');
   return {
-    calories: Math.round(raw.calories),
-    protein: Math.round(raw.protein * 10) / 10,
-    carbs: Math.round(raw.carbs * 10) / 10,
-    fat: Math.round(raw.fat * 10) / 10,
-    fiber: Math.round(raw.fiber * 10) / 10,
+    calories: Math.round(calories),
+    protein: Math.round(protein * 10) / 10,
+    carbs: Math.round(carbs * 10) / 10,
+    fat: Math.round(fat * 10) / 10,
+    fiber: Math.round(fiber * 10) / 10,
   };
 }
 
@@ -1369,8 +1371,10 @@ function updateMacroBars(t) {
   document.getElementById('pro-val').textContent = `${t.protein} / ${TARGETS.protein}g`;
   document.getElementById('carb-val').textContent = `${t.carbs} / ${TARGETS.carbs}g`;
   document.getElementById('fat-val').textContent = `${t.fat} / ${TARGETS.fat}g`;
-  document.getElementById('fiber-val').textContent = `${t.fiber || 0} / 30g`;
-  document.getElementById('fiber-bar').style.width = pct(t.fiber || 0, 30) + '%';
+  const fiberVal = t.fiber || 0;
+  document.getElementById('fiber-val').textContent = `${fiberVal} / 30g`;
+  document.getElementById('fiber-bar').style.width = pct(fiberVal, 30) + '%';
+  console.log('Fiber display updated:', fiberVal);
   document.getElementById('pro-bar').style.width = pct(t.protein, TARGETS.protein) + '%';
   document.getElementById('carb-bar').style.width = pct(t.carbs, TARGETS.carbs) + '%';
   document.getElementById('fat-bar').style.width = pct(t.fat, TARGETS.fat) + '%';
