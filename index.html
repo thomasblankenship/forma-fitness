@@ -294,23 +294,23 @@
             </div>
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein (g)</div>
-              <input type="number" id="meal-protein" placeholder="0" min="0" step="0.1"  oninput="if(+this.value<0)this.value=0" />
+              <input type="number" id="meal-protein" placeholder="0" min="0"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" />
             </div>
           </div>
           <div class="form-row form-group">
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs (g)</div>
-              <input type="number" id="meal-carbs" placeholder="0" min="0" step="0.1"  oninput="if(+this.value<0)this.value=0" />
+              <input type="number" id="meal-carbs" placeholder="0" min="0"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" />
             </div>
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat (g)</div>
-              <input type="number" id="meal-fat" placeholder="0" min="0" step="0.1"  oninput="if(+this.value<0)this.value=0" />
+              <input type="number" id="meal-fat" placeholder="0" min="0"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" />
             </div>
           </div>
           <div class="form-row form-group">
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber (g)</div>
-              <input type="number" id="meal-fiber" placeholder="0" min="0" step="0.1"  oninput="if(+this.value<0)this.value=0" />
+              <input type="number" id="meal-fiber" placeholder="0" min="0"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" />
             </div>
             <div></div>
           </div>
@@ -424,17 +424,17 @@
               </div>
               <div>
                 <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein (g)</div>
-                <input type="number" id="hist-meal-protein" placeholder="0" min="0"  oninput="if(+this.value<0)this.value=0" />
+                <input type="number" id="hist-meal-protein" placeholder="0" min="0"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" />
               </div>
             </div>
             <div class="form-row form-group">
               <div>
                 <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs (g)</div>
-                <input type="number" id="hist-meal-carbs" placeholder="0" min="0"  oninput="if(+this.value<0)this.value=0" />
+                <input type="number" id="hist-meal-carbs" placeholder="0" min="0"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" />
               </div>
               <div>
                 <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat (g)</div>
-                <input type="number" id="hist-meal-fat" placeholder="0" min="0"  oninput="if(+this.value<0)this.value=0" />
+                <input type="number" id="hist-meal-fat" placeholder="0" min="0"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" />
               </div>
             </div>
             <button class="btn" onclick="addMealToHistoryDay()" style="margin-top:4px">Log Meal</button>
@@ -494,21 +494,21 @@
           <div class="form-row form-group">
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein per unit</div>
-              <input type="number" id="food-protein" placeholder="0" step="0.1" min="0"  oninput="if(+this.value<0)this.value=0" />
+              <input type="number" id="food-protein" placeholder="0" min="0"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" />
             </div>
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs per unit</div>
-              <input type="number" id="food-carbs" placeholder="0" step="0.1" min="0"  oninput="if(+this.value<0)this.value=0" />
+              <input type="number" id="food-carbs" placeholder="0" min="0"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" />
             </div>
           </div>
           <div class="form-row form-group">
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat per unit</div>
-              <input type="number" id="food-fat" placeholder="0" step="0.1" min="0"  oninput="if(+this.value<0)this.value=0" />
+              <input type="number" id="food-fat" placeholder="0" min="0"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" />
             </div>
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber per unit</div>
-              <input type="number" id="food-fiber" placeholder="0" step="0.1" min="0"  oninput="if(+this.value<0)this.value=0" />
+              <input type="number" id="food-fiber" placeholder="0" min="0"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" />
             </div>
           </div>
           <button class="btn" onclick="saveFood()">Save Food</button>
@@ -531,22 +531,22 @@
             </div>
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein (g)</div>
-              <input type="number" id="saved-meal-protein" placeholder="0" min="0" step="0.1"  oninput="if(+this.value<0)this.value=0" />
+              <input type="number" id="saved-meal-protein" placeholder="0" min="0"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" />
             </div>
           </div>
           <div class="form-row form-group">
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs (g)</div>
-              <input type="number" id="saved-meal-carbs" placeholder="0" min="0" step="0.1"  oninput="if(+this.value<0)this.value=0" />
+              <input type="number" id="saved-meal-carbs" placeholder="0" min="0"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" />
             </div>
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat (g)</div>
-              <input type="number" id="saved-meal-fat" placeholder="0" min="0" step="0.1"  oninput="if(+this.value<0)this.value=0" />
+              <input type="number" id="saved-meal-fat" placeholder="0" min="0"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" />
             </div>
           </div>
           <div class="form-group">
             <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber (g)</div>
-            <input type="number" id="saved-meal-fiber" placeholder="0" min="0" step="0.1"  oninput="if(+this.value<0)this.value=0" />
+            <input type="number" id="saved-meal-fiber" placeholder="0" min="0"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" />
           </div>
           <button class="btn" onclick="saveMeal()">Save Meal</button>
         </div>
@@ -588,9 +588,9 @@
         <div style="font-size:12px;color:#ADADAD;margin-bottom:12px">Weight is required. Body fat % is optional — log weight only if you don't have a scan.</div>
         <div class="form-row form-group">
           <input type="number" id="scan-weight" placeholder="Weight (lbs) *" step="0.1" / oninput="this.value=this.value.replace(/[^0-9]/g,'');if(this.value<0)this.value=0">
-          <input type="number" id="scan-bf" placeholder="Body fat % (optional)" step="0.1" />
+          <input type="number" min="0" id="scan-bf" placeholder="Body fat % (optional)"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" />
         </div>
-        <div class="form-group"><input type="number" id="scan-muscle" placeholder="Muscle mass (lbs) — optional" step="0.1" /></div>
+        <div class="form-group"><input type="number" min="0" id="scan-muscle" placeholder="Muscle mass (lbs) — optional"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" /></div>
         <div class="form-group"><input type="date" id="scan-date" /></div>
         <button class="btn" onclick="addScan()">Save</button>
       </div>
@@ -782,22 +782,22 @@
       </div>
       <div>
         <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein (g)</div>
-        <input type="number" id="edit-meal-protein-input" placeholder="0" min="0" step="0.1"  oninput="if(+this.value<0)this.value=0" />
+        <input type="number" id="edit-meal-protein-input" placeholder="0" min="0"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" />
       </div>
     </div>
     <div class="form-row form-group">
       <div>
         <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs (g)</div>
-        <input type="number" id="edit-meal-carbs-input" placeholder="0" min="0" step="0.1"  oninput="if(+this.value<0)this.value=0" />
+        <input type="number" id="edit-meal-carbs-input" placeholder="0" min="0"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" />
       </div>
       <div>
         <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat (g)</div>
-        <input type="number" id="edit-meal-fat-input" placeholder="0" min="0" step="0.1"  oninput="if(+this.value<0)this.value=0" />
+        <input type="number" id="edit-meal-fat-input" placeholder="0" min="0"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" />
       </div>
     </div>
     <div class="form-group">
       <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber (g)</div>
-      <input type="number" id="edit-meal-fiber-input" placeholder="0" min="0" step="0.1"  oninput="if(+this.value<0)this.value=0" />
+      <input type="number" id="edit-meal-fiber-input" placeholder="0" min="0"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" />
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
       <button class="btn" onclick="closeEditMealModal()" style="background:#F4F4F4;color:#0F0F0F">Cancel</button>
@@ -869,9 +869,8 @@
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
       <div>
         <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Amount</div>
-        <input type="number" id="food-modal-qty" placeholder="1" step="0.1" value="1"
-          oninput="updateFoodModalPreview()"
-          style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:16px;font-weight:600;outline:none;box-sizing:border-box" />
+        <input type="number" min="0" id="food-modal-qty" placeholder="1" value="1"
+          style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:16px;font-weight:600;outline:none;box-sizing:border-box"  step="0.1" oninput="this.value=Math.abs(parseFloat(this.value)||0);this.value=Math.round(this.value*10)/10" />
       </div>
       <div>
         <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Unit</div>
@@ -1423,11 +1422,27 @@ function updateMacroBars(t) {
 
 async function addMeal() {
   const name = document.getElementById('meal-name').value.trim();
-  const cals = +document.getElementById('meal-cals').value || 0;
+  const cals = Math.round(+document.getElementById('meal-cals').value || 0);
   if (!name || !cals) { toast('Enter meal name and calories'); return; }
-  const meal = { date: today, name, calories: cals, protein: +document.getElementById('meal-protein').value||0, carbs: +document.getElementById('meal-carbs').value||0, fat: +document.getElementById('meal-fat').value||0, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
+  const mealType = window._selectedMealType || 'breakfast';
+  const meal = {
+    date: logDate,
+    name,
+    meal_type: mealType,
+    calories: cals,
+    protein: Math.round((+document.getElementById('meal-protein').value||0)*10)/10,
+    carbs: Math.round((+document.getElementById('meal-carbs').value||0)*10)/10,
+    fat: Math.round((+document.getElementById('meal-fat').value||0)*10)/10,
+    fiber: Math.round((+document.getElementById('meal-fiber').value||0)*10)/10,
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  };
+  console.log('Logging meal with type:', mealType, meal);
   await dbPost('meals', meal);
-  ['meal-name','meal-cals','meal-protein','meal-carbs','meal-fat','meal-fiber'].forEach(id => document.getElementById(id).value = ''); document.getElementById('meal-form').style.display='none'; document.getElementById('add-meal-btn').style.display='block';
+  ['meal-name','meal-cals','meal-protein','meal-carbs','meal-fat','meal-fiber'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('meal-form').style.display='none';
+  document.getElementById('add-meal-btn').style.display='block';
+  window._selectedMealType = 'breakfast';
+  selectMealType('breakfast', null);
   await loadTodayMeals();
   toast('Meal added ✓');
 }
