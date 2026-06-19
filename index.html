@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Forma Fitness v2</title>
+  <title>Forma Fitness</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
   <style>
@@ -1409,7 +1409,72 @@ async function showHistoryDetail(date) {
       const pct = Math.min((v / tgt[i]) * 100, 100).toFixed(1);
       return `<div class="macro-bar"><div class="macro-bar-header"><span class="macro-label">${label}</span><span class="macro-value">${v} / ${tgt[i]}${i===0?' kcal':'g'}</span></div><div class="macro-track"><div class="macro-fill" style="background:${cols[i]};width:${pct}%"></div></div></div>`;
     }).join('')}`;
-  document.getElementById('detail-meals').innerHTML = `<div class="card-title">Meals</div>` + (meals.length ? meals.map(m => `<div class="meal-row"><div class="meal-info"><div class="meal-name">${m.name}</div><div class="meal-meta">${m.time||''} · P:${m.protein}g C:${m.carbs}g F:${m.fat}g</div></div><div class="meal-cals">${m.calories}</div></div>`).join('') : '<div class="empty">No meals</div>');
+  const detailMealsEl = document.getElementById('detail-meals');
+  const mealSections = [
+    { type: 'breakfast', label: '🌅 Breakfast' },
+    { type: 'lunch', label: '☀️ Lunch' },
+    { type: 'dinner', label: '🌙 Dinner' },
+    { type: 'snack', label: '🍎 Snacks' },
+  ];
+
+  function histMealRow(m, i) {
+    return `<div class="meal-row">
+      <div class="meal-info" style="min-width:0;flex:1">
+        <div class="meal-name" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+          <span>${m.name}</span>
+          <button data-hist-edit="${i}" style="background:none;border:none;cursor:pointer;font-size:11px;color:#ADADAD;padding:0 2px">✏️</button>
+        </div>
+        <div class="meal-meta">${m.time||''} · P:${m.protein}g C:${m.carbs}g F:${m.fat}g</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+        <span style="font-size:14px;font-weight:600;color:#111">${m.calories} kcal</span>
+        <button data-hist-delete="${i}" style="background:none;border:none;color:#CCC;cursor:pointer;font-size:20px;line-height:1">×</button>
+      </div>
+    </div>`;
+  }
+
+  let mealsHtml = '<div class="card-title">Meals</div>';
+  if (!meals.length) {
+    mealsHtml += '<div class="empty">No meals</div>';
+  } else {
+    const ungrouped = meals.map((m,i) => ({m,i})).filter(({m}) => !m.meal_type);
+    if (ungrouped.length) {
+      mealsHtml += `<div style="margin-bottom:12px"><div style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;margin-bottom:4px">Other</div>${ungrouped.map(({m,i}) => histMealRow(m,i)).join('')}</div>`;
+    }
+    mealSections.forEach(({ type, label }) => {
+      const items = meals.map((m,i) => ({m,i})).filter(({m}) => m.meal_type === type);
+      if (!items.length) return;
+      const sectionCals = items.reduce((a,{m}) => a + (+m.calories||0), 0);
+      mealsHtml += `<div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase">${label}</div>
+          <div style="font-size:11px;color:#ADADAD">${sectionCals} kcal</div>
+        </div>
+        ${items.map(({m,i}) => histMealRow(m,i)).join('')}
+      </div>`;
+    });
+  }
+  detailMealsEl.innerHTML = mealsHtml;
+
+  window._historyMeals = meals;
+  window._historyDate = date;
+
+  detailMealsEl.querySelectorAll('[data-hist-edit]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const m = window._historyMeals[+btn.dataset.histEdit];
+      openEditMealModal(m.id, m.name, m.calories, m.protein, m.carbs, m.fat, m.fiber, m.meal_type, 'history');
+    });
+  });
+  detailMealsEl.querySelectorAll('[data-hist-delete]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const m = window._historyMeals[+btn.dataset.histDelete];
+      if (!confirm(`Delete "${m.name}"?`)) return;
+      await dbDelete('meals', m.id);
+      toast('Meal removed');
+      showHistoryDetail(window._historyDate);
+    });
+  });
+
   const wkEl = document.getElementById('detail-workouts');
   wkEl.style.display = 'block';
   wkEl.innerHTML = `<div class="card-title">Workouts</div>` + (workouts.length ? workouts.map(w => `<div class="workout-row"><div><div style="font-size:14px;font-weight:500">${w.name}</div><div style="font-size:11px;color:var(--gray-400);margin-top:2px">${w.duration} min</div></div><div class="workout-cals">−${w.calories} cal</div></div>`).join('') : '<div class="empty">No workouts logged</div>');
