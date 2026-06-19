@@ -870,7 +870,7 @@
       <div>
         <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Amount</div>
         <input type="number" min="0" id="food-modal-qty" placeholder="1" value="1"
-          style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:16px;font-weight:600;outline:none;box-sizing:border-box" / step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
+          style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:16px;font-weight:600;outline:none;box-sizing:border-box" / step="0.1" oninput="updateFoodModalPreview()">
       </div>
       <div>
         <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Unit</div>
@@ -911,6 +911,7 @@
 <script>
 // Global functions defined first so onclick handlers can find them
 window._selectedMealType = 'breakfast';
+window._foodModalType = 'breakfast';
 window._selectedHistMealType = 'breakfast';
 window._editMealType = 'breakfast';
 
@@ -955,6 +956,7 @@ function toggleMealForm() {
   if (!isOpen) {
     // Reset meal type to breakfast when opening
     window._selectedMealType = 'breakfast';
+window._foodModalType = 'breakfast';
     selectMealType('breakfast', null);
   }
 }
@@ -1180,7 +1182,7 @@ async function init() {
 // TODAY
 async function loadTodayMeals() {
   console.log('Loading meals for date:', logDate);
-  currentMeals = await dbGet('meals', `date=eq.${logDate}&select=*`);
+  currentMeals = await dbGet('meals', `date=eq.${logDate}&select=id,date,name,meal_type,calories,protein,carbs,fat,fiber,time`);
   console.log('Meals loaded:', currentMeals.length, currentMeals);
   renderMeals();
 }
@@ -1372,7 +1374,6 @@ function updateMacroBars(t) {
   document.getElementById('pro-bar').style.width = pct(t.protein, TARGETS.protein) + '%';
   document.getElementById('carb-bar').style.width = pct(t.carbs, TARGETS.carbs) + '%';
   document.getElementById('fat-bar').style.width = pct(t.fat, TARGETS.fat) + '%';
-  document.getElementById('fiber-bar').style.width = pct(t.fiber||0, 30) + '%';
 
   // Update ring
   const calPct = Math.min(t.calories / TARGETS.calories, 1);
@@ -1448,6 +1449,7 @@ async function addMeal() {
   document.getElementById('meal-form').style.display='none';
   document.getElementById('add-meal-btn').style.display='block';
   window._selectedMealType = 'breakfast';
+window._foodModalType = 'breakfast';
   selectMealType('breakfast', null);
   await loadTodayMeals();
   toast('Meal added ✓');
@@ -1477,7 +1479,7 @@ async function addWorkout() {
 async function showHistoryDetail(date) {
   document.getElementById('history-list-view').style.display = 'none';
   document.getElementById('history-detail-view').style.display = 'block';
-  const [meals, workouts] = await Promise.all([dbGet('meals', `date=eq.${date}`), dbGet('workouts', `date=eq.${date}`)]);
+  const [meals, workouts] = await Promise.all([dbGet('meals', `date=eq.${date}&select=id,date,name,meal_type,calories,protein,carbs,fat,fiber,time`), dbGet('workouts', `date=eq.${date}`)]);
   const t = calcTotals(meals);
   const score = dayScore(t.calories, t.protein);
   const scoreMap = { great: ['⭐ Great Day','score-great'], good: ['✅ Good Day','score-good'], over: ['❌ Over Limit','score-needs'] };
@@ -2156,6 +2158,13 @@ function openFoodModal(id) {
   const matchingOption = [...unitSelect.options].find(o => o.value === foodUnit);
   unitSelect.value = matchingOption ? foodUnit : 'oz';
   updateFoodModalPreview();
+  window._foodModalType = 'breakfast';
+  document.querySelectorAll('.food-modal-type-btn').forEach(b => {
+    const active = b.dataset.type === 'breakfast';
+    b.style.border = active ? '1px solid #F97316' : '1px solid #E8E8E8';
+    b.style.background = active ? '#FFF7ED' : 'white';
+    b.style.color = active ? '#F97316' : '#666';
+  });
   document.getElementById('food-modal').style.display = 'flex';
 }
 
@@ -2187,6 +2196,16 @@ function closeFoodModal() {
   activeFoodForModal = null;
 }
 
+function selectFoodModalType(type, btn) {
+  window._foodModalType = type;
+  document.querySelectorAll('.food-modal-type-btn').forEach(b => {
+    const active = b.dataset.type === type;
+    b.style.border = active ? '1px solid #F97316' : '1px solid #E8E8E8';
+    b.style.background = active ? '#FFF7ED' : 'white';
+    b.style.color = active ? '#F97316' : '#666';
+  });
+}
+
 async function logFoodFromModal() {
   if (!activeFoodForModal) return;
   const qty = +document.getElementById('food-modal-qty').value || 1;
@@ -2196,6 +2215,7 @@ async function logFoodFromModal() {
   const meal = {
     date: logDate,
     name: `${activeFoodForModal.name} (${qty} ${selectedUnit})`,
+    meal_type: window._foodModalType || 'breakfast',
     calories: Math.round(activeFoodForModal.calories_per_unit * multiplier),
     protein: Math.round(activeFoodForModal.protein_per_unit * multiplier * 10) / 10,
     carbs: Math.round(activeFoodForModal.carbs_per_unit * multiplier * 10) / 10,
