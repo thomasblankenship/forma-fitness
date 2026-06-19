@@ -332,7 +332,10 @@
               <input type="number" id="workout-cals" placeholder="0" min="0" />
             </div>
           </div>
-          <button class="btn" onclick="addWorkout()">Log Workout</button>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+            <button class="btn" onclick="toggleWorkoutForm()" style="background:#FEF2F2;color:#DC2626">Cancel</button>
+            <button class="btn" onclick="addWorkout()">Log Workout</button>
+          </div>
         </div>
       </div>
     </div>
@@ -384,11 +387,14 @@
         <div class="card" id="detail-workouts" style="display:none"></div>
         <!-- Add meal to past day -->
         <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0">
-            <div class="card-title" style="margin-bottom:0">Add to this day</div>
-            <button onclick="toggleHistoryAddForm()" id="hist-add-btn" style="background:linear-gradient(135deg,#F97316,#FB7185);color:white;border:none;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer">+ Add Meal</button>
+          <div class="card-title">Add to this day</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+            <button onclick="toggleHistoryAddForm('meal')" id="hist-add-meal-btn" class="btn">+ Add Meal</button>
+            <button onclick="toggleHistoryAddForm('workout')" id="hist-add-workout-btn" class="btn">+ Add Workout</button>
           </div>
-          <div id="hist-add-form" style="display:none;margin-top:12px">
+
+          <!-- Meal form -->
+          <div id="hist-add-meal-form" style="display:none;background:#FAFAFA;border-radius:10px;padding:12px;margin-bottom:8px">
             <div class="form-group"><input type="text" id="hist-meal-name" placeholder="Meal name" /></div>
             <div class="form-row form-group">
               <input type="number" id="hist-meal-cals" placeholder="Calories" min="0" />
@@ -398,7 +404,23 @@
               <input type="number" id="hist-meal-carbs" placeholder="Carbs (g)" min="0" />
               <input type="number" id="hist-meal-fat" placeholder="Fat (g)" min="0" />
             </div>
-            <button class="btn" onclick="addMealToHistoryDay()">Log Meal</button>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <button class="btn" onclick="toggleHistoryAddForm('meal')" style="background:#FEF2F2;color:#DC2626">Cancel</button>
+              <button class="btn" onclick="addMealToHistoryDay()">Log Meal</button>
+            </div>
+          </div>
+
+          <!-- Workout form -->
+          <div id="hist-add-workout-form" style="display:none;background:#FAFAFA;border-radius:10px;padding:12px">
+            <div class="form-group"><input type="text" id="hist-workout-name" placeholder="Workout name" /></div>
+            <div class="form-row form-group">
+              <input type="number" id="hist-workout-duration" placeholder="Duration (min)" min="0" />
+              <input type="number" id="hist-workout-cals" placeholder="Active cals burned" min="0" />
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <button class="btn" onclick="toggleHistoryAddForm('workout')" style="background:#FEF2F2;color:#DC2626">Cancel</button>
+              <button class="btn" onclick="addWorkoutToHistoryDay()">Log Workout</button>
+            </div>
           </div>
         </div>
       </div>
@@ -739,30 +761,25 @@
 // Global functions defined first so onclick handlers can find them
 function toggleMealForm() {
   const form = document.getElementById('meal-form');
-  const btn = document.getElementById('add-meal-btn');
   const isOpen = form.style.display !== 'none';
   form.style.display = isOpen ? 'none' : 'block';
-  btn.textContent = isOpen ? '+ Add Meal' : '− Cancel';
-  btn.style.background = isOpen ? 'linear-gradient(135deg,#F97316,#FB7185)' : '#FEF2F2';
-  btn.style.color = isOpen ? 'white' : '#DC2626';
 }
 
 function toggleWorkoutForm() {
   const form = document.getElementById('workout-form');
-  const btn = document.getElementById('add-workout-btn');
   const isOpen = form.style.display !== 'none';
   form.style.display = isOpen ? 'none' : 'block';
-  btn.textContent = isOpen ? '+ Add Workout' : '− Cancel';
-  btn.style.background = isOpen ? 'linear-gradient(135deg,#F97316,#FB7185)' : '#FEF2F2';
-  btn.style.color = isOpen ? 'white' : '#DC2626';
 }
 
-function toggleHistoryAddForm() {
-  const form = document.getElementById('hist-add-form');
-  const btn = document.getElementById('hist-add-btn');
+function toggleHistoryAddForm(type) {
+  const formId = type === 'meal' ? 'hist-add-meal-form' : 'hist-add-workout-form';
+  const form = document.getElementById(formId);
   const isOpen = form.style.display !== 'none';
-  form.style.display = isOpen ? 'none' : 'block';
-  btn.textContent = isOpen ? '+ Add Meal' : '− Cancel';
+  // Close both first
+  document.getElementById('hist-add-meal-form').style.display = 'none';
+  document.getElementById('hist-add-workout-form').style.display = 'none';
+  // Open requested one if it was closed
+  if (!isOpen) form.style.display = 'block';
 }
 
 function changeLogDate(dir) {
@@ -1126,7 +1143,7 @@ async function addMeal() {
   if (!name || !cals) { toast('Enter meal name and calories'); return; }
   const meal = { date: today, name, calories: cals, protein: +document.getElementById('meal-protein').value||0, carbs: +document.getElementById('meal-carbs').value||0, fat: +document.getElementById('meal-fat').value||0, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
   await dbPost('meals', meal);
-  ['meal-name','meal-cals','meal-protein','meal-carbs','meal-fat','meal-fiber'].forEach(id => document.getElementById(id).value = ''); document.getElementById('meal-form').style.display='none'; document.getElementById('add-meal-btn').textContent='+ Add Meal'; document.getElementById('add-meal-btn').style.background='linear-gradient(135deg,#F97316,#FB7185)'; document.getElementById('add-meal-btn').style.color='white';
+  ['meal-name','meal-cals','meal-protein','meal-carbs','meal-fat','meal-fiber'].forEach(id => document.getElementById(id).value = ''); document.getElementById('meal-form').style.display='none';
   await loadTodayMeals();
   toast('Meal added ✓');
 }
@@ -1159,7 +1176,7 @@ async function addWorkout() {
   if (!name) { toast('Enter workout name'); return; }
   const w = { date: logDate, name, duration: +document.getElementById('workout-duration').value||0, calories: +document.getElementById('workout-cals').value||0, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
   await dbPost('workouts', w);
-  ['workout-name','workout-duration','workout-cals'].forEach(id => document.getElementById(id).value = ''); document.getElementById('workout-form').style.display='none'; document.getElementById('add-workout-btn').textContent='+ Add Workout'; document.getElementById('add-workout-btn').style.background='linear-gradient(135deg,#F97316,#FB7185)'; document.getElementById('add-workout-btn').style.color='white';
+  ['workout-name','workout-duration','workout-cals'].forEach(id => document.getElementById(id).value = ''); document.getElementById('workout-form').style.display='none';
   await loadTodayWorkouts();
   toast('Workout added ✓');
 }
@@ -1201,12 +1218,31 @@ function showHistoryList() {
   document.getElementById('history-detail-view').style.display = 'none';
 }
 
-function toggleHistoryAddForm() {
-  const form = document.getElementById('hist-add-form');
-  const btn = document.getElementById('hist-add-btn');
+function toggleHistoryAddForm(type) {
+  const formId = type === 'meal' ? 'hist-add-meal-form' : 'hist-add-workout-form';
+  const form = document.getElementById(formId);
   const isOpen = form.style.display !== 'none';
-  form.style.display = isOpen ? 'none' : 'block';
-  btn.textContent = isOpen ? '+ Add Meal' : '− Cancel';
+  // Close both first
+  document.getElementById('hist-add-meal-form').style.display = 'none';
+  document.getElementById('hist-add-workout-form').style.display = 'none';
+  // Open requested one if it was closed
+  if (!isOpen) form.style.display = 'block';
+}
+
+async function addWorkoutToHistoryDay() {
+  const name = document.getElementById('hist-workout-name').value.trim();
+  if (!name) { toast('Enter workout name'); return; }
+  await dbPost('workouts', {
+    date: window._historyDate,
+    name,
+    duration: +document.getElementById('hist-workout-duration').value || 0,
+    calories: +document.getElementById('hist-workout-cals').value || 0,
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  });
+  ['hist-workout-name','hist-workout-duration','hist-workout-cals'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('hist-add-workout-form').style.display = 'none';
+  toast('Workout added ✓');
+  showHistoryDetail(window._historyDate);
 }
 
 async function addMealToHistoryDay() {
@@ -1223,8 +1259,7 @@ async function addMealToHistoryDay() {
     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   });
   ['hist-meal-name','hist-meal-cals','hist-meal-protein','hist-meal-carbs','hist-meal-fat'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('hist-add-form').style.display = 'none';
-  document.getElementById('hist-add-btn').textContent = '+ Add Meal';
+  document.getElementById('hist-add-meal-form').style.display = 'none';
   toast('Meal added ✓');
   showHistoryDetail(window._historyDate);
   loadDayTotals();
