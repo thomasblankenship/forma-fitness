@@ -525,6 +525,44 @@
           <button class="btn" onclick="saveBfGoal()">Save Goal</button>
         </div>
       </div>
+
+      <!-- HEIGHT & PROFILE -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div class="card-title" style="margin-bottom:0">Profile</div>
+          <button onclick="toggleEditProfile()" id="edit-profile-btn" style="background:var(--accent);color:white;border:none;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer">Edit</button>
+        </div>
+        <div id="profile-display" class="stat-grid">
+          <div class="stat-item"><div class="stat-val" id="disp-height">5'9"</div><div class="stat-label">Height</div></div>
+          <div class="stat-item"><div class="stat-val" id="disp-age">43</div><div class="stat-label">Age</div></div>
+          <div class="stat-item"><div class="stat-val" id="disp-gender">Male</div><div class="stat-label">Gender</div></div>
+          <div class="stat-item"><div class="stat-val" id="disp-activity">Very Active</div><div class="stat-label">Activity Level</div></div>
+        </div>
+        <div id="profile-edit-form" style="display:none;margin-top:4px">
+          <div class="form-row form-group">
+            <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Height (inches)</div><input type="number" id="edit-height" placeholder="69" min="48" max="96" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
+            <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Age</div><input type="number" id="edit-age" placeholder="43" min="16" max="100" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
+          </div>
+          <div class="form-group">
+            <div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Gender</div>
+            <select id="edit-gender" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none">
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Activity Level</div>
+            <select id="edit-activity" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none">
+              <option value="sedentary">Sedentary (desk job, little exercise)</option>
+              <option value="light">Lightly Active (1-2x/week)</option>
+              <option value="moderate">Moderately Active (3-4x/week)</option>
+              <option value="active">Very Active (5+x/week)</option>
+              <option value="athlete">Athlete (2x/day training)</option>
+            </select>
+          </div>
+          <button class="btn" onclick="saveProfile()">Save Profile</button>
+        </div>
+      </div>
     </div>
 
     <!-- PHOTOS -->
@@ -657,6 +695,31 @@ const TARGETS = { calories: 2250, protein: 160, carbs: 150, fat: 65 };
 
 const todayLocal = new Date();
 const today = `${todayLocal.getFullYear()}-${String(todayLocal.getMonth()+1).padStart(2,'0')}-${String(todayLocal.getDate()).padStart(2,'0')}`;
+let logDate = today; // currently viewed/editing date
+
+function changeLogDate(dir) {
+  const d = new Date(logDate + 'T12:00:00');
+  d.setDate(d.getDate() + dir);
+  const newDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  if (newDate > today) return; // can't go to future
+  logDate = newDate;
+  updateLogDateDisplay();
+  loadTodayMeals();
+  loadTodayWorkouts();
+}
+
+function updateLogDateDisplay() {
+  const d = new Date(logDate + 'T12:00:00');
+  const isToday = logDate === today;
+  const yesterday = new Date(todayLocal);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth()+1).padStart(2,'0')}-${String(yesterday.getDate()).padStart(2,'0')}`;
+  const isYesterday = logDate === yStr;
+  document.getElementById('log-date-label').textContent = isToday ? 'Today' : isYesterday ? 'Yesterday' : d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+  document.getElementById('log-date-sublabel').textContent = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const nextBtn = document.getElementById('log-date-next');
+  if (nextBtn) nextBtn.style.opacity = logDate === today ? '0.2' : '1';
+}
 let currentMeals = [];
 let currentWorkouts = [];
 let allScans = [];
@@ -746,6 +809,7 @@ function dayScore(cals, protein) {
 // INIT
 async function init() {
   loadGoals();
+  updateLogDateDisplay();
   document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
   document.getElementById('scan-date').value = today;
   document.getElementById('photo-date').value = today;
@@ -937,7 +1001,7 @@ async function confirmDeleteMeal(index) {
 async function addWorkout() {
   const name = document.getElementById('workout-name').value.trim();
   if (!name) { toast('Enter workout name'); return; }
-  const w = { date: today, name, duration: +document.getElementById('workout-duration').value||0, calories: +document.getElementById('workout-cals').value||0, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
+  const w = { date: logDate, name, duration: +document.getElementById('workout-duration').value||0, calories: +document.getElementById('workout-cals').value||0, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
   await dbPost('workouts', w);
   ['workout-name','workout-duration','workout-cals'].forEach(id => document.getElementById(id).value = '');
   await loadTodayWorkouts();
@@ -991,16 +1055,37 @@ async function loadScans() {
 function renderScans() {
   const el = document.getElementById('scan-list');
   if (!allScans.length) { el.innerHTML = '<div class="empty">No scans yet</div>'; return; }
-  el.innerHTML = [...allScans].reverse().map(s => `
-    <div class="meal-row">
-      <div class="meal-info">
-        <div class="meal-name">${new Date(s.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
-        <div class="meal-meta">${s.weight} lbs${s.muscle_mass ? ` · ${s.muscle_mass} lbs muscle` : ''}</div>
+  el.innerHTML = [...allScans].reverse().map(s => {
+    const heightIn = userProfile.heightIn || 69;
+    const bmi = (s.weight / (heightIn * heightIn) * 703).toFixed(1);
+    const bmiLabel = bmi < 18.5 ? 'Underweight' : bmi < 25 ? 'Normal' : bmi < 30 ? 'Overweight' : 'Obese';
+    const bmiColor = bmi < 25 ? 'var(--green)' : bmi < 30 ? 'var(--amber)' : 'var(--red)';
+    const bfColor = s.body_fat ? (s.body_fat <= 13 ? 'var(--green)' : s.body_fat <= 16 ? 'var(--amber)' : 'var(--red)') : '#ADADAD';
+    return `
+    <div style="padding:12px 0;border-bottom:1px solid #F5F5F5">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div>
+          <div style="font-size:14px;font-weight:600;color:#0F0F0F">${new Date(s.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+          <div style="font-size:11px;color:#ADADAD;margin-top:2px">${s.weight} lbs${s.muscle_mass ? ` · ${s.muscle_mass} lbs muscle` : ''}</div>
+        </div>
+        <div style="text-align:right">
+          ${s.body_fat ? `<div style="font-size:18px;font-weight:700;color:${bfColor}">${s.body_fat}% <span style="font-size:11px;font-weight:500">body fat</span></div>` : '<div style="font-size:14px;color:#ADADAD">No body fat logged</div>'}
+        </div>
       </div>
-      <div style="font-size:18px;font-weight:700;color:${s.body_fat ? (s.body_fat<=13?'var(--green)':s.body_fat<=16?'var(--amber)':'var(--red)') : '#ADADAD'}">
-        ${s.body_fat ? s.body_fat + '%' : '—'}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:#F7F7F7;border-radius:8px;padding:8px 10px">
+          <div style="font-size:10px;color:#ADADAD;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">BMI</div>
+          <div style="font-size:16px;font-weight:700;color:${bmiColor}">${bmi}</div>
+          <div style="font-size:10px;color:${bmiColor};font-weight:500">${bmiLabel}</div>
+        </div>
+        ${s.muscle_mass ? `<div style="background:#F7F7F7;border-radius:8px;padding:8px 10px">
+          <div style="font-size:10px;color:#ADADAD;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Muscle Mass</div>
+          <div style="font-size:16px;font-weight:700;color:#F97316">${s.muscle_mass} lbs</div>
+          <div style="font-size:10px;color:#ADADAD;font-weight:500">Skeletal muscle</div>
+        </div>` : ''}
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 let activeChart = 'bf';
@@ -1761,17 +1846,55 @@ let userGoals = {
   bfStart: 16.1, bfGoal: 13, weight: 180.6, muscle: 88.4
 };
 
+let userProfile = { heightIn: 69, age: 43, gender: 'male', activity: 'active' };
+
 function loadGoals() {
   const savedTargets = localStorage.getItem('ff_targets');
   const savedGoals = localStorage.getItem('ff_goals');
+  const savedProfile = localStorage.getItem('ff_profile');
   if (savedTargets) userTargets = JSON.parse(savedTargets);
   if (savedGoals) userGoals = JSON.parse(savedGoals);
-  // Update TARGETS constant used throughout app
+  if (savedProfile) userProfile = JSON.parse(savedProfile);
   TARGETS.calories = userTargets.calories;
   TARGETS.protein = userTargets.protein;
   TARGETS.carbs = userTargets.carbs;
   TARGETS.fat = userTargets.fat;
   updateGoalsDisplay();
+}
+
+function toggleEditProfile() {
+  const form = document.getElementById('profile-edit-form');
+  const display = document.getElementById('profile-display');
+  const btn = document.getElementById('edit-profile-btn');
+  const isEditing = form.style.display !== 'none';
+  form.style.display = isEditing ? 'none' : 'block';
+  display.style.display = isEditing ? 'grid' : 'none';
+  btn.textContent = isEditing ? 'Edit' : 'Cancel';
+  if (!isEditing) {
+    document.getElementById('edit-height').value = userProfile.heightIn;
+    document.getElementById('edit-age').value = userProfile.age;
+    document.getElementById('edit-gender').value = userProfile.gender;
+    document.getElementById('edit-activity').value = userProfile.activity;
+  }
+}
+
+function saveProfile() {
+  const heightIn = +document.getElementById('edit-height').value;
+  const age = +document.getElementById('edit-age').value;
+  const gender = document.getElementById('edit-gender').value;
+  const activity = document.getElementById('edit-activity').value;
+  if (!heightIn || !age) { toast('Fill in height and age'); return; }
+  const ft = Math.floor(heightIn / 12);
+  const inches = heightIn % 12;
+  userProfile = { heightIn, age, gender, activity };
+  localStorage.setItem('ff_profile', JSON.stringify(userProfile));
+  document.getElementById('disp-height').textContent = `${ft}'${inches}"`;
+  document.getElementById('disp-age').textContent = age;
+  document.getElementById('disp-gender').textContent = gender === 'male' ? 'Male' : 'Female';
+  const activityLabels = { sedentary: 'Sedentary', light: 'Lightly Active', moderate: 'Moderately Active', active: 'Very Active', athlete: 'Athlete' };
+  document.getElementById('disp-activity').textContent = activityLabels[activity];
+  toggleEditProfile();
+  toast('Profile saved ✓');
 }
 
 function updateGoalsDisplay() {
