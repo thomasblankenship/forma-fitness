@@ -539,10 +539,20 @@
           <div class="stat-item"><div class="stat-val" id="disp-activity">Very Active</div><div class="stat-label">Activity Level</div></div>
         </div>
         <div id="profile-edit-form" style="display:none;margin-top:4px">
-          <div class="form-row form-group">
-            <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Height (inches)</div><input type="number" id="edit-height" placeholder="69" min="48" max="96" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
-            <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Age</div><input type="number" id="edit-age" placeholder="43" min="16" max="100" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
+          <div class="form-group">
+            <div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Height</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div style="position:relative">
+                <input type="number" id="edit-height-ft" placeholder="5" min="4" max="7" style="width:100%;padding:10px 36px 10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box" />
+                <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:13px;color:#888;pointer-events:none">ft</span>
+              </div>
+              <div style="position:relative">
+                <input type="number" id="edit-height-in" placeholder="9" min="0" max="11" style="width:100%;padding:10px 36px 10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box" />
+                <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:13px;color:#888;pointer-events:none">in</span>
+              </div>
+            </div>
           </div>
+          <div class="form-group"><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Age</div><input type="number" id="edit-age" placeholder="43" min="16" max="100" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
           <div class="form-group">
             <div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Gender</div>
             <select id="edit-gender" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none">
@@ -1871,7 +1881,10 @@ function toggleEditProfile() {
   display.style.display = isEditing ? 'grid' : 'none';
   btn.textContent = isEditing ? 'Edit' : 'Cancel';
   if (!isEditing) {
-    document.getElementById('edit-height').value = userProfile.heightIn;
+    const ft = Math.floor(userProfile.heightIn / 12);
+    const inches = userProfile.heightIn % 12;
+    document.getElementById('edit-height-ft').value = ft;
+    document.getElementById('edit-height-in').value = inches;
     document.getElementById('edit-age').value = userProfile.age;
     document.getElementById('edit-gender').value = userProfile.gender;
     document.getElementById('edit-activity').value = userProfile.activity;
@@ -1879,7 +1892,9 @@ function toggleEditProfile() {
 }
 
 function saveProfile() {
-  const heightIn = +document.getElementById('edit-height').value;
+  const ft = +document.getElementById('edit-height-ft').value || 5;
+  const inches = +document.getElementById('edit-height-in').value || 0;
+  const heightIn = (ft * 12) + inches;
   const age = +document.getElementById('edit-age').value;
   const gender = document.getElementById('edit-gender').value;
   const activity = document.getElementById('edit-activity').value;
