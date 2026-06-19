@@ -284,13 +284,20 @@
       <div class="card">
         <div class="card-title">Workouts</div>
         <div id="workouts-list"><div class="empty">No workouts logged yet</div></div>
+
+        <!-- Recent workouts quick-relog -->
+        <div id="recent-workouts-section" style="display:none;margin-top:14px">
+          <div style="font-size:11px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px">Recent — tap to re-log</div>
+          <div id="recent-workouts-list" style="display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+
         <div style="margin-top:16px">
           <div class="form-group"><input type="text" id="workout-name" placeholder="Workout (e.g. Leg Day + Cardio)" /></div>
           <div class="form-row form-group">
             <input type="number" id="workout-duration" placeholder="Duration (min)" />
             <input type="number" id="workout-cals" placeholder="Cals burned" />
           </div>
-          <button class="btn" onclick="addWorkout()">Add Workout</button>
+          <button class="btn" onclick="addWorkout()">Log Workout</button>
         </div>
       </div>
     </div>
@@ -450,6 +457,10 @@
         </div>
         <div id="targets-edit-form" style="display:none;margin-top:4px">
           <div style="font-size:12px;color:#ADADAD;margin-bottom:12px">Update your daily targets — the app will recalculate everything automatically.</div>
+        <div style="background:#FFF7ED;border-radius:10px;padding:12px;margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;color:#F97316;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">💡 How calories work</div>
+          <div style="font-size:12px;color:#666;line-height:1.5">Your daily target already accounts for your activity level — eat this amount every day regardless of workouts. On very high burn days (600+ active cal), the app will suggest eating a little more to protect muscle. Never eat back all your workout calories.</div>
+        </div>
           <div class="form-row form-group">
             <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Calories</div><input type="number" id="edit-calories" placeholder="2250" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
             <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Protein (g)</div><input type="number" id="edit-protein" placeholder="160" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
@@ -703,8 +714,8 @@ function dayScore(cals, protein) {
   if (cals === 0) return null;
   const calPct = cals / TARGETS.calories;
   const proOk = protein >= TARGETS.protein * 0.9;
-  const calOver = calPct > 1.1;
-  const calInRange = calPct >= 0.85 && calPct <= 1.1;
+  const calOver = calPct > 1.0; // over limit the moment you exceed target
+  const calInRange = calPct >= 0.85 && calPct <= 1.0;
   if (calOver) return 'over';
   if (calInRange && proOk) return 'great';
   if (calInRange || proOk) return 'good';
@@ -760,6 +771,47 @@ function renderWorkouts() {
       </div>
       <div class="workout-cals">−${w.calories} cal</div>
     </div>`).join('');
+  loadRecentWorkouts();
+}
+
+async function loadRecentWorkouts() {
+  // Get last 7 days of workouts excluding today
+  const recentRaw = await dbGet('workouts', `date=neq.${today}&order=created_at.desc&limit=20`);
+  // Deduplicate by name, keep most recent
+  const seen = new Set();
+  const unique = recentRaw.filter(w => {
+    if (seen.has(w.name)) return false;
+    seen.add(w.name);
+    return true;
+  }).slice(0, 4);
+
+  const section = document.getElementById('recent-workouts-section');
+  const el = document.getElementById('recent-workouts-list');
+
+  if (!unique.length) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+
+  el.innerHTML = unique.map(w => `
+    <div style="display:flex;justify-content:space-between;align-items:center;background:#FAFAFA;border-radius:10px;padding:10px 12px;cursor:pointer" onclick="relogWorkout('${w.name.replace(/'/g,"\'")}', ${w.duration}, ${w.calories})">
+      <div>
+        <div style="font-size:13px;font-weight:500;color:#0F0F0F">${w.name}</div>
+        <div style="font-size:11px;color:#ADADAD;margin-top:2px">${w.duration} min · ${w.calories} cal</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#F97316,#FB7185);color:white;border:none;border-radius:14px;padding:4px 12px;font-size:12px;font-weight:600">+ Log</div>
+    </div>`).join('');
+}
+
+async function relogWorkout(name, duration, calories) {
+  const w = {
+    date: today, name, duration, calories,
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  };
+  await dbPost('workouts', w);
+  await loadTodayWorkouts();
+  // Update burned calories in ring
+  const burned = [...currentWorkouts].reduce((a, w) => a + (+w.calories||0), 0);
+  document.getElementById('workout-burned').textContent = burned + ' cal';
+  toast(`${name} logged ✓`);
 }
 
 function calcTotals(meals) {
@@ -785,6 +837,29 @@ function updateMacroBars(t) {
   // Burned from workouts
   const burned = currentWorkouts.reduce((a, w) => a + (+w.calories||0), 0);
   document.getElementById('workout-burned').textContent = burned + ' cal';
+
+  // Smart calorie adjustment banner
+  let adjustBanner = document.getElementById('cal-adjust-banner');
+  if (!adjustBanner) {
+    adjustBanner = document.createElement('div');
+    adjustBanner.id = 'cal-adjust-banner';
+    adjustBanner.style.cssText = 'margin-top:10px;border-radius:10px;padding:10px 14px;font-size:12px;display:none';
+    document.querySelector('#tab-today .card').appendChild(adjustBanner);
+  }
+  let adjustment = 0;
+  let adjustMsg = '';
+  if (burned >= 800) { adjustment = 450; adjustMsg = `🔥 Huge burn day! Consider eating +${adjustment} extra cals to protect muscle.`; }
+  else if (burned >= 600) { adjustment = 300; adjustMsg = `💪 High burn day! Consider eating +${adjustment} extra cals to protect muscle.`; }
+  else if (burned >= 400) { adjustment = 200; adjustMsg = `⚡ Active day! Consider eating +${adjustment} extra cals today.`; }
+
+  if (adjustment > 0) {
+    adjustBanner.style.display = 'block';
+    adjustBanner.style.background = '#FFF7ED';
+    adjustBanner.style.color = '#EA580C';
+    adjustBanner.innerHTML = `${adjustMsg} <strong>Suggested: ${(TARGETS.calories + adjustment).toLocaleString()} kcal today.</strong>`;
+  } else {
+    adjustBanner.style.display = 'none';
+  }
 
   const calRem = TARGETS.calories - t.calories;
   document.getElementById('cal-remaining').textContent = calRem >= 0 ? calRem + ' cal' : 'Over by ' + Math.abs(calRem);
