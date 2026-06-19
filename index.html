@@ -2034,20 +2034,22 @@ async function saveMeal() {
 }
 
 // Save food from Today's form
-function saveFoodFromForm() {
+async function saveFoodFromForm() {
   const name = document.getElementById('meal-name').value.trim();
   const cals = +document.getElementById('meal-cals').value;
   if (!name || !cals) { toast('Fill in meal details first'); return; }
-  switchTab('meals');
-  setTimeout(() => {
-    document.getElementById('add-saved-meal-form').style.display = 'block';
-    document.getElementById('saved-meal-name').value = name;
-    document.getElementById('saved-meal-cals').value = cals;
-    document.getElementById('saved-meal-protein').value = document.getElementById('meal-protein').value;
-    document.getElementById('saved-meal-carbs').value = document.getElementById('meal-carbs').value;
-    document.getElementById('saved-meal-fat').value = document.getElementById('meal-fat').value;
-    toast('Review and save in Meals tab');
-  }, 100);
+  // Save directly to saved_meals in background — no navigation
+  await dbPost('saved_meals', {
+    name,
+    calories: cals,
+    protein: +document.getElementById('meal-protein').value || 0,
+    carbs: +document.getElementById('meal-carbs').value || 0,
+    fat: +document.getElementById('meal-fat').value || 0,
+  });
+  // Refresh saved meals in background silently
+  savedMeals = await dbGet('saved_meals', 'order=name.asc');
+  toast(`"${name}" saved to your Meals library ✓`);
+  // Stay on current screen — do nothing else
 }
 
 // Food modal
