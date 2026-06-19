@@ -384,45 +384,61 @@
         <button class="back-btn" onclick="showHistoryList()">← Back</button>
         <div class="card" id="detail-macros"></div>
         <div class="card" id="detail-meals"></div>
-        <div class="card" id="detail-workouts" style="display:none"></div>
-        <!-- Add meal to past day -->
-        <div class="card">
-          <div class="card-title">Add to this day</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-            <button onclick="toggleHistoryAddForm('meal')" id="hist-add-meal-btn" class="btn">+ Add Meal</button>
-            <button onclick="toggleHistoryAddForm('workout')" id="hist-add-workout-btn" class="btn">+ Add Workout</button>
-          </div>
-
-          <!-- Meal form -->
-          <div id="hist-add-meal-form" style="display:none;background:#FAFAFA;border-radius:10px;padding:12px;margin-bottom:8px">
+        <!-- Add meal form inline under meals -->
+        <div class="card" style="padding-top:12px">
+          <button onclick="toggleHistoryAddForm('meal')" id="hist-add-meal-btn" class="btn">+ Add Meal</button>
+          <div id="hist-add-meal-form" style="display:none;margin-top:12px;background:#FAFAFA;border-radius:10px;padding:14px">
             <div class="form-group"><input type="text" id="hist-meal-name" placeholder="Meal name" /></div>
             <div class="form-row form-group">
-              <input type="number" id="hist-meal-cals" placeholder="Calories" min="0" />
-              <input type="number" id="hist-meal-protein" placeholder="Protein (g)" min="0" />
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Calories</div>
+                <input type="number" id="hist-meal-cals" placeholder="0" min="0" />
+              </div>
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein (g)</div>
+                <input type="number" id="hist-meal-protein" placeholder="0" min="0" />
+              </div>
             </div>
             <div class="form-row form-group">
-              <input type="number" id="hist-meal-carbs" placeholder="Carbs (g)" min="0" />
-              <input type="number" id="hist-meal-fat" placeholder="Fat (g)" min="0" />
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs (g)</div>
+                <input type="number" id="hist-meal-carbs" placeholder="0" min="0" />
+              </div>
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat (g)</div>
+                <input type="number" id="hist-meal-fat" placeholder="0" min="0" />
+              </div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
               <button class="btn" onclick="toggleHistoryAddForm('meal')" style="background:#FEF2F2;color:#DC2626">Cancel</button>
               <button class="btn" onclick="addMealToHistoryDay()">Log Meal</button>
             </div>
           </div>
-
-          <!-- Workout form -->
-          <div id="hist-add-workout-form" style="display:none;background:#FAFAFA;border-radius:10px;padding:12px">
+        </div>
+        <div class="card" id="detail-workouts" style="display:none"></div>
+        <!-- Add workout form inline under workouts -->
+        <div class="card" style="padding-top:12px">
+          <button onclick="toggleHistoryAddForm('workout')" id="hist-add-workout-btn" class="btn">+ Add Workout</button>
+          <div id="hist-add-workout-form" style="display:none;margin-top:12px;background:#FAFAFA;border-radius:10px;padding:14px">
             <div class="form-group"><input type="text" id="hist-workout-name" placeholder="Workout name" /></div>
             <div class="form-row form-group">
-              <input type="number" id="hist-workout-duration" placeholder="Duration (min)" min="0" />
-              <input type="number" id="hist-workout-cals" placeholder="Active cals burned" min="0" />
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Duration (min)</div>
+                <input type="number" id="hist-workout-duration" placeholder="0" min="0" />
+              </div>
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Active Cals Burned</div>
+                <input type="number" id="hist-workout-cals" placeholder="0" min="0" />
+              </div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
               <button class="btn" onclick="toggleHistoryAddForm('workout')" style="background:#FEF2F2;color:#DC2626">Cancel</button>
               <button class="btn" onclick="addWorkoutToHistoryDay()">Log Workout</button>
             </div>
           </div>
         </div>
+        <!-- Add meal to past day -->
+
       </div>
     </div>
 
@@ -1207,10 +1223,8 @@ async function showHistoryDetail(date) {
     }).join('')}`;
   document.getElementById('detail-meals').innerHTML = `<div class="card-title">Meals</div>` + (meals.length ? meals.map(m => `<div class="meal-row"><div class="meal-info"><div class="meal-name">${m.name}</div><div class="meal-meta">${m.time||''} · P:${m.protein}g C:${m.carbs}g F:${m.fat}g</div></div><div class="meal-cals">${m.calories}</div></div>`).join('') : '<div class="empty">No meals</div>');
   const wkEl = document.getElementById('detail-workouts');
-  if (workouts.length) {
-    wkEl.style.display = 'block';
-    wkEl.innerHTML = `<div class="card-title">Workouts</div>` + workouts.map(w => `<div class="workout-row"><div><div style="font-size:14px;font-weight:500">${w.name}</div><div style="font-size:11px;color:var(--gray-400);margin-top:2px">${w.duration} min</div></div><div class="workout-cals">−${w.calories} cal</div></div>`).join('');
-  } else wkEl.style.display = 'none';
+  wkEl.style.display = 'block';
+  wkEl.innerHTML = `<div class="card-title">Workouts</div>` + (workouts.length ? workouts.map(w => `<div class="workout-row"><div><div style="font-size:14px;font-weight:500">${w.name}</div><div style="font-size:11px;color:var(--gray-400);margin-top:2px">${w.duration} min</div></div><div class="workout-cals">−${w.calories} cal</div></div>`).join('') : '<div class="empty">No workouts logged</div>');
 }
 
 function showHistoryList() {
