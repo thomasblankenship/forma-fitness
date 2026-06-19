@@ -16,17 +16,20 @@
       --gray-400: #ADADAD;
       --gray-600: #666666;
       --gray-800: #333333;
-      --accent: #2563EB;
-      --accent-light: #EFF6FF;
+      --accent: #F97316;
+      --accent-dark: #EA580C;
+      --accent-light: #FFF7ED;
+      --coral: #FB7185;
+      --coral-light: #FFF1F2;
       --green: #16A34A;
       --green-light: #F0FDF4;
       --amber: #D97706;
       --amber-light: #FFFBEB;
       --red: #DC2626;
       --red-light: #FEF2F2;
-      --protein: #2563EB;
-      --carbs: #D97706;
-      --fat: #DC2626;
+      --protein: #F97316;
+      --carbs: #FB7185;
+      --fat: #FBBF24;
     }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; background: var(--gray-50); color: var(--black); min-height: 100vh; }
 
@@ -49,7 +52,7 @@
     /* TABS */
     .tabs { display: flex; }
     .tab-btn { padding: 10px 18px; font-size: 13px; font-weight: 400; color: var(--gray-400); border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap; }
-    .tab-btn.active { font-weight: 600; color: var(--black); border-bottom-color: var(--black); }
+    .tab-btn.active { font-weight: 600; color: var(--accent); border-bottom-color: var(--accent); }
 
     /* CONTENT */
     .content { flex: 1; padding: 16px; }
@@ -97,7 +100,7 @@
       transition: border-color 0.15s; font-family: inherit;
     }
     input:focus, select:focus, textarea:focus { border-color: var(--accent); }
-    .btn { width: 100%; padding: 12px; background: var(--black); color: var(--white); border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; margin-top: 4px; font-family: inherit; }
+    .btn { width: 100%; padding: 12px; background: linear-gradient(135deg,#F97316,#FB7185); color: var(--white); border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; margin-top: 4px; font-family: inherit; }
     .btn:hover { opacity: 0.85; }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .btn-secondary { background: var(--gray-100); color: var(--black); }
@@ -161,7 +164,7 @@
   <div class="header">
     <div class="header-top">
       <div class="brand">
-        <div class="brand-mark">
+        <div class="brand-mark" style="background:linear-gradient(135deg,#F97316,#FB7185)">
           <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
         </div>
         <div>
@@ -182,36 +185,79 @@
   <div class="content">
     <!-- TODAY -->
     <div id="tab-today">
-      <div class="card">
-        <div class="card-title">Daily Targets</div>
-        <div class="macro-bar">
-          <div class="macro-bar-header"><span class="macro-label">Calories</span><span class="macro-value" id="cal-val">0 / 2250 kcal</span></div>
-          <div class="macro-track"><div class="macro-fill" id="cal-bar" style="background:#0F0F0F;width:0%"></div></div>
-        </div>
-        <div class="macro-bar">
-          <div class="macro-bar-header"><span class="macro-label">Protein</span><span class="macro-value" id="pro-val">0 / 160g</span></div>
-          <div class="macro-track"><div class="macro-fill" id="pro-bar" style="background:#2563EB;width:0%"></div></div>
-        </div>
-        <div class="macro-bar">
-          <div class="macro-bar-header"><span class="macro-label">Carbs</span><span class="macro-value" id="carb-val">0 / 150g</span></div>
-          <div class="macro-track"><div class="macro-fill" id="carb-bar" style="background:#D97706;width:0%"></div></div>
-        </div>
-        <div class="macro-bar">
-          <div class="macro-bar-header"><span class="macro-label">Fat</span><span class="macro-value" id="fat-val">0 / 65g</span></div>
-          <div class="macro-track"><div class="macro-fill" id="fat-bar" style="background:#DC2626;width:0%"></div></div>
-        </div>
-        <div class="remaining-row">
-          <div class="remaining-item" id="cal-remaining-box">
-            <div class="remaining-val" id="cal-remaining">2250</div>
-            <div class="remaining-label">cals remaining</div>
+
+      <!-- CALORIE RING HERO -->
+      <div style="background:linear-gradient(160deg,#FFF7ED,#FFF1F2);border-radius:16px;padding:20px;margin-bottom:12px;border:1px solid #FFE4CC">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#F97316;text-transform:uppercase;letter-spacing:1px">Today's Goal</div>
+            <div style="font-size:13px;color:#666;margin-top:2px">2,250 kcal target</div>
           </div>
-          <div class="remaining-item" id="pro-remaining-box">
-            <div class="remaining-val" id="pro-remaining">160g</div>
-            <div class="remaining-label" id="pro-remaining-label">protein needed</div>
+          <div id="score-inline"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:20px">
+          <!-- Ring -->
+          <div style="position:relative;flex-shrink:0">
+            <svg width="110" height="110" viewBox="0 0 110 110">
+              <circle cx="55" cy="55" r="46" fill="none" stroke="#FFE4CC" stroke-width="10"/>
+              <circle cx="55" cy="55" r="46" fill="none" stroke="url(#ringGrad)" stroke-width="10"
+                stroke-dasharray="289" id="cal-ring-fill" stroke-dashoffset="289"
+                stroke-linecap="round" transform="rotate(-90 55 55)" style="transition:stroke-dashoffset 0.6s ease"/>
+              <defs>
+                <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#F97316"/>
+                  <stop offset="100%" stop-color="#FB7185"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <div style="font-size:22px;font-weight:800;color:#0F0F0F;letter-spacing:-1px" id="ring-cals">0</div>
+              <div style="font-size:10px;color:#ADADAD;font-weight:500">eaten</div>
+            </div>
+          </div>
+          <!-- Stats beside ring -->
+          <div style="flex:1;display:flex;flex-direction:column;gap:10px">
+            <div style="background:white;border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div style="font-size:10px;color:#ADADAD;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Remaining</div>
+                <div style="font-size:18px;font-weight:700;color:#F97316" id="cal-remaining">2250</div>
+              </div>
+              <div style="font-size:20px">🎯</div>
+            </div>
+            <div style="background:white;border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div style="font-size:10px;color:#ADADAD;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Burned</div>
+                <div style="font-size:18px;font-weight:700;color:#FB7185" id="workout-burned">0</div>
+              </div>
+              <div style="font-size:20px">🔥</div>
+            </div>
           </div>
         </div>
       </div>
 
+      <!-- MACROS -->
+      <div class="card">
+        <div class="card-title">Macros</div>
+        <div class="macro-bar">
+          <div class="macro-bar-header"><span class="macro-label">Protein</span><span class="macro-value" id="pro-val">0 / 160g</span></div>
+          <div class="macro-track"><div class="macro-fill" id="pro-bar" style="background:#F97316;width:0%"></div></div>
+        </div>
+        <div class="macro-bar">
+          <div class="macro-bar-header"><span class="macro-label">Carbs</span><span class="macro-value" id="carb-val">0 / 150g</span></div>
+          <div class="macro-track"><div class="macro-fill" id="carb-bar" style="background:#FB7185;width:0%"></div></div>
+        </div>
+        <div class="macro-bar" style="margin-bottom:0">
+          <div class="macro-bar-header"><span class="macro-label">Fat</span><span class="macro-value" id="fat-val">0 / 65g</span></div>
+          <div class="macro-track"><div class="macro-fill" id="fat-bar" style="background:#FBBF24;width:0%"></div></div>
+        </div>
+        <!-- hidden elements kept for JS compat -->
+        <span id="cal-val" style="display:none"></span>
+        <div id="cal-bar" style="display:none"></div>
+        <div id="cal-remaining-box" style="display:none"></div>
+        <div id="pro-remaining-box" style="display:none"><div id="pro-remaining"></div><div id="pro-remaining-label"></div></div>
+      </div>
+
+      <!-- MEALS -->
       <div class="card">
         <div class="card-title">Meals</div>
         <div id="meals-list"><div class="empty">No meals logged yet</div></div>
@@ -229,6 +275,7 @@
         </div>
       </div>
 
+      <!-- WORKOUTS -->
       <div class="card">
         <div class="card-title">Workouts</div>
         <div id="workouts-list"><div class="empty">No workouts logged yet</div></div>
@@ -246,11 +293,40 @@
     <!-- HISTORY -->
     <div id="tab-history" style="display:none">
       <div id="history-list-view">
+        <!-- Calendar Card -->
+        <div class="card" style="padding:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <button onclick="changeMonth(-1)" style="background:none;border:none;font-size:20px;cursor:pointer;color:#ADADAD;padding:4px 8px">‹</button>
+            <div style="font-size:15px;font-weight:700;color:#0F0F0F" id="cal-month-label"></div>
+            <button onclick="changeMonth(1)" style="background:none;border:none;font-size:20px;cursor:pointer;color:#ADADAD;padding:4px 8px">›</button>
+          </div>
+          <!-- Day headers -->
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:6px">
+            <div style="text-align:center;font-size:10px;font-weight:700;color:#ADADAD;padding:4px 0">S</div>
+            <div style="text-align:center;font-size:10px;font-weight:700;color:#ADADAD;padding:4px 0">M</div>
+            <div style="text-align:center;font-size:10px;font-weight:700;color:#ADADAD;padding:4px 0">T</div>
+            <div style="text-align:center;font-size:10px;font-weight:700;color:#ADADAD;padding:4px 0">W</div>
+            <div style="text-align:center;font-size:10px;font-weight:700;color:#ADADAD;padding:4px 0">T</div>
+            <div style="text-align:center;font-size:10px;font-weight:700;color:#ADADAD;padding:4px 0">F</div>
+            <div style="text-align:center;font-size:10px;font-weight:700;color:#ADADAD;padding:4px 0">S</div>
+          </div>
+          <!-- Calendar grid -->
+          <div id="calendar-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px"></div>
+          <!-- Legend -->
+          <div style="display:flex;gap:16px;margin-top:12px;justify-content:center">
+            <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#666">⭐ Goal met</div>
+            <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#666">✅ Good day</div>
+            <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#666">❌ Needs work</div>
+          </div>
+        </div>
+
+        <!-- Recent days list -->
         <div class="card">
-          <div class="card-title">All Days</div>
+          <div class="card-title">Recent Days</div>
           <div id="history-list"><div class="loading">Loading...</div></div>
         </div>
       </div>
+
       <div id="history-detail-view" style="display:none">
         <button class="back-btn" onclick="showHistoryList()">← Back</button>
         <div class="card" id="detail-macros"></div>
@@ -318,15 +394,15 @@
           <button class="angle-btn" onclick="selectAngle('back', this)">Back</button>
         </div>
         <div class="form-group"><input type="date" id="photo-date" /></div>
-        <label class="upload-area" for="photo-input">
-          <div class="upload-icon">📷</div>
+        <div id="photo-preview" style="display:none;margin-bottom:12px">
+          <img id="preview-img" style="width:100%;border-radius:10px;max-height:280px;object-fit:cover" />
+        </div>
+        <label for="photo-input" style="display:block;border:2px dashed var(--gray-200);border-radius:10px;padding:24px;text-align:center;color:var(--gray-400);font-size:13px;cursor:pointer;transition:border-color 0.15s;margin-bottom:8px" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--gray-200)'">
+          <div style="font-size:28px;margin-bottom:6px">📷</div>
           <div>Tap to select photo</div>
           <div style="font-size:11px;margin-top:4px">JPG or PNG</div>
         </label>
         <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="previewPhoto(event)" />
-        <div id="photo-preview" style="display:none;margin-bottom:8px">
-          <img id="preview-img" style="width:100%;border-radius:8px;max-height:200px;object-fit:cover" />
-        </div>
         <button class="btn" id="upload-btn" onclick="uploadPhoto()" style="display:none">Upload Photo</button>
       </div>
 
@@ -439,7 +515,7 @@ async function init() {
   document.getElementById('scan-date').value = today;
   document.getElementById('photo-date').value = today;
   await Promise.all([loadTodayMeals(), loadTodayWorkouts()]);
-  loadHistory();
+  loadDayTotals();
   loadScans();
   loadPhotos();
 }
@@ -489,34 +565,40 @@ function calcTotals(meals) {
 
 function updateMacroBars(t) {
   const pct = (v, target) => Math.min((v / target) * 100, 100).toFixed(1);
-  document.getElementById('cal-val').textContent = `${t.calories} / ${TARGETS.calories} kcal`;
   document.getElementById('pro-val').textContent = `${t.protein} / ${TARGETS.protein}g`;
   document.getElementById('carb-val').textContent = `${t.carbs} / ${TARGETS.carbs}g`;
   document.getElementById('fat-val').textContent = `${t.fat} / ${TARGETS.fat}g`;
-  document.getElementById('cal-bar').style.width = pct(t.calories, TARGETS.calories) + '%';
   document.getElementById('pro-bar').style.width = pct(t.protein, TARGETS.protein) + '%';
   document.getElementById('carb-bar').style.width = pct(t.carbs, TARGETS.carbs) + '%';
   document.getElementById('fat-bar').style.width = pct(t.fat, TARGETS.fat) + '%';
 
+  // Update ring
+  const calPct = Math.min(t.calories / TARGETS.calories, 1);
+  const circumference = 289;
+  const offset = circumference - (calPct * circumference);
+  document.getElementById('cal-ring-fill').style.strokeDashoffset = offset;
+  document.getElementById('ring-cals').textContent = t.calories;
+
+  // Burned from workouts
+  const burned = currentWorkouts.reduce((a, w) => a + (+w.calories||0), 0);
+  document.getElementById('workout-burned').textContent = burned + ' cal';
+
   const calRem = TARGETS.calories - t.calories;
-  const proRem = TARGETS.protein - t.protein;
-  const calBox = document.getElementById('cal-remaining-box');
-  const proBox = document.getElementById('pro-remaining-box');
-  document.getElementById('cal-remaining').textContent = Math.abs(calRem);
-  calBox.style.background = calRem >= 0 ? 'var(--green-light)' : 'var(--red-light)';
-  document.querySelector('#cal-remaining-box .remaining-label').textContent = calRem >= 0 ? 'cals remaining' : 'cals over';
-  document.getElementById('cal-remaining').style.color = calRem >= 0 ? 'var(--green)' : 'var(--red)';
-  document.getElementById('pro-remaining').textContent = Math.abs(proRem) + 'g';
-  proBox.style.background = proRem <= 0 ? 'var(--green-light)' : 'var(--amber-light)';
-  document.getElementById('pro-remaining-label').textContent = proRem <= 0 ? 'protein hit ✓' : 'protein needed';
-  document.getElementById('pro-remaining').style.color = proRem <= 0 ? 'var(--green)' : 'var(--amber)';
+  document.getElementById('cal-remaining').textContent = calRem >= 0 ? calRem + ' cal' : 'Over by ' + Math.abs(calRem);
+  document.getElementById('cal-remaining').style.color = calRem >= 0 ? '#F97316' : '#DC2626';
 
   const score = dayScore(t.calories, t.protein);
   const badge = document.getElementById('score-badge');
+  const inlineBadge = document.getElementById('score-inline');
   if (score) {
     const map = { great: ['Great Day', 'score-great'], good: ['Good Day', 'score-good'], 'needs work': ['Needs Work', 'score-needs'] };
-    badge.innerHTML = `<span class="score-badge ${map[score][1]}">${map[score][0]}</span>`;
-  } else badge.innerHTML = '';
+    const html = `<span class="score-badge ${map[score][1]}">${map[score][0]}</span>`;
+    badge.innerHTML = html;
+    if(inlineBadge) inlineBadge.innerHTML = html;
+  } else {
+    badge.innerHTML = '';
+    if(inlineBadge) inlineBadge.innerHTML = '';
+  }
 }
 
 async function addMeal() {
@@ -546,37 +628,7 @@ async function addWorkout() {
   toast('Workout added ✓');
 }
 
-// HISTORY
-async function loadHistory() {
-  const [meals, workouts] = await Promise.all([dbGet('meals', 'select=date,calories,protein,carbs,fat'), dbGet('workouts', 'select=date,calories')]);
-  const dayMap = {};
-  meals.forEach(m => {
-    if (!dayMap[m.date]) dayMap[m.date] = { calories: 0, protein: 0, carbs: 0, fat: 0 };
-    dayMap[m.date].calories += +m.calories||0;
-    dayMap[m.date].protein += +m.protein||0;
-    dayMap[m.date].carbs += +m.carbs||0;
-    dayMap[m.date].fat += +m.fat||0;
-  });
-  const days = Object.keys(dayMap).sort((a, b) => b.localeCompare(a));
-  const el = document.getElementById('history-list');
-  if (!days.length) { el.innerHTML = '<div class="empty">No history yet</div>'; return; }
-  const scoreMap = { great: ['Great Day','score-great'], good: ['Good Day','score-good'], 'needs work': ['Needs Work','score-needs'] };
-  el.innerHTML = days.map(d => {
-    const t = dayMap[d];
-    const score = dayScore(t.calories, t.protein);
-    const s = score ? scoreMap[score] : null;
-    return `<div class="day-row" onclick="showHistoryDetail('${d}')">
-      <div>
-        <div class="day-date">${new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
-        <div class="day-meta">${t.calories} cal · ${t.protein}g protein</div>
-      </div>
-      <div class="day-right">
-        ${s ? `<span class="score-badge ${s[1]}">${s[0]}</span>` : ''}
-        <span class="day-chevron">›</span>
-      </div>
-    </div>`;
-  }).join('');
-}
+// HISTORY - handled by loadDayTotals() and renderCalendar()
 
 async function showHistoryDetail(date) {
   document.getElementById('history-list-view').style.display = 'none';
@@ -757,6 +809,95 @@ function switchTab(tab) {
     document.getElementById(`tab-${t}`).style.display = t === tab ? 'block' : 'none';
     document.querySelectorAll('.tab-btn').forEach((btn, i) => btn.classList.toggle('active', ['today','history','progress','photos'][i] === tab));
   });
+}
+
+// CALENDAR
+let calendarYear = new Date().getFullYear();
+let calendarMonth = new Date().getMonth();
+let dayTotalsCache = {};
+
+async function loadDayTotals() {
+  const meals = await dbGet('meals', 'select=date,calories,protein');
+  dayTotalsCache = {};
+  meals.forEach(m => {
+    if (!dayTotalsCache[m.date]) dayTotalsCache[m.date] = { calories: 0, protein: 0 };
+    dayTotalsCache[m.date].calories += +m.calories || 0;
+    dayTotalsCache[m.date].protein += +m.protein || 0;
+  });
+  renderCalendar();
+  renderHistoryList();
+}
+
+function changeMonth(dir) {
+  calendarMonth += dir;
+  if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; }
+  if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-month-label').textContent = `${monthNames[calendarMonth]} ${calendarYear}`;
+
+  const firstDay = new Date(calendarYear, calendarMonth, 1).getDay();
+  const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+  const todayStr = today;
+
+  let html = '';
+  // Empty cells before first day
+  for (let i = 0; i < firstDay; i++) {
+    html += '<div></div>';
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${calendarYear}-${String(calendarMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = dateStr === todayStr;
+    const isFuture = dateStr > todayStr;
+    const data = dayTotalsCache[dateStr];
+
+    let indicator = '';
+    let bgColor = 'transparent';
+    let textColor = isFuture ? '#DADADA' : '#0F0F0F';
+
+    if (!isFuture && data) {
+      const score = dayScore(data.calories, data.protein);
+      if (score === 'great') { indicator = '⭐'; bgColor = '#FFF7ED'; }
+      else if (score === 'good') { indicator = '✅'; bgColor = '#F0FDF4'; }
+      else if (score === 'needs work') { indicator = '❌'; bgColor = '#FEF2F2'; }
+    }
+
+    const todayRing = isToday ? `border:2px solid #F97316;` : 'border:2px solid transparent;';
+
+    html += `<div onclick="${!isFuture && data ? `showHistoryDetail('${dateStr}')` : ''}" 
+      style="display:flex;flex-direction:column;align-items:center;padding:4px 2px;border-radius:10px;background:${bgColor};${todayRing}cursor:${!isFuture && data ? 'pointer' : 'default'};min-height:44px;justify-content:center">
+      <div style="font-size:12px;font-weight:${isToday?'700':'400'};color:${isToday?'#F97316':textColor};line-height:1">${d}</div>
+      ${indicator ? `<div style="font-size:10px;line-height:1;margin-top:2px">${indicator}</div>` : ''}
+    </div>`;
+  }
+
+  document.getElementById('calendar-grid').innerHTML = html;
+}
+
+function renderHistoryList() {
+  const days = Object.keys(dayTotalsCache).sort((a,b) => b.localeCompare(a)).slice(0, 14);
+  const el = document.getElementById('history-list');
+  if (!days.length) { el.innerHTML = '<div class="empty">No history yet</div>'; return; }
+  const scoreMap = { great: ['⭐ Great Day','score-great'], good: ['✅ Good Day','score-good'], 'needs work': ['❌ Needs Work','score-needs'] };
+  el.innerHTML = days.map(d => {
+    const t = dayTotalsCache[d];
+    const score = dayScore(t.calories, t.protein);
+    const s = score ? scoreMap[score] : null;
+    return `<div class="day-row" onclick="showHistoryDetail('${d}')">
+      <div>
+        <div class="day-date">${new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
+        <div class="day-meta">${t.calories} cal · ${t.protein}g protein</div>
+      </div>
+      <div class="day-right">
+        ${s ? `<span class="score-badge ${s[1]}">${s[0]}</span>` : ''}
+        <span class="day-chevron">›</span>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 init();
