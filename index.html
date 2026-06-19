@@ -271,6 +271,12 @@
           <button onclick="toggleMealForm()" id="add-meal-btn" class="btn">+ Add Meal</button>
         </div>
         <div id="meal-form" style="display:none;margin-top:12px;background:#FAFAFA;border-radius:12px;padding:14px">
+          <!-- Quick lookup buttons -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+            <button onclick="openBarcodeScannerForMeal()" style="background:#0F0F0F;color:white;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer">📷 Scan Barcode</button>
+            <button onclick="openLabelModalForMeal()" style="background:#0F0F0F;color:white;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer">🏷️ Photo Label</button>
+          </div>
+          <div style="text-align:center;font-size:11px;color:#ADADAD;margin-bottom:10px">— or enter manually —</div>
           <div class="form-group"><input type="text" id="meal-name" placeholder="Meal name (e.g. Chicken + Rice)" /></div>
           <div class="form-row form-group">
             <div>
@@ -387,6 +393,11 @@
         <div class="card" style="padding-top:12px">
           <button onclick="toggleHistoryAddForm('meal')" id="hist-add-meal-btn" class="btn">+ Add Meal</button>
           <div id="hist-add-meal-form" style="display:none;margin-top:12px;background:#FAFAFA;border-radius:10px;padding:14px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+              <button onclick="openBarcodeScannerForMeal()" style="background:#0F0F0F;color:white;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer">📷 Scan Barcode</button>
+              <button onclick="openLabelModalForMeal()" style="background:#0F0F0F;color:white;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer">🏷️ Photo Label</button>
+            </div>
+            <div style="text-align:center;font-size:11px;color:#ADADAD;margin-bottom:10px">— or enter manually —</div>
             <div class="form-group"><input type="text" id="hist-meal-name" placeholder="Meal name (e.g. Chicken + Rice)" /></div>
             <div class="form-row form-group">
               <div>
@@ -1056,15 +1067,45 @@ function renderMeals() {
 
 function renderWorkouts() {
   const el = document.getElementById('workouts-list');
-  if (!currentWorkouts.length) { el.innerHTML = '<div class="empty">No workouts logged yet</div>'; return; }
-  el.innerHTML = currentWorkouts.map(w => `
+  if (!currentWorkouts.length) { el.innerHTML = '<div class="empty">No workouts logged yet</div>'; loadRecentWorkouts(); return; }
+  el.innerHTML = currentWorkouts.map((w, i) => `
     <div class="workout-row">
-      <div>
-        <div style="font-size:14px;font-weight:500">${w.name}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:500;display:flex;align-items:center;gap:4px">
+          ${w.name}
+          <button data-wedit="${i}" style="background:none;border:none;cursor:pointer;font-size:11px;color:#ADADAD;padding:0 2px;flex-shrink:0">✏️</button>
+        </div>
         <div style="font-size:11px;color:var(--gray-400);margin-top:2px">${w.time || ''} · ${w.duration} min</div>
       </div>
-      <div class="workout-cals">−${w.calories} cal</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+        <div class="workout-cals">−${w.calories} cal</div>
+        <button data-wdelete="${i}" style="background:none;border:none;color:#CCC;cursor:pointer;font-size:20px;line-height:1">×</button>
+      </div>
     </div>`).join('');
+  // Attach listeners
+  el.querySelectorAll('[data-wedit]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const w = currentWorkouts[+btn.dataset.wedit];
+      const newName = prompt('Edit workout name:', w.name);
+      if (!newName || newName.trim() === w.name) return;
+      await fetch(`${SUPABASE_URL}/rest/v1/workouts?id=eq.${w.id}`, {
+        method: 'PATCH',
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName.trim() })
+      });
+      await loadTodayWorkouts();
+      toast('Workout updated ✓');
+    });
+  });
+  el.querySelectorAll('[data-wdelete]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const w = currentWorkouts[+btn.dataset.wdelete];
+      if (!confirm(`Delete "${w.name}"?`)) return;
+      await dbDelete('workouts', w.id);
+      await loadTodayWorkouts();
+      toast('Workout removed');
+    });
+  });
   loadRecentWorkouts();
 }
 
@@ -2259,6 +2300,59 @@ function saveBfGoal() {
   updateGoalsDisplay();
   toast('Goal updated ✓');
   setTimeout(() => toast(suggestion), 2000);
+}
+
+// Open barcode scanner and pre-fill meal form
+function openBarcodeScannerForMeal() {
+  window._scanTarget = 'meal';
+  openBarcodeScanner();
+}
+
+// Open label modal and pre-fill meal form  
+function openLabelModalForMeal() {
+  window._scanTarget = 'meal';
+  openLabelModal();
+}
+
+// Override logLabelAsFood to also fill meal form
+const _origLogLabel = window.logLabelAsFood;
+function fillMealFormFromScan(data) {
+  // Fill Today or History form depending on which is open
+  const histFormOpen = document.getElementById('hist-add-meal-form')?.style.display !== 'none';
+  const nameId = histFormOpen ? 'hist-meal-name' : 'meal-name';
+  const calsId = histFormOpen ? 'hist-meal-cals' : 'meal-cals';
+  const protId = histFormOpen ? 'hist-meal-protein' : 'meal-protein';
+  const carbId = histFormOpen ? 'hist-meal-carbs' : 'meal-carbs';
+  const fatId = histFormOpen ? 'hist-meal-fat' : 'meal-fat';
+  
+  const nameEl = document.getElementById(nameId);
+  const calsEl = document.getElementById(calsId);
+  const protEl = document.getElementById(protId);
+  const carbEl = document.getElementById(carbId);
+  const fatEl = document.getElementById(fatId);
+
+  if (nameEl) nameEl.value = data.name || '';
+  if (calsEl) calsEl.value = data.calories || 0;
+  if (protEl) protEl.value = data.protein || 0;
+  if (carbEl) carbEl.value = data.carbs || 0;
+  if (fatEl) fatEl.value = data.fat || 0;
+  toast(`${data.name} loaded — review and tap Log Meal`);
+}
+
+// Patch showLabelResult to also offer "Fill Meal Form" option
+const _origShowLabelResult = showLabelResult;
+function showLabelResult(data) {
+  _origShowLabelResult(data);
+  // Add Fill Form button to label actions
+  const actions = document.getElementById('label-actions');
+  if (actions && !document.getElementById('fill-form-btn')) {
+    const fillBtn = document.createElement('button');
+    fillBtn.id = 'fill-form-btn';
+    fillBtn.textContent = 'Fill Meal Form';
+    fillBtn.style.cssText = 'background:linear-gradient(135deg,#F97316,#FB7185);color:white;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;grid-column:1/-1;margin-top:4px;width:100%';
+    fillBtn.onclick = () => { fillMealFormFromScan(labelScannedData); closeLabelModal(); };
+    actions.appendChild(fillBtn);
+  }
 }
 
 init();
