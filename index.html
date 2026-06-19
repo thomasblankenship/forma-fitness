@@ -266,12 +266,24 @@
         <div style="margin-top:16px">
           <div class="form-group"><input type="text" id="meal-name" placeholder="Meal name (e.g. Chicken + Lentils)" /></div>
           <div class="form-row form-group">
-            <input type="number" id="meal-cals" placeholder="Calories" />
-            <input type="number" id="meal-protein" placeholder="Protein (g)" />
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Calories</div>
+              <input type="number" id="meal-cals" placeholder="0" min="0" />
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein (g)</div>
+              <input type="number" id="meal-protein" placeholder="0" min="0" />
+            </div>
           </div>
           <div class="form-row form-group">
-            <input type="number" id="meal-carbs" placeholder="Carbs (g)" />
-            <input type="number" id="meal-fat" placeholder="Fat (g)" />
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs (g)</div>
+              <input type="number" id="meal-carbs" placeholder="0" min="0" />
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat (g)</div>
+              <input type="number" id="meal-fat" placeholder="0" min="0" />
+            </div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
             <button class="btn btn-secondary" onclick="saveFoodFromForm()" style="background:var(--gray-100);color:var(--black)">Save Food</button>
@@ -294,8 +306,14 @@
         <div style="margin-top:16px">
           <div class="form-group"><input type="text" id="workout-name" placeholder="Workout (e.g. Leg Day + Cardio)" /></div>
           <div class="form-row form-group">
-            <input type="number" id="workout-duration" placeholder="Duration (min)" />
-            <input type="number" id="workout-cals" placeholder="Cals burned" />
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Duration (min)</div>
+              <input type="number" id="workout-duration" placeholder="0" min="0" />
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Active Cals burned</div>
+              <input type="number" id="workout-cals" placeholder="0" min="0" />
+            </div>
           </div>
           <button class="btn" onclick="addWorkout()">Log Workout</button>
         </div>
@@ -305,6 +323,9 @@
     <!-- HISTORY -->
     <div id="tab-history" style="display:none">
       <div id="history-list-view">
+
+
+
         <!-- Calendar Card -->
         <div class="card" style="padding:16px">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
@@ -325,10 +346,10 @@
           <!-- Calendar grid -->
           <div id="calendar-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px"></div>
           <!-- Legend -->
-          <div style="display:flex;gap:16px;margin-top:12px;justify-content:center">
-            <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#666">⭐ Goals hit</div>
-            <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#666">✅ Good day</div>
-            <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#666">❌ Over limit</div>
+          <div style="margin-top:10px;background:#F7F7F7;border-radius:8px;padding:8px 12px">
+            <div style="font-size:10px;color:#888;line-height:1.6">
+              ⭐ 85–100% cals + protein hit &nbsp;·&nbsp; ✅ cals or protein &nbsp;·&nbsp; ❌ over limit
+            </div>
           </div>
         </div>
 
@@ -890,22 +911,27 @@ async function addMeal() {
   toast('Meal added ✓');
 }
 
-async function deleteMeal(id) {
-  await dbDelete('meals', id);
-  await loadTodayMeals();
-  toast('Meal removed');
-}
-
-async function editMealName(id, currentName) {
-  const newName = prompt('Edit meal name:', currentName);
-  if (!newName || newName.trim() === currentName) return;
-  await fetch(`${SUPABASE_URL}/rest/v1/meals?id=eq.${id}`, {
+async function editMealName(index) {
+  const meal = currentMeals[index];
+  if (!meal) return;
+  const newName = prompt('Edit meal name:', meal.name);
+  if (!newName || newName.trim() === meal.name) return;
+  await fetch(`${SUPABASE_URL}/rest/v1/meals?id=eq.${meal.id}`, {
     method: 'PATCH',
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ name: newName.trim() })
   });
   await loadTodayMeals();
   toast('Meal name updated ✓');
+}
+
+async function confirmDeleteMeal(index) {
+  const meal = currentMeals[index];
+  if (!meal) return;
+  if (!confirm(`Delete "${meal.name}"?`)) return;
+  await dbDelete('meals', meal.id);
+  await loadTodayMeals();
+  toast('Meal removed');
 }
 
 async function addWorkout() {
