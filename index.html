@@ -482,14 +482,35 @@
         <div id="add-food-form" style="display:none;background:var(--gray-50);border-radius:10px;padding:12px;margin-bottom:12px">
           <div class="form-group"><input type="text" id="food-name" placeholder="Food name (e.g. Chicken Breast)" /></div>
           <div class="form-row form-group">
-            <input type="number" id="food-cals" placeholder="Cals per unit" step="0.1" />
-            <input type="text" id="food-unit" placeholder="Unit (oz, each, tbsp)" />
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Cals per unit</div>
+              <input type="number" id="food-cals" placeholder="0" step="0.1" min="0" />
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Unit (oz, each, tbsp)</div>
+              <input type="text" id="food-unit" placeholder="oz" />
+            </div>
           </div>
           <div class="form-row form-group">
-            <input type="number" id="food-protein" placeholder="Protein per unit" step="0.1" />
-            <input type="number" id="food-carbs" placeholder="Carbs per unit" step="0.1" />
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein per unit</div>
+              <input type="number" id="food-protein" placeholder="0" step="0.1" min="0" />
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs per unit</div>
+              <input type="number" id="food-carbs" placeholder="0" step="0.1" min="0" />
+            </div>
           </div>
-          <div class="form-group"><input type="number" id="food-fat" placeholder="Fat per unit" step="0.1" /></div>
+          <div class="form-row form-group">
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat per unit</div>
+              <input type="number" id="food-fat" placeholder="0" step="0.1" min="0" />
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber per unit</div>
+              <input type="number" id="food-fiber" placeholder="0" step="0.1" min="0" />
+            </div>
+          </div>
           <button class="btn" onclick="saveFood()">Save Food</button>
         </div>
         <div id="saved-foods-list"><div class="loading">Loading...</div></div>
@@ -504,12 +525,28 @@
         <div id="add-saved-meal-form" style="display:none;background:var(--gray-50);border-radius:10px;padding:12px;margin-bottom:12px">
           <div class="form-group"><input type="text" id="saved-meal-name" placeholder="Meal name (e.g. Post-Workout Shake)" /></div>
           <div class="form-row form-group">
-            <input type="number" id="saved-meal-cals" placeholder="Calories" />
-            <input type="number" id="saved-meal-protein" placeholder="Protein (g)" />
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Calories</div>
+              <input type="number" id="saved-meal-cals" placeholder="0" min="0" step="0.1" />
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein (g)</div>
+              <input type="number" id="saved-meal-protein" placeholder="0" min="0" step="0.1" />
+            </div>
           </div>
           <div class="form-row form-group">
-            <input type="number" id="saved-meal-carbs" placeholder="Carbs (g)" />
-            <input type="number" id="saved-meal-fat" placeholder="Fat (g)" />
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs (g)</div>
+              <input type="number" id="saved-meal-carbs" placeholder="0" min="0" step="0.1" />
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat (g)</div>
+              <input type="number" id="saved-meal-fat" placeholder="0" min="0" step="0.1" />
+            </div>
+          </div>
+          <div class="form-group">
+            <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber (g)</div>
+            <input type="number" id="saved-meal-fiber" placeholder="0" min="0" step="0.1" />
           </div>
           <button class="btn" onclick="saveMeal()">Save Meal</button>
         </div>
@@ -807,6 +844,20 @@
       <button onclick="logLabelAsFood()" style="background:linear-gradient(135deg,#F97316,#FB7185);color:white;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer">Log Now</button>
     </div>
     <button id="label-cancel-btn" onclick="closeLabelModal()" style="width:100%;background:#F4F4F4;color:#0F0F0F;border:none;border-radius:8px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;margin-top:0">Cancel</button>
+  </div>
+</div>
+
+<!-- SAVED MEAL TYPE PICKER -->
+<div id="saved-meal-type-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:600;align-items:flex-end;justify-content:center">
+  <div style="background:white;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:520px">
+    <div style="font-size:16px;font-weight:700;margin-bottom:16px">Add to which meal?</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button onclick="logSavedMealWithType('breakfast')" style="background:#FFF7ED;border:1px solid #F97316;color:#F97316;border-radius:12px;padding:16px;font-size:14px;font-weight:600;cursor:pointer">🌅 Breakfast</button>
+      <button onclick="logSavedMealWithType('lunch')" style="background:#F0FDF4;border:1px solid #16A34A;color:#16A34A;border-radius:12px;padding:16px;font-size:14px;font-weight:600;cursor:pointer">☀️ Lunch</button>
+      <button onclick="logSavedMealWithType('dinner')" style="background:#EFF6FF;border:1px solid #2563EB;color:#2563EB;border-radius:12px;padding:16px;font-size:14px;font-weight:600;cursor:pointer">🌙 Dinner</button>
+      <button onclick="logSavedMealWithType('snack')" style="background:#FFF1F2;border:1px solid #FB7185;color:#FB7185;border-radius:12px;padding:16px;font-size:14px;font-weight:600;cursor:pointer">🍎 Snack</button>
+    </div>
+    <button onclick="document.getElementById('saved-meal-type-modal').style.display='none'" style="width:100%;background:#F4F4F4;color:#666;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;margin-top:12px">Cancel</button>
   </div>
 </div>
 
@@ -2017,8 +2068,9 @@ async function saveFood() {
     protein_per_unit: +document.getElementById('food-protein').value || 0,
     carbs_per_unit: +document.getElementById('food-carbs').value || 0,
     fat_per_unit: +document.getElementById('food-fat').value || 0,
+    fiber_per_unit: +document.getElementById('food-fiber').value || 0,
   });
-  ['food-name','food-cals','food-unit','food-protein','food-carbs','food-fat'].forEach(id => document.getElementById(id).value = '');
+  ['food-name','food-cals','food-unit','food-protein','food-carbs','food-fat','food-fiber'].forEach(id => document.getElementById(id).value = '');
   toggleAddFood();
   await loadSavedFoods();
   toast('Food saved ✓');
@@ -2034,8 +2086,9 @@ async function saveMeal() {
     protein: +document.getElementById('saved-meal-protein').value || 0,
     carbs: +document.getElementById('saved-meal-carbs').value || 0,
     fat: +document.getElementById('saved-meal-fat').value || 0,
+    fiber: +document.getElementById('saved-meal-fiber').value || 0,
   });
-  ['saved-meal-name','saved-meal-cals','saved-meal-protein','saved-meal-carbs','saved-meal-fat'].forEach(id => document.getElementById(id).value = '');
+  ['saved-meal-name','saved-meal-cals','saved-meal-protein','saved-meal-carbs','saved-meal-fat','saved-meal-fiber'].forEach(id => document.getElementById(id).value = '');
   toggleAddSavedMeal();
   await loadSavedMeals();
   toast('Meal saved ✓');
@@ -2131,14 +2184,24 @@ async function logFoodFromModal() {
 async function logSavedMeal(id) {
   const m = savedMeals.find(m => m.id === id);
   if (!m) return;
+  // Show meal type picker
+  window._pendingSavedMeal = m;
+  document.getElementById('saved-meal-type-modal').style.display = 'flex';
+}
+
+async function logSavedMealWithType(type) {
+  const m = window._pendingSavedMeal;
+  if (!m) return;
+  document.getElementById('saved-meal-type-modal').style.display = 'none';
   await dbPost('meals', {
-    date: today, name: m.name, calories: m.calories,
-    protein: m.protein, carbs: m.carbs, fat: m.fat,
+    date: logDate, name: m.name, meal_type: type,
+    calories: m.calories, protein: m.protein, carbs: m.carbs,
+    fat: m.fat, fiber: m.fiber || 0,
     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   });
   await loadTodayMeals();
   switchTab('today');
-  toast(`${m.name} added to today ✓`);
+  toast(`${m.name} added ✓`);
 }
 
 async function editSavedFoodName(id, currentName) {
