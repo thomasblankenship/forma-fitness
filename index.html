@@ -341,7 +341,7 @@
           <div class="form-row form-group">
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Duration (min)</div>
-              <input type="number" id="workout-duration" placeholder="0" min="0"  oninput="if(+this.value<0)this.value=0" />
+              <input type="number" id="workout-duration" placeholder="0" min="0" / step="1" inputmode="numeric" max="600" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,3);if(+this.value<0)this.value=0;if(+this.value>600)this.value=600">
             </div>
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Active Cals burned</div>
@@ -450,7 +450,7 @@
             <div class="form-row form-group">
               <div>
                 <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Duration (min)</div>
-                <input type="number" id="hist-workout-duration" placeholder="0" min="0"  oninput="if(+this.value<0)this.value=0" />
+                <input type="number" id="hist-workout-duration" placeholder="0" min="0" / step="1" inputmode="numeric" max="600" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,3);if(+this.value<0)this.value=0;if(+this.value>600)this.value=600">
               </div>
               <div>
                 <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Active Cals Burned</div>
@@ -1643,7 +1643,7 @@ async function addWorkoutToHistoryDay() {
   await dbPost('workouts', {
     date: window._historyDate,
     name,
-    duration: +document.getElementById('hist-workout-duration').value || 0,
+    duration: Math.round(+document.getElementById('hist-workout-duration').value || 0),
     calories: +document.getElementById('hist-workout-cals').value || 0,
     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   });
