@@ -1203,7 +1203,7 @@ function renderMealSection(meals, indices, showEmpty) {
           <span>${m.name}</span>
           <button data-edit="${i}" style="background:none;border:none;cursor:pointer;font-size:11px;color:#ADADAD;padding:0 2px;flex-shrink:0">✏️</button>
         </div>
-        <div class="meal-meta">${m.time || ''} · P:${m.protein}g C:${m.carbs}g F:${m.fat}g${m.fiber && +m.fiber > 0 ? ` · Fiber:${m.fiber}g` : ''}</div>
+        <div class="meal-meta">Protein:${m.protein}g · Carbs:${m.carbs}g · Fat:${m.fat}g · Fiber:${m.fiber||0}g</div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
         <span style="font-size:14px;font-weight:600;color:#111">${m.calories} kcal</span>
@@ -1265,6 +1265,10 @@ function renderMeals() {
 
 function renderWorkouts() {
   const el = document.getElementById('workouts-list');
+  // Always update burned calories display, even with zero workouts
+  const burnedTotal = currentWorkouts.reduce((a, w) => a + (+w.calories||0), 0);
+  const burnedEl = document.getElementById('workout-burned');
+  if (burnedEl) burnedEl.textContent = burnedTotal + ' cal';
   if (!currentWorkouts.length) { el.innerHTML = '<div class="empty">No workouts logged yet</div>'; loadRecentWorkouts(); return; }
   el.innerHTML = currentWorkouts.map((w, i) => `
     <div class="workout-row">
@@ -1305,6 +1309,31 @@ function renderWorkouts() {
     });
   });
   loadRecentWorkouts();
+
+  // Update smart calorie adjustment banner based on burned calories
+  let adjustBanner = document.getElementById('cal-adjust-banner');
+  if (!adjustBanner) {
+    adjustBanner = document.createElement('div');
+    adjustBanner.id = 'cal-adjust-banner';
+    adjustBanner.style.cssText = 'margin-top:10px;border-radius:10px;padding:10px 14px;font-size:12px;display:none';
+    const heroCard = document.querySelector('#tab-today .card');
+    if (heroCard) heroCard.appendChild(adjustBanner);
+  }
+  let adjustment = 0;
+  let adjustMsg = '';
+  if (burnedTotal >= 800) { adjustment = 450; adjustMsg = `🔥 Huge burn day! Consider eating +${adjustment} extra cals to protect muscle.`; }
+  else if (burnedTotal >= 600) { adjustment = 300; adjustMsg = `💪 High burn day! Consider eating +${adjustment} extra cals to protect muscle.`; }
+  else if (burnedTotal >= 400) { adjustment = 200; adjustMsg = `⚡ Active day! Consider eating +${adjustment} extra cals today.`; }
+  if (adjustBanner) {
+    if (adjustment > 0) {
+      adjustBanner.style.display = 'block';
+      adjustBanner.style.background = '#FFF7ED';
+      adjustBanner.style.color = '#EA580C';
+      adjustBanner.innerHTML = `${adjustMsg} <strong>Suggested: ${(TARGETS.calories + adjustment).toLocaleString()} kcal today.</strong>`;
+    } else {
+      adjustBanner.style.display = 'none';
+    }
+  }
 }
 
 async function loadRecentWorkouts() {
@@ -1518,7 +1547,7 @@ async function showHistoryDetail(date) {
           <span>${m.name}</span>
           <button data-hist-edit="${i}" style="background:none;border:none;cursor:pointer;font-size:11px;color:#ADADAD;padding:0 2px">✏️</button>
         </div>
-        <div class="meal-meta">${m.time||''} · P:${m.protein}g C:${m.carbs}g F:${m.fat}g</div>
+        <div class="meal-meta">Protein:${m.protein}g · Carbs:${m.carbs}g · Fat:${m.fat}g · Fiber:${m.fiber||0}g</div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
         <span style="font-size:14px;font-weight:600;color:#111">${m.calories} kcal</span>
