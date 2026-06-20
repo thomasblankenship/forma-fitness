@@ -2349,9 +2349,11 @@ async function onBarcodeDetected(barcode) {
   toast('Barcode detected — looking up nutrition...');
   try {
     const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+    if (!res.ok) throw new Error('network');
     const data = await res.json();
     if (data.status !== 1 || !data.product) {
-      toast('Product not found — try manual entry');
+      // Product genuinely not in the database — offer label scan fallback
+      showBarcodeNotFoundModal(barcode);
       return;
     }
     const p = data.product;
@@ -2359,18 +2361,42 @@ async function onBarcodeDetected(barcode) {
     const name = p.product_name || p.brands || 'Scanned Food';
     const serving = p.serving_quantity || 100;
     const unit = p.serving_quantity_unit || 'g';
-    // Per serving values
     const cals = Math.round(n['energy-kcal_serving'] || (n['energy-kcal'] ? n['energy-kcal'] * serving / 100 : 0));
     const protein = parseFloat((n.proteins_serving || n.proteins * serving / 100 || 0).toFixed(1));
     const carbs = parseFloat((n.carbohydrates_serving || n.carbohydrates * serving / 100 || 0).toFixed(1));
     const fat = parseFloat((n.fat_serving || n.fat * serving / 100 || 0).toFixed(1));
+    const fiber = parseFloat((n.fiber_serving || (n.fiber ? n.fiber * serving / 100 : 0) || 0).toFixed(1));
 
-    labelScannedData = { name, calories: cals, protein, carbs, fat, unit: `${serving}${unit} serving` };
+    if (!cals) {
+      // Found product but no usable nutrition data
+      showBarcodeNotFoundModal(barcode, name);
+      return;
+    }
+
+    labelScannedData = { name, calories: cals, protein, carbs, fat, fiber, unit: `${serving}${unit} serving` };
     showLabelResult(labelScannedData);
     openLabelModal(true);
   } catch(e) {
-    toast('Lookup failed — check connection');
+    toast('Network error — check connection and try again');
   }
+}
+
+function showBarcodeNotFoundModal(barcode, partialName) {
+  const msg = partialName
+    ? `Found "${partialName}" but it's missing nutrition data in the database.`
+    : `This barcode isn't in the product database yet — it happens with smaller or store-brand items.`;
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:700;display:flex;align-items:flex-end;justify-content:center';
+  modal.innerHTML = `
+    <div style="background:white;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:520px;text-align:center">
+      <div style="font-size:32px;margin-bottom:8px">📦</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:8px">Product Not Found</div>
+      <div style="font-size:13px;color:#666;margin-bottom:20px;line-height:1.5">${msg}</div>
+      <button onclick="this.closest('div[style*=fixed]').remove(); openLabelModal();" style="width:100%;background:linear-gradient(135deg,#F97316,#FB7185);color:white;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px">🏷️ Take Photo of Nutrition Label Instead</button>
+      <button onclick="this.closest('div[style*=fixed]').remove()" style="width:100%;background:#F4F4F4;color:#666;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:600;cursor:pointer">Enter Manually</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
 }
 
 async function closeBarcodeScanner() {
