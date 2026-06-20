@@ -327,16 +327,16 @@
         <div class="card-title">Workouts</div>
         <div id="workouts-list"><div class="empty">No workouts logged yet</div></div>
 
-        <!-- Recent workouts quick-relog -->
-        <div id="recent-workouts-section" style="display:none;margin-top:14px">
-          <div style="font-size:11px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px">Recent — tap to re-log</div>
-          <div id="recent-workouts-list" style="display:flex;flex-direction:column;gap:6px"></div>
-        </div>
-
         <div style="margin-top:12px">
           <button onclick="toggleWorkoutForm()" id="add-workout-btn" class="btn">+ Add Workout</button>
         </div>
         <div id="workout-form" style="display:none;margin-top:12px;background:#FAFAFA;border-radius:12px;padding:14px">
+          <!-- Recent workouts quick-fill -->
+          <div id="recent-workouts-section" style="display:none;margin-bottom:14px">
+            <div style="font-size:11px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px">Recent — tap to fill in</div>
+            <div id="recent-workouts-list" style="display:flex;flex-direction:column;gap:6px"></div>
+          </div>
+          <div style="text-align:center;font-size:11px;color:#ADADAD;margin-bottom:10px" id="workout-form-divider">— or enter manually —</div>
           <div class="form-group"><input type="text" id="workout-name" placeholder="Workout (e.g. Leg Day + Cardio)" /></div>
           <div class="form-row form-group">
             <div>
@@ -978,6 +978,9 @@ function toggleWorkoutForm() {
   const isOpen = form.style.display !== 'none';
   form.style.display = isOpen ? 'none' : 'block';
   btn.style.display = isOpen ? 'block' : 'none';
+  if (!isOpen) {
+    loadRecentWorkouts();
+  }
 }
 
 function toggleHistoryAddForm(type) {
@@ -1004,6 +1007,7 @@ function changeLogDate(dir) {
   const newDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   if (newDate > today) return;
   logDate = newDate;
+  recentWorkoutsCache = null;
   updateLogDateDisplay();
   loadTodayMeals();
   loadTodayWorkouts();
@@ -1280,7 +1284,7 @@ function renderWorkouts() {
   const burnedTotal = currentWorkouts.reduce((a, w) => a + (+w.calories||0), 0);
   const burnedEl = document.getElementById('workout-burned');
   if (burnedEl) burnedEl.textContent = burnedTotal + ' cal';
-  if (!currentWorkouts.length) { el.innerHTML = '<div class="empty">No workouts logged yet</div>'; loadRecentWorkouts(); return; }
+  if (!currentWorkouts.length) { el.innerHTML = '<div class="empty">No workouts logged yet</div>'; return; }
   el.innerHTML = currentWorkouts.map((w, i) => `
     <div class="workout-row">
       <div style="flex:1;min-width:0">
@@ -1319,8 +1323,6 @@ function renderWorkouts() {
       toast('Workout removed');
     });
   });
-  loadRecentWorkouts();
-
   // Update smart calorie adjustment banner based on burned calories
   let adjustBanner = document.getElementById('cal-adjust-banner');
   if (!adjustBanner) {
@@ -1347,44 +1349,49 @@ function renderWorkouts() {
   }
 }
 
-async function loadRecentWorkouts() {
-  // Get last 7 days of workouts excluding today
-  const recentRaw = await dbGet('workouts', `date=neq.${today}&order=created_at.desc&limit=20`);
-  // Deduplicate by name, keep most recent
-  const seen = new Set();
-  const unique = recentRaw.filter(w => {
-    if (seen.has(w.name)) return false;
-    seen.add(w.name);
-    return true;
-  }).slice(0, 4);
+let recentWorkoutsCache = null;
 
+async function loadRecentWorkouts() {
+  // Cache so we don't refetch every render — only fetch once per session reload
+  if (recentWorkoutsCache === null) {
+    const recentRaw = await dbGet('workouts', `date=neq.${logDate}&order=created_at.desc&limit=20`);
+    const seen = new Set();
+    recentWorkoutsCache = recentRaw.filter(w => {
+      if (seen.has(w.name)) return false;
+      seen.add(w.name);
+      return true;
+    }).slice(0, 4);
+  }
+  renderRecentWorkouts();
+}
+
+function renderRecentWorkouts() {
   const section = document.getElementById('recent-workouts-section');
   const el = document.getElementById('recent-workouts-list');
+  if (!section || !el) return;
+  const unique = recentWorkoutsCache || [];
 
   if (!unique.length) { section.style.display = 'none'; return; }
   section.style.display = 'block';
 
-  el.innerHTML = unique.map(w => `
-    <div style="display:flex;justify-content:space-between;align-items:center;background:#FAFAFA;border-radius:10px;padding:10px 12px;cursor:pointer" onclick="relogWorkout('${w.name.replace(/'/g,"\'")}', ${w.duration}, ${w.calories})">
+  el.innerHTML = unique.map((w, i) => `
+    <div data-fill-workout="${i}" style="display:flex;justify-content:space-between;align-items:center;background:white;border:1px solid #E8E8E8;border-radius:10px;padding:10px 12px;cursor:pointer">
       <div>
         <div style="font-size:13px;font-weight:500;color:#0F0F0F">${w.name}</div>
         <div style="font-size:11px;color:#ADADAD;margin-top:2px">${w.duration} min · ${w.calories} cal</div>
       </div>
-      <div style="background:linear-gradient(135deg,#F97316,#FB7185);color:white;border:none;border-radius:14px;padding:4px 12px;font-size:12px;font-weight:600">+ Log</div>
+      <div style="background:linear-gradient(135deg,#F97316,#FB7185);color:white;border:none;border-radius:14px;padding:4px 12px;font-size:12px;font-weight:600">Fill In</div>
     </div>`).join('');
-}
 
-async function relogWorkout(name, duration, calories) {
-  const w = {
-    date: today, name, duration, calories,
-    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  };
-  await dbPost('workouts', w);
-  await loadTodayWorkouts();
-  // Update burned calories in ring
-  const burned = [...currentWorkouts].reduce((a, w) => a + (+w.calories||0), 0);
-  document.getElementById('workout-burned').textContent = burned + ' cal';
-  toast(`${name} logged ✓`);
+  el.querySelectorAll('[data-fill-workout]').forEach(row => {
+    row.addEventListener('click', () => {
+      const w = unique[+row.dataset.fillWorkout];
+      document.getElementById('workout-name').value = w.name;
+      document.getElementById('workout-duration').value = w.duration;
+      document.getElementById('workout-cals').value = w.calories;
+      toast(`Filled in — adjust if needed, then Log Workout`);
+    });
+  });
 }
 
 function calcTotals(meals) {
