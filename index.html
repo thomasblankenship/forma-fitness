@@ -487,8 +487,17 @@
               <input type="number" id="food-cals" placeholder="0" min="0" step="1" inputmode="numeric" / oninput="this.value=this.value.replace(/[^0-9]/g,'');if(this.value<0)this.value=0">
             </div>
             <div>
-              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Unit (oz, each, tbsp)</div>
-              <input type="text" id="food-unit" placeholder="oz" />
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Unit</div>
+              <select id="food-unit" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none;background:white">
+                <option value="oz">oz</option>
+                <option value="g">g</option>
+                <option value="cup">cup</option>
+                <option value="tbsp">tbsp</option>
+                <option value="tsp">tsp</option>
+                <option value="each">each</option>
+                <option value="slice">slice</option>
+                <option value="serving">serving</option>
+              </select>
             </div>
           </div>
           <div class="form-row form-group">
@@ -512,6 +521,7 @@
             </div>
           </div>
           <button class="btn" onclick="saveFood()">Save Food</button>
+          <button class="btn" onclick="toggleAddFood()" style="background:#FEF2F2;color:#DC2626;margin-top:8px">Cancel</button>
         </div>
         <div id="saved-foods-list"><div class="loading">Loading...</div></div>
       </div>
@@ -549,6 +559,7 @@
             <input type="number" id="saved-meal-fiber" placeholder="0" min="0" / step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
           </div>
           <button class="btn" onclick="saveMeal()">Save Meal</button>
+          <button class="btn" onclick="toggleAddSavedMeal()" style="background:#FEF2F2;color:#DC2626;margin-top:8px">Cancel</button>
         </div>
         <div id="saved-meals-list"><div class="loading">Loading...</div></div>
       </div>
@@ -2134,7 +2145,7 @@ async function saveFood() {
     fat_per_unit: +document.getElementById('food-fat').value || 0,
     fiber_per_unit: +document.getElementById('food-fiber').value || 0,
   });
-  ['food-name','food-cals','food-unit','food-protein','food-carbs','food-fat','food-fiber'].forEach(id => document.getElementById(id).value = '');
+  ['food-name','food-cals','food-protein','food-carbs','food-fat','food-fiber'].forEach(id => document.getElementById(id).value = ''); document.getElementById('food-unit').value = 'oz';
   toggleAddFood();
   await loadSavedFoods();
   toast('Food saved ✓');
