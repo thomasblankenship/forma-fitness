@@ -902,8 +902,8 @@
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
       <div>
         <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Amount</div>
-        <input type="number" min="0" id="food-modal-qty" placeholder="1" value="1"
-          style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:16px;font-weight:600;outline:none;box-sizing:border-box" / step="0.1" oninput="updateFoodModalPreview()">
+        <input type="number" min="0" id="food-modal-qty" placeholder="1" value="1" step="0.1" oninput="updateFoodModalPreview()"
+          style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:16px;font-weight:600;outline:none;box-sizing:border-box" />
       </div>
       <div>
         <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Unit</div>
@@ -925,6 +925,15 @@
       <div><div style="font-size:15px;font-weight:700;color:#FB7185" id="modal-carbs">0</div><div style="font-size:9px;color:#ADADAD">carbs</div></div>
       <div><div style="font-size:15px;font-weight:700;color:#FBBF24" id="modal-fat">0</div><div style="font-size:9px;color:#ADADAD">fat</div></div>
       <div><div style="font-size:15px;font-weight:700;color:#16A34A" id="modal-fiber">0</div><div style="font-size:9px;color:#ADADAD">fiber</div></div>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Add to</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+        <button type="button" class="food-modal-type-btn active" data-type="breakfast" onclick="selectFoodModalType('breakfast',this)" style="padding:8px 4px;border:1px solid #F97316;border-radius:8px;background:#FFF7ED;color:#F97316;font-size:10px;font-weight:600;cursor:pointer">🍳 Breakfast</button>
+        <button type="button" class="food-modal-type-btn" data-type="lunch" onclick="selectFoodModalType('lunch',this)" style="padding:8px 4px;border:1px solid #E8E8E8;border-radius:8px;background:white;color:#666;font-size:10px;font-weight:600;cursor:pointer">🥗 Lunch</button>
+        <button type="button" class="food-modal-type-btn" data-type="dinner" onclick="selectFoodModalType('dinner',this)" style="padding:8px 4px;border:1px solid #E8E8E8;border-radius:8px;background:white;color:#666;font-size:10px;font-weight:600;cursor:pointer">🍽️ Dinner</button>
+        <button type="button" class="food-modal-type-btn" data-type="snack" onclick="selectFoodModalType('snack',this)" style="padding:8px 4px;border:1px solid #E8E8E8;border-radius:8px;background:white;color:#666;font-size:10px;font-weight:600;cursor:pointer">🍎 Snack</button>
+      </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <button class="btn btn-secondary" onclick="closeFoodModal()" style="background:#F4F4F4;color:#0F0F0F">Cancel</button>
@@ -1576,13 +1585,19 @@ async function showHistoryDetail(date) {
           </div>
         </div>
         <div style="flex:1;display:flex;flex-direction:column;gap:8px">
-          <div style="background:white;border-radius:10px;padding:10px 12px">
-            <div style="font-size:10px;color:#ADADAD;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Remaining</div>
-            <div style="font-size:16px;font-weight:700;color:${remaining<0?'#DC2626':'#F97316'}">${remaining<0?'−':''}${Math.abs(remaining)} cal</div>
+          <div style="background:white;border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:10px;color:#ADADAD;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Remaining</div>
+              <div style="font-size:16px;font-weight:700;color:${remaining<0?'#DC2626':'#F97316'}">${remaining<0?'−':''}${Math.abs(remaining)} cal</div>
+            </div>
+            <div style="font-size:20px">🎯</div>
           </div>
-          <div style="background:white;border-radius:10px;padding:10px 12px">
-            <div style="font-size:10px;color:#ADADAD;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Burned</div>
-            <div style="font-size:16px;font-weight:700;color:#FB7185">${burnedTotal} cal</div>
+          <div style="background:white;border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:10px;color:#ADADAD;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Burned</div>
+              <div style="font-size:16px;font-weight:700;color:#FB7185">${burnedTotal} cal</div>
+            </div>
+            <div style="font-size:20px">🔥</div>
           </div>
         </div>
       </div>
