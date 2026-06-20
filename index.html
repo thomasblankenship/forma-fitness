@@ -176,7 +176,7 @@
       <div id="score-badge"></div>
     </div>
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('today')">Today</button>
+      <button class="tab-btn active" onclick="switchTab('today')">Dashboard</button>
       <button class="tab-btn" onclick="switchTab('history')">History</button>
       <button class="tab-btn" onclick="switchTab('meals')">Meals</button>
       <button class="tab-btn" onclick="switchTab('progress')">Goals</button>
@@ -1549,17 +1549,50 @@ async function showHistoryDetail(date) {
   const score = dayScore(t.calories, t.protein);
   const scoreMap = { great: ['⭐ Great Day','score-great'], good: ['✅ Good Day','score-good'], over: ['❌ Over Limit','score-needs'] };
   const s = score ? scoreMap[score] : null;
+  const burnedTotal = workouts.reduce((a, w) => a + (+w.calories||0), 0);
+  const remaining = TARGETS.calories - t.calories;
+  const ringPct = Math.min((t.calories / TARGETS.calories) * 100, 100);
+
+  // Hero card matching Dashboard design
   document.getElementById('detail-macros').innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <div style="font-size:15px;font-weight:700">${new Date(date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</div>
-      ${s ? `<span class="score-badge ${s[1]}">${s[0]}</span>` : ''}
+    <div style="background:linear-gradient(160deg,#FFF7ED,#FFF1F2);border-radius:16px;padding:20px;margin:-20px -20px 16px -20px;border-bottom:1px solid #FFE4CC">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#F97316;text-transform:uppercase;letter-spacing:1px">${new Date(date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</div>
+          <div style="font-size:13px;color:#666;margin-top:2px">${TARGETS.calories.toLocaleString()} kcal target</div>
+        </div>
+        ${s ? `<span class="score-badge ${s[1]}">${s[0]}</span>` : ''}
+      </div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="position:relative;width:100px;height:100px;flex-shrink:0">
+          <svg viewBox="0 0 100 100" style="transform:rotate(-90deg)">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#FFE4CC" stroke-width="10"/>
+            <circle cx="50" cy="50" r="42" fill="none" stroke="url(#histGrad)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${2*Math.PI*42}" stroke-dashoffset="${2*Math.PI*42*(1-ringPct/100)}"/>
+            <defs><linearGradient id="histGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F97316"/><stop offset="100%" stop-color="#FB7185"/></linearGradient></defs>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <div style="font-size:22px;font-weight:800;color:#0F0F0F">${t.calories}</div>
+            <div style="font-size:10px;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px">eaten</div>
+          </div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+          <div style="background:white;border-radius:10px;padding:10px 12px">
+            <div style="font-size:10px;color:#ADADAD;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Remaining</div>
+            <div style="font-size:16px;font-weight:700;color:${remaining<0?'#DC2626':'#F97316'}">${remaining<0?'−':''}${Math.abs(remaining)} cal</div>
+          </div>
+          <div style="background:white;border-radius:10px;padding:10px 12px">
+            <div style="font-size:10px;color:#ADADAD;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Burned</div>
+            <div style="font-size:16px;font-weight:700;color:#FB7185">${burnedTotal} cal</div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="card-title">Macros</div>
-    ${['Calories','Protein','Carbs','Fat'].map((label, i) => {
-      const keys = ['calories','protein','carbs','fat'];
-      const tgt = [TARGETS.calories, TARGETS.protein, TARGETS.carbs, TARGETS.fat];
-      const cols = ['#0F0F0F','#2563EB','#D97706','#DC2626'];
-      const raw = t[keys[i]];
+    ${['Calories','Protein','Carbs','Fat','Fiber'].map((label, i) => {
+      const keys = ['calories','protein','carbs','fat','fiber'];
+      const tgt = [TARGETS.calories, TARGETS.protein, TARGETS.carbs, TARGETS.fat, 30];
+      const cols = ['#0F0F0F','#F97316','#FB7185','#FBBF24','#16A34A'];
+      const raw = t[keys[i]] || 0;
       const v = i === 0 ? Math.round(raw) : (Math.round(raw * 10) / 10);
       const pct = Math.min((v / tgt[i]) * 100, 100).toFixed(1);
       return `<div class="macro-bar"><div class="macro-bar-header"><span class="macro-label">${label}</span><span class="macro-value">${v} / ${tgt[i]}${i===0?' kcal':'g'}</span></div><div class="macro-track"><div class="macro-fill" style="background:${cols[i]};width:${pct}%"></div></div></div>`;
