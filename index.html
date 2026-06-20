@@ -817,6 +817,28 @@
   </div>
 </div>
 
+<!-- EDIT WORKOUT MODAL -->
+<div id="edit-workout-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:600;align-items:flex-end;justify-content:center">
+  <div style="background:white;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:520px">
+    <div style="font-size:16px;font-weight:700;margin-bottom:16px">Edit Workout</div>
+    <div class="form-group"><input type="text" id="edit-workout-name-input" placeholder="Workout name" /></div>
+    <div class="form-row form-group">
+      <div>
+        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Duration (min)</div>
+        <input type="number" id="edit-workout-duration-input" placeholder="0" min="0" max="600" step="1" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,3)" />
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Active Cals Burned</div>
+        <input type="number" id="edit-workout-cals-input" placeholder="0" min="0" step="1" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')" />
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+      <button class="btn" onclick="closeEditWorkoutModal()" style="background:#F4F4F4;color:#0F0F0F">Cancel</button>
+      <button class="btn" onclick="saveEditedWorkout()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <!-- BARCODE SCANNER MODAL -->
 <div id="barcode-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:600;flex-direction:column;align-items:center;justify-content:center">
   <div style="color:white;font-size:16px;font-weight:700;margin-bottom:16px">Scan Barcode</div>
@@ -1301,17 +1323,9 @@ function renderWorkouts() {
     </div>`).join('');
   // Attach listeners
   el.querySelectorAll('[data-wedit]').forEach(btn => {
-    btn.addEventListener('click', async () => {
+    btn.addEventListener('click', () => {
       const w = currentWorkouts[+btn.dataset.wedit];
-      const newName = prompt('Edit workout name:', w.name);
-      if (!newName || newName.trim() === w.name) return;
-      await fetch(`${SUPABASE_URL}/rest/v1/workouts?id=eq.${w.id}`, {
-        method: 'PATCH',
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newName.trim() })
-      });
-      await loadTodayWorkouts();
-      toast('Workout updated ✓');
+      openEditWorkoutModal(w.id, w.name, w.duration, w.calories);
     });
   });
   el.querySelectorAll('[data-wdelete]').forEach(btn => {
@@ -2797,6 +2811,39 @@ async function saveEditedMeal() {
   } else {
     await loadTodayMeals();
   }
+}
+
+// Edit workout modal
+let _editWorkoutId = null;
+
+function openEditWorkoutModal(workoutId, name, duration, calories) {
+  _editWorkoutId = workoutId;
+  document.getElementById('edit-workout-name-input').value = name;
+  document.getElementById('edit-workout-duration-input').value = duration;
+  document.getElementById('edit-workout-cals-input').value = calories;
+  document.getElementById('edit-workout-modal').style.display = 'flex';
+}
+
+function closeEditWorkoutModal() {
+  document.getElementById('edit-workout-modal').style.display = 'none';
+  _editWorkoutId = null;
+}
+
+async function saveEditedWorkout() {
+  if (!_editWorkoutId) return;
+  const updates = {
+    name: document.getElementById('edit-workout-name-input').value.trim(),
+    duration: Math.round(+document.getElementById('edit-workout-duration-input').value || 0),
+    calories: Math.round(+document.getElementById('edit-workout-cals-input').value || 0),
+  };
+  await fetch(`${SUPABASE_URL}/rest/v1/workouts?id=eq.${_editWorkoutId}`, {
+    method: 'PATCH',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(updates)
+  });
+  closeEditWorkoutModal();
+  toast('Workout updated ✓');
+  await loadTodayWorkouts();
 }
 
 init();
