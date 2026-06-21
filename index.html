@@ -1074,6 +1074,7 @@ function changeMonth(dir) {
 }
 
 const SUPABASE_URL = 'https://azcopsldgmqutqvaajhu.supabase.co';
+const WORKER_URL = 'https://ratio-api.sb-983.workers.dev';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6Y29wc2xkZ21xdXRxdmFhamh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MTYwMTEsImV4cCI6MjA5NzM5MjAxMX0.1cS2YNlIV0jeZPN9nZwpzBLcIiGeQVG0UtZO0bsbqaI';
 const TARGETS = { calories: 2250, protein: 160, carbs: 150, fat: 65, fiber: 30 };
 
@@ -2428,32 +2429,24 @@ async function onBarcodeDetected(barcode) {
   await closeBarcodeScanner();
   toast('Barcode detected — looking up nutrition...');
   try {
-    const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
-    if (!res.ok) throw new Error('network');
+    const res = await fetch(`${WORKER_URL}/barcode?code=${barcode}`);
     const data = await res.json();
-    if (data.status !== 1 || !data.product) {
-      // Product genuinely not in the database — offer label scan fallback
+
+    if (!res.ok || data.error) {
+      // Not found in Open Food Facts OR USDA — offer label scan fallback
       showBarcodeNotFoundModal(barcode);
       return;
     }
-    const p = data.product;
-    const n = p.nutriments || {};
-    const name = p.product_name || p.brands || 'Scanned Food';
-    const serving = p.serving_quantity || 100;
-    const unit = p.serving_quantity_unit || 'g';
-    const cals = Math.round(n['energy-kcal_serving'] || (n['energy-kcal'] ? n['energy-kcal'] * serving / 100 : 0));
-    const protein = parseFloat((n.proteins_serving || n.proteins * serving / 100 || 0).toFixed(1));
-    const carbs = parseFloat((n.carbohydrates_serving || n.carbohydrates * serving / 100 || 0).toFixed(1));
-    const fat = parseFloat((n.fat_serving || n.fat * serving / 100 || 0).toFixed(1));
-    const fiber = parseFloat((n.fiber_serving || (n.fiber ? n.fiber * serving / 100 : 0) || 0).toFixed(1));
 
-    if (!cals) {
-      // Found product but no usable nutrition data
-      showBarcodeNotFoundModal(barcode, name);
-      return;
-    }
-
-    labelScannedData = { name, calories: cals, protein, carbs, fat, fiber, unit: `${serving}${unit} serving` };
+    labelScannedData = {
+      name: data.name,
+      calories: data.calories,
+      protein: data.protein,
+      carbs: data.carbs,
+      fat: data.fat,
+      fiber: data.fiber,
+      unit: data.serving_size + ' serving'
+    };
     showLabelResult(labelScannedData);
     openLabelModal(true);
   } catch(e) {
@@ -2527,30 +2520,26 @@ function previewLabel(e) {
 async function readLabelWithClaude(base64DataUrl, mimeType) {
   try {
     const base64 = base64DataUrl.split(',')[1];
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch(`${WORKER_URL}/scan-label`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 500,
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'image', source: { type: 'base64', media_type: mimeType, data: base64 } },
-            { type: 'text', text: 'Read this nutrition label and respond ONLY with a JSON object, no markdown, no explanation. Format: {"name":"product name","calories":0,"protein":0,"carbs":0,"fat":0,"serving":"serving size description"}. Use per-serving values. If you cannot read the label clearly, use your best estimate.' }
-          ]
-        }]
-      })
+      body: JSON.stringify({ image_base64: base64, media_type: mimeType })
     });
     const data = await res.json();
-    const text = data.content?.[0]?.text || '';
-    const parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
-    labelScannedData = parsed;
-    showLabelResult(parsed);
+
+    if (!res.ok || data.error) {
+      document.getElementById('label-loading').style.display = 'none';
+      document.getElementById('label-cancel-btn').style.display = 'block';
+      toast(data.error || 'Could not read label — try manual entry');
+      return;
+    }
+
+    labelScannedData = data;
+    showLabelResult(data);
   } catch(e) {
     document.getElementById('label-loading').style.display = 'none';
     document.getElementById('label-cancel-btn').style.display = 'block';
-    toast('Could not read label — try manual entry');
+    toast('Network error — check connection and try again');
   }
 }
 
@@ -2575,6 +2564,7 @@ async function logLabelAsFood() {
     protein: labelScannedData.protein || 0,
     carbs: labelScannedData.carbs || 0,
     fat: labelScannedData.fat || 0,
+    fiber: labelScannedData.fiber || 0,
     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   });
   await loadTodayMeals();
