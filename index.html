@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+  <script>eruda.init();</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ratio</title>
@@ -2529,36 +2531,46 @@ async function deleteSavedMeal(id) {
 let html5QrcodeScanner = null;
 let labelScannedData = null;
 
-function openBarcodeScanner() {
+async function openBarcodeScanner() {
+  // Clean up any previous scanner instance first
+  if (html5QrcodeScanner) {
+    try {
+      await html5QrcodeScanner.stop();
+    } catch(e) {}
+    try {
+      html5QrcodeScanner.clear();
+    } catch(e) {}
+    html5QrcodeScanner = null;
+  }
+  // Clear the reader div to avoid "element already used" errors
+  const readerEl = document.getElementById('barcode-reader');
+  readerEl.innerHTML = '';
+
   document.getElementById('barcode-modal').style.display = 'flex';
+
   setTimeout(() => {
-    html5QrcodeScanner = new Html5Qrcode("barcode-reader");
-    const startWithFallback = () => {
+    try {
+      html5QrcodeScanner = new Html5Qrcode("barcode-reader");
       html5QrcodeScanner.start(
         { facingMode: "environment" },
-        { fps: 20, qrbox: { width: 280, height: 160 } },
+        { 
+          fps: 15,
+          qrbox: { width: 250, height: 150 },
+          experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+        },
         onBarcodeDetected,
         err => {}
-      ).catch(() => {
-        toast('Camera access denied');
+      ).catch(err => {
+        console.error('Scanner start error:', err);
+        toast('Camera access denied — please allow camera in browser settings');
         closeBarcodeScanner();
       });
-    };
-    html5QrcodeScanner.start(
-      { 
-        facingMode: "environment",
-        advanced: [{ focusMode: "continuous" }]
-      },
-      { 
-        fps: 30,
-        qrbox: { width: 280, height: 160 },
-        aspectRatio: 1.7,
-        experimentalFeatures: { useBarCodeDetectorIfSupported: true }
-      },
-      onBarcodeDetected,
-      err => {}
-    ).catch(startWithFallback);
-  }, 300);
+    } catch(e) {
+      console.error('Scanner init error:', e);
+      toast('Could not start camera scanner');
+      closeBarcodeScanner();
+    }
+  }, 500);
 }
 
 async function onBarcodeDetected(barcode) {
@@ -2656,12 +2668,15 @@ function previewLabel(e) {
 async function readLabelWithClaude(base64DataUrl, mimeType) {
   try {
     const base64 = base64DataUrl.split(',')[1];
+    console.log('Sending to Worker:', WORKER_URL + '/scan-label', 'mimeType:', mimeType, 'base64 length:', base64?.length);
     const res = await fetch(`${WORKER_URL}/scan-label`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ image_base64: base64, media_type: mimeType })
     });
+    console.log('Worker response status:', res.status);
     const data = await res.json();
+    console.log('Worker response data:', data);
 
     if (!res.ok || data.error) {
       document.getElementById('label-loading').style.display = 'none';
@@ -2673,9 +2688,10 @@ async function readLabelWithClaude(base64DataUrl, mimeType) {
     labelScannedData = data;
     showLabelResult(data);
   } catch(e) {
+    console.error('Label scan error:', e.name, e.message, e.stack);
     document.getElementById('label-loading').style.display = 'none';
     document.getElementById('label-cancel-btn').style.display = 'block';
-    toast('Network error — check connection and try again');
+    toast('Error: ' + e.message);
   }
 }
 
