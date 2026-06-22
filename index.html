@@ -1238,7 +1238,9 @@ async function dbPost(table, data) {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
     body: JSON.stringify(data)
   });
-  return res.json();
+  const result = await res.json();
+  if (!res.ok) throw new Error(JSON.stringify(result));
+  return result;
 }
 async function dbDelete(table, id) {
   await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
@@ -2467,19 +2469,26 @@ async function saveFood() {
 async function saveMeal() {
   const name = document.getElementById('saved-meal-name').value.trim();
   const cals = +document.getElementById('saved-meal-cals').value;
-  if (!name || !cals) { toast('Enter meal name and calories'); return; }
-  await dbPost('saved_meals', {
-    name,
-    calories: cals,
-    protein: +document.getElementById('saved-meal-protein').value || 0,
-    carbs: +document.getElementById('saved-meal-carbs').value || 0,
-    fat: +document.getElementById('saved-meal-fat').value || 0,
-    fiber: +document.getElementById('saved-meal-fiber').value || 0,
-  });
-  ['saved-meal-name','saved-meal-cals','saved-meal-protein','saved-meal-carbs','saved-meal-fat','saved-meal-fiber'].forEach(id => document.getElementById(id).value = '');
-  toggleAddSavedMeal();
-  await loadSavedMeals();
-  toast('Meal saved ✓');
+  if (!name) { toast('Enter a meal name'); return; }
+  if (!cals) { toast('Enter calories'); return; }
+  try {
+    const result = await dbPost('saved_meals', {
+      name,
+      calories: cals,
+      protein: +document.getElementById('saved-meal-protein').value || 0,
+      carbs: +document.getElementById('saved-meal-carbs').value || 0,
+      fat: +document.getElementById('saved-meal-fat').value || 0,
+      fiber: +document.getElementById('saved-meal-fiber').value || 0,
+    });
+    console.log('saveMeal result:', result);
+    ['saved-meal-name','saved-meal-cals','saved-meal-protein','saved-meal-carbs','saved-meal-fat','saved-meal-fiber'].forEach(id => document.getElementById(id).value = '');
+    toggleAddSavedMeal();
+    await loadSavedMeals();
+    toast('Meal saved ✓');
+  } catch(e) {
+    console.error('saveMeal error:', e);
+    toast('Error saving meal: ' + e.message);
+  }
 }
 
 // Save food from Today's form
