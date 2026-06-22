@@ -494,7 +494,7 @@
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Serving size</div>
               <div style="display:flex;gap:6px">
-                <input type="number" id="food-serving-qty" placeholder="1" value="1" min="0.1" step="0.1" inputmode="decimal" style="width:70px;padding:10px 8px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none;text-align:center" />
+                <input type="number" id="food-serving-qty" placeholder="1" min="0.1" step="0.1" inputmode="decimal" style="width:70px;padding:10px 8px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none;text-align:center" />
                 <select id="food-unit" style="flex:1;padding:10px 8px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none;background:white">
                 <option value="oz">oz</option>
                 <option value="g">g</option>
@@ -2387,7 +2387,14 @@ function renderSavedMeals() {
 
 function toggleAddFood() {
   const el = document.getElementById('add-food-form');
-  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  const isHidden = el.style.display === 'none';
+  el.style.display = isHidden ? 'block' : 'none';
+  if (isHidden) {
+    // Clear all fields when opening
+    ['food-name','food-cals','food-protein','food-carbs','food-fat','food-fiber'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('food-serving-qty').value = '';
+    document.getElementById('food-unit').value = 'oz';
+  }
 }
 
 function toggleAddSavedMeal() {
