@@ -493,7 +493,21 @@
             </div>
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Serving size</div>
-              <input type="text" id="food-unit" placeholder="e.g. 1 cup (140g)" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box" />
+              <div style="display:flex;gap:6px">
+                <input type="number" id="food-serving-qty" placeholder="1" value="1" min="0.1" step="0.1" inputmode="decimal" style="width:70px;padding:10px 8px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none;text-align:center" />
+                <select id="food-unit" style="flex:1;padding:10px 8px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none;background:white">
+                <option value="oz">oz</option>
+                <option value="g">g</option>
+                <option value="cup">cup</option>
+                <option value="tbsp">tbsp</option>
+                <option value="tsp">tsp</option>
+                <option value="each">each</option>
+                <option value="slice">slice</option>
+                <option value="serving">serving</option>
+                <option value="lb">lb</option>
+                <option value="ml">ml</option>
+                </select>
+              </div>
             </div>
           </div>
           <div class="form-row form-group">
@@ -856,7 +870,21 @@
       </div>
       <div>
         <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Serving size</div>
-        <input type="text" id="edit-food-unit" placeholder="e.g. 1 cup (140g)" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box" />
+        <div style="display:flex;gap:6px">
+          <input type="number" id="edit-food-serving-qty" placeholder="1" min="0.1" step="0.1" inputmode="decimal" style="width:70px;padding:10px 8px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none;text-align:center" />
+          <select id="edit-food-unit" style="flex:1;padding:10px 8px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none;background:white">
+          <option value="oz">oz</option>
+                <option value="g">g</option>
+                <option value="cup">cup</option>
+                <option value="tbsp">tbsp</option>
+                <option value="tsp">tsp</option>
+                <option value="each">each</option>
+                <option value="slice">slice</option>
+                <option value="serving">serving</option>
+                <option value="lb">lb</option>
+                <option value="ml">ml</option>
+          </select>
+        </div>
       </div>
     </div>
     <div class="form-row form-group">
@@ -2370,7 +2398,9 @@ function toggleAddSavedMeal() {
 async function saveFood() {
   const name = document.getElementById('food-name').value.trim();
   const cals = +document.getElementById('food-cals').value;
-  const unit = document.getElementById('food-unit').value.trim() || 'oz';
+  const servingQty = document.getElementById('food-serving-qty').value || '1';
+  const servingUnit = document.getElementById('food-unit').value;
+  const unit = servingQty === '1' ? servingUnit : `${servingQty} ${servingUnit}`;
   if (!name || !cals) { toast('Enter food name and calories'); return; }
   await dbPost('saved_foods', {
     name, unit,
@@ -2380,7 +2410,7 @@ async function saveFood() {
     fat_per_unit: +document.getElementById('food-fat').value || 0,
     fiber_per_unit: +document.getElementById('food-fiber').value || 0,
   });
-  ['food-name','food-cals','food-protein','food-carbs','food-fat','food-fiber'].forEach(id => document.getElementById(id).value = ''); document.getElementById('food-unit').value = 'oz';
+  ['food-name','food-cals','food-protein','food-carbs','food-fat','food-fiber'].forEach(id => document.getElementById(id).value = ''); document.getElementById('food-unit').value = 'oz'; document.getElementById('food-serving-qty').value = '1';
   toggleAddFood();
   await loadSavedFoods();
   toast('Food saved ✓');
@@ -2543,7 +2573,20 @@ function openEditFoodModal(id) {
   document.getElementById('edit-food-carbs').value = food.carbs_per_unit || 0;
   document.getElementById('edit-food-fat').value = food.fat_per_unit || 0;
   document.getElementById('edit-food-fiber').value = food.fiber_per_unit || 0;
-  document.getElementById('edit-food-unit').value = food.unit || '';
+  // Parse stored unit back into qty + dropdown
+  const storedUnit = food.unit || '1 oz';
+  const unitParts = storedUnit.match(/^([\d.]+)\s*(.+)$/);
+  const units = ['oz','g','cup','tbsp','tsp','each','slice','serving','lb','ml'];
+  if (unitParts && units.includes(unitParts[2].trim())) {
+    document.getElementById('edit-food-serving-qty').value = unitParts[1];
+    document.getElementById('edit-food-unit').value = unitParts[2].trim();
+  } else if (units.includes(storedUnit.trim())) {
+    document.getElementById('edit-food-serving-qty').value = '1';
+    document.getElementById('edit-food-unit').value = storedUnit.trim();
+  } else {
+    document.getElementById('edit-food-serving-qty').value = '1';
+    document.getElementById('edit-food-unit').value = 'oz';
+  }
   document.getElementById('edit-food-modal').style.display = 'flex';
 }
 
@@ -2561,7 +2604,11 @@ async function saveEditedFood() {
     carbs_per_unit: Math.round(+document.getElementById('edit-food-carbs').value * 10) / 10 || 0,
     fat_per_unit: Math.round(+document.getElementById('edit-food-fat').value * 10) / 10 || 0,
     fiber_per_unit: Math.round(+document.getElementById('edit-food-fiber').value * 10) / 10 || 0,
-    unit: document.getElementById('edit-food-unit').value,
+    unit: (() => {
+      const qty = document.getElementById('edit-food-serving-qty').value || '1';
+      const u = document.getElementById('edit-food-unit').value;
+      return qty === '1' ? u : `${qty} ${u}`;
+    })(),
   };
   await fetch(`${SUPABASE_URL}/rest/v1/saved_foods?id=eq.${_editFoodId}`, {
     method: 'PATCH',
