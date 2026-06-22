@@ -2595,14 +2595,17 @@ async function openBarcodeScanner() {
 
 async function onBarcodeDetected(barcode) {
   await closeBarcodeScanner();
+  // Clean barcode — strip spaces, dashes, non-numeric chars
+  const cleanBarcode = String(barcode).replace(/[^0-9]/g, '').trim();
+  console.log('Raw barcode:', barcode, 'Clean:', cleanBarcode);
   toast('Barcode detected — looking up nutrition...');
   try {
-    const res = await fetch(`${WORKER_URL}/barcode?code=${barcode}`);
+    const res = await fetch(`${WORKER_URL}/barcode?code=${cleanBarcode}`);
     const data = await res.json();
 
     if (!res.ok || data.error) {
       // Not found in Open Food Facts OR USDA — offer label scan fallback
-      showBarcodeNotFoundModal(barcode);
+      showBarcodeNotFoundModal(cleanBarcode);
       return;
     }
 
@@ -2685,20 +2688,43 @@ function previewLabel(e) {
   reader.readAsDataURL(file);
 }
 
+async function compressImage(dataUrl, maxWidth = 1024) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const scale = Math.min(1, maxWidth / img.width);
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', 0.8));
+    };
+    img.src = dataUrl;
+  });
+}
+
 async function readLabelWithClaude(base64DataUrl, mimeType) {
   try {
-    const base64 = base64DataUrl.split(',')[1];
-    console.log('Sending to Worker:', WORKER_URL + '/scan-label', 'mimeType:', mimeType, 'base64 length:', base64?.length);
+    // Compress image before sending to keep payload small
+    const compressed = await compressImage(base64DataUrl);
+    const base64 = compressed.split(',')[1];
+    console.log('Sending label to Worker, base64 length:', base64?.length);
+
     const res = await fetch(`${WORKER_URL}/scan-label`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image_base64: base64, media_type: mimeType })
+      body: JSON.stringify({ image_base64: base64, media_type: 'image/jpeg' })
     });
-    console.log('Worker response status:', res.status);
-    const data = await res.json();
-    console.log('Worker response data:', data);
 
-    if (!res.ok || data.error) {
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error('Worker error ' + res.status + ': ' + errText.substring(0, 100));
+    }
+
+    const data = await res.json();
+
+    if (data.error) {
       document.getElementById('label-loading').style.display = 'none';
       document.getElementById('label-cancel-btn').style.display = 'block';
       toast(data.error || 'Could not read label — try manual entry');
@@ -2708,10 +2734,10 @@ async function readLabelWithClaude(base64DataUrl, mimeType) {
     labelScannedData = data;
     showLabelResult(data);
   } catch(e) {
-    console.error('Label scan error:', e.name, e.message, e.stack);
+    console.error('Label scan error:', e.name, e.message);
     document.getElementById('label-loading').style.display = 'none';
     document.getElementById('label-cancel-btn').style.display = 'block';
-    toast('Error: ' + e.message);
+    toast('Label error: ' + e.message.substring(0, 80));
   }
 }
 
