@@ -488,40 +488,31 @@
           <div class="form-group"><input type="text" id="food-name" placeholder="Food name (e.g. Chicken Breast)" /></div>
           <div class="form-row form-group">
             <div>
-              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Cals per unit</div>
-              <input type="number" id="food-cals" placeholder="0" min="0" step="1" inputmode="numeric" / oninput="this.value=this.value.replace(/[^0-9]/g,'');if(this.value<0)this.value=0">
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Calories per serving</div>
+              <input type="number" id="food-cals" placeholder="210" min="0" step="1" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'');if(this.value<0)this.value=0">
             </div>
             <div>
-              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Unit</div>
-              <select id="food-unit" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none;background:white">
-                <option value="oz">oz</option>
-                <option value="g">g</option>
-                <option value="cup">cup</option>
-                <option value="tbsp">tbsp</option>
-                <option value="tsp">tsp</option>
-                <option value="each">each</option>
-                <option value="slice">slice</option>
-                <option value="serving">serving</option>
-              </select>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Serving size</div>
+              <input type="text" id="food-unit" placeholder="e.g. 1 cup (140g)" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box" />
             </div>
           </div>
           <div class="form-row form-group">
             <div>
-              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein per unit</div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein per serving</div>
               <input type="number" id="food-protein" placeholder="0" min="0" / step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
             </div>
             <div>
-              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs per unit</div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs per serving</div>
               <input type="number" id="food-carbs" placeholder="0" min="0" / step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
             </div>
           </div>
           <div class="form-row form-group">
             <div>
-              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat per unit</div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat per serving</div>
               <input type="number" id="food-fat" placeholder="0" min="0" / step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
             </div>
             <div>
-              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber per unit</div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber per serving</div>
               <input type="number" id="food-fiber" placeholder="0" min="0" / step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
             </div>
           </div>
@@ -864,17 +855,8 @@
         <input type="number" id="edit-food-cals" placeholder="0" min="0" step="1" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')" />
       </div>
       <div>
-        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Unit</div>
-        <select id="edit-food-unit" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none;background:white">
-          <option value="oz">oz</option>
-          <option value="g">g</option>
-          <option value="cup">cup</option>
-          <option value="tbsp">tbsp</option>
-          <option value="tsp">tsp</option>
-          <option value="each">each</option>
-          <option value="slice">slice</option>
-          <option value="serving">serving</option>
-        </select>
+        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Serving size</div>
+        <input type="text" id="edit-food-unit" placeholder="e.g. 1 cup (140g)" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box" />
       </div>
     </div>
     <div class="form-row form-group">
@@ -966,22 +948,12 @@
     <div style="font-size:12px;color:#ADADAD;margin-bottom:16px" id="food-modal-per"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
       <div>
-        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Amount</div>
+        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Number of servings</div>
         <input type="number" min="0" id="food-modal-qty" placeholder="1" value="1" step="0.1" oninput="updateFoodModalPreview()"
           style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:16px;font-weight:600;outline:none;box-sizing:border-box" />
       </div>
-      <div>
-        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Unit</div>
-        <select id="food-modal-unit-select" oninput="updateFoodModalPreview()" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none;background:white">
-          <option value="serving">serving</option>
-          <option value="oz">oz</option>
-          <option value="g">g</option>
-          <option value="cup">cup</option>
-          <option value="tbsp">tbsp</option>
-          <option value="tsp">tsp</option>
-          <option value="each">each</option>
-          <option value="slice">slice</option>
-        </select>
+      <div style="display:flex;align-items:flex-end;padding-bottom:2px">
+        <div id="food-modal-serving-label" style="font-size:13px;color:#666;padding:10px 12px;background:#F4F4F4;border-radius:8px;width:100%;box-sizing:border-box">1 serving</div>
       </div>
     </div>
     <div style="background:#FFF7ED;border-radius:10px;padding:12px;margin-bottom:16px;display:grid;grid-template-columns:repeat(5,1fr);text-align:center">
@@ -2461,14 +2433,8 @@ function openFoodModal(id) {
   }
   if (!activeFoodForModal) return;
   document.getElementById('food-modal-name').textContent = activeFoodForModal.name;
-  document.getElementById('food-modal-per').textContent = `${activeFoodForModal.calories_per_unit} kcal per ${activeFoodForModal.unit}`;
+  document.getElementById('food-modal-per').textContent = `${activeFoodForModal.cals_per_unit} kcal per ${activeFoodForModal.unit || 'serving'}`;
   document.getElementById('food-modal-qty').value = 1;
-  // Set unit selector to food's default unit
-  const unitSelect = document.getElementById('food-modal-unit-select');
-  const foodUnit = activeFoodForModal.unit || 'oz';
-  // Try to match unit in dropdown, default to oz
-  const matchingOption = [...unitSelect.options].find(o => o.value === foodUnit);
-  unitSelect.value = matchingOption ? foodUnit : 'oz';
   updateFoodModalPreview();
   window._foodModalType = 'breakfast';
   document.querySelectorAll('.food-modal-type-btn').forEach(b => {
@@ -2577,9 +2543,7 @@ function openEditFoodModal(id) {
   document.getElementById('edit-food-carbs').value = food.carbs_per_unit || 0;
   document.getElementById('edit-food-fat').value = food.fat_per_unit || 0;
   document.getElementById('edit-food-fiber').value = food.fiber_per_unit || 0;
-  const unitSelect = document.getElementById('edit-food-unit');
-  const match = [...unitSelect.options].find(o => o.value === food.unit);
-  unitSelect.value = match ? food.unit : 'oz';
+  document.getElementById('edit-food-unit').value = food.unit || '';
   document.getElementById('edit-food-modal').style.display = 'flex';
 }
 
