@@ -189,6 +189,9 @@
   <div class="content">
     <!-- TODAY -->
     <div id="tab-today">
+      <div style="padding:8px 0">
+        <button type="button" onclick="testWorker()" style="width:100%;background:#F97316;color:white;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:600;cursor:pointer">🔧 Tap Here to Test Worker Connection</button>
+      </div>
 
       <!-- CALORIE RING HERO -->
       <div style="background:linear-gradient(160deg,#FFF7ED,#FFF1F2);border-radius:16px;padding:20px;margin-bottom:12px;border:1px solid #FFE4CC">
@@ -532,10 +535,7 @@
             oninput="onFoodSearchInput(this.value)" />
         </div>
         <div id="food-search-results" style="display:none;margin-bottom:12px"></div>
-        <div style="margin-bottom:8px">
-  <button type="button" onclick="testWorker()" style="width:100%;background:#F4F4F4;color:#666;border:none;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">🔧 Test Worker Connection</button>
-</div>
-<div id="saved-foods-list"><div class="loading">Loading...</div></div>
+        <div id="saved-foods-list"><div class="loading">Loading...</div></div>
       </div>
 
       <!-- SAVED MEALS -->
