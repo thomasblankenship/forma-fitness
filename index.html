@@ -489,7 +489,7 @@
           <div class="form-row form-group">
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Calories per serving</div>
-              <input type="number" id="food-cals" placeholder="210" min="0" step="1" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'');if(this.value<0)this.value=0">
+              <input type="number" id="food-cals" placeholder="0" min="0" step="1" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'');if(this.value<0)this.value=0">
             </div>
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Serving size</div>
@@ -910,6 +910,44 @@
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
       <button class="btn" onclick="closeEditFoodModal()" style="background:#F4F4F4;color:#0F0F0F">Cancel</button>
       <button class="btn" onclick="saveEditedFood()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT SAVED MEAL MODAL -->
+<div id="edit-meal-saved-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:600;align-items:flex-end;justify-content:center">
+  <div style="background:white;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto">
+    <div style="font-size:16px;font-weight:700;margin-bottom:16px">Edit Saved Meal</div>
+    <div class="form-group">
+      <input type="text" id="edit-saved-meal-name" placeholder="Meal name" />
+    </div>
+    <div class="form-row form-group">
+      <div>
+        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Calories</div>
+        <input type="number" id="edit-saved-meal-cals" placeholder="0" min="0" step="1" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')" />
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein (g)</div>
+        <input type="number" id="edit-saved-meal-protein" placeholder="0" min="0" step="0.1" inputmode="decimal" />
+      </div>
+    </div>
+    <div class="form-row form-group">
+      <div>
+        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs (g)</div>
+        <input type="number" id="edit-saved-meal-carbs" placeholder="0" min="0" step="0.1" inputmode="decimal" />
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat (g)</div>
+        <input type="number" id="edit-saved-meal-fat" placeholder="0" min="0" step="0.1" inputmode="decimal" />
+      </div>
+    </div>
+    <div class="form-group">
+      <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber (g)</div>
+      <input type="number" id="edit-saved-meal-fiber" placeholder="0" min="0" step="0.1" inputmode="decimal" />
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+      <button class="btn" onclick="closeEditSavedMealModal()" style="background:#F4F4F4;color:#0F0F0F">Cancel</button>
+      <button class="btn" onclick="saveEditedSavedMeal()">Save Changes</button>
     </div>
   </div>
 </div>
@@ -2374,7 +2412,7 @@ function renderSavedMeals() {
       <div class="meal-info">
         <div class="meal-name">
           ${m.name}
-          <button onclick="editSavedMealName('${m.id}','${m.name.replace(/'/g, "\'")}')" style="background:none;border:none;cursor:pointer;font-size:12px;color:#ADADAD;padding:0 4px;vertical-align:middle">✏️</button>
+          <button onclick="openEditSavedMealModal('${m.id}')" style="background:none;border:none;cursor:pointer;font-size:12px;color:#ADADAD;padding:0 4px;vertical-align:middle">✏️</button>
         </div>
         <div class="meal-meta">${Math.max(0,m.calories)} kcal · P:${Math.max(0,m.protein||0)}g C:${Math.max(0,m.carbs||0)}g F:${Math.max(0,m.fat||0)}g${m.fiber ? ` Fi:${Math.max(0,m.fiber)}g` : ''}</div>
       </div>
@@ -2420,7 +2458,7 @@ async function saveFood() {
     fat_per_unit: +document.getElementById('food-fat').value || 0,
     fiber_per_unit: +document.getElementById('food-fiber').value || 0,
   });
-  ['food-name','food-cals','food-protein','food-carbs','food-fat','food-fiber'].forEach(id => document.getElementById(id).value = ''); document.getElementById('food-unit').value = 'oz'; document.getElementById('food-serving-qty').value = '1';
+  ['food-name','food-cals','food-protein','food-carbs','food-fat','food-fiber'].forEach(id => document.getElementById(id).value = ''); document.getElementById('food-unit').value = 'oz'; document.getElementById('food-serving-qty').value = '';
   toggleAddFood();
   await loadSavedFoods();
   toast('Food saved ✓');
@@ -2634,16 +2672,48 @@ async function editSavedFoodName(id) {
   openEditFoodModal(id);
 }
 
-async function editSavedMealName(id, currentName) {
-  const newName = prompt('Edit meal name:', currentName);
-  if (!newName || newName.trim() === currentName) return;
-  await fetch(`${SUPABASE_URL}/rest/v1/saved_meals?id=eq.${id}`, {
+let _editSavedMealId = null;
+
+function openEditSavedMealModal(id) {
+  const meal = savedMeals.find(m => m.id === id);
+  if (!meal) return;
+  _editSavedMealId = id;
+  document.getElementById('edit-saved-meal-name').value = meal.name || '';
+  document.getElementById('edit-saved-meal-cals').value = meal.calories || 0;
+  document.getElementById('edit-saved-meal-protein').value = meal.protein || 0;
+  document.getElementById('edit-saved-meal-carbs').value = meal.carbs || 0;
+  document.getElementById('edit-saved-meal-fat').value = meal.fat || 0;
+  document.getElementById('edit-saved-meal-fiber').value = meal.fiber || 0;
+  document.getElementById('edit-meal-saved-modal').style.display = 'flex';
+}
+
+function closeEditSavedMealModal() {
+  document.getElementById('edit-meal-saved-modal').style.display = 'none';
+  _editSavedMealId = null;
+}
+
+async function saveEditedSavedMeal() {
+  if (!_editSavedMealId) return;
+  const updates = {
+    name: document.getElementById('edit-saved-meal-name').value.trim(),
+    calories: Math.round(+document.getElementById('edit-saved-meal-cals').value || 0),
+    protein: Math.round(+document.getElementById('edit-saved-meal-protein').value * 10) / 10 || 0,
+    carbs: Math.round(+document.getElementById('edit-saved-meal-carbs').value * 10) / 10 || 0,
+    fat: Math.round(+document.getElementById('edit-saved-meal-fat').value * 10) / 10 || 0,
+    fiber: Math.round(+document.getElementById('edit-saved-meal-fiber').value * 10) / 10 || 0,
+  };
+  await fetch(`${SUPABASE_URL}/rest/v1/saved_meals?id=eq.${_editSavedMealId}`, {
     method: 'PATCH',
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: newName.trim() })
+    body: JSON.stringify(updates)
   });
+  closeEditSavedMealModal();
   await loadSavedMeals();
-  toast('Name updated ✓');
+  toast('Meal updated ✓');
+}
+
+async function editSavedMealName(id) {
+  openEditSavedMealModal(id);
 }
 
 async function deleteSavedFood(id) {
