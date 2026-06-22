@@ -851,6 +851,59 @@
   </div>
 </div>
 
+<!-- EDIT SAVED FOOD MODAL -->
+<div id="edit-food-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:600;align-items:flex-end;justify-content:center">
+  <div style="background:white;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto">
+    <div style="font-size:16px;font-weight:700;margin-bottom:16px">Edit Saved Food</div>
+    <div class="form-group">
+      <input type="text" id="edit-food-name" placeholder="Food name" />
+    </div>
+    <div class="form-row form-group">
+      <div>
+        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Cals per unit</div>
+        <input type="number" id="edit-food-cals" placeholder="0" min="0" step="1" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')" />
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Unit</div>
+        <select id="edit-food-unit" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none;background:white">
+          <option value="oz">oz</option>
+          <option value="g">g</option>
+          <option value="cup">cup</option>
+          <option value="tbsp">tbsp</option>
+          <option value="tsp">tsp</option>
+          <option value="each">each</option>
+          <option value="slice">slice</option>
+          <option value="serving">serving</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row form-group">
+      <div>
+        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein per unit (g)</div>
+        <input type="number" id="edit-food-protein" placeholder="0" min="0" step="0.1" inputmode="decimal" />
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs per unit (g)</div>
+        <input type="number" id="edit-food-carbs" placeholder="0" min="0" step="0.1" inputmode="decimal" />
+      </div>
+    </div>
+    <div class="form-row form-group">
+      <div>
+        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat per unit (g)</div>
+        <input type="number" id="edit-food-fat" placeholder="0" min="0" step="0.1" inputmode="decimal" />
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber per unit (g)</div>
+        <input type="number" id="edit-food-fiber" placeholder="0" min="0" step="0.1" inputmode="decimal" />
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+      <button class="btn" onclick="closeEditFoodModal()" style="background:#F4F4F4;color:#0F0F0F">Cancel</button>
+      <button class="btn" onclick="saveEditedFood()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <!-- BARCODE SCANNER MODAL -->
 <div id="barcode-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:600;flex-direction:column;align-items:center;justify-content:center">
   <div style="color:white;font-size:16px;font-weight:700;margin-bottom:16px">Scan Barcode</div>
@@ -2302,7 +2355,7 @@ function renderSavedFoods() {
       <div class="meal-info">
         <div class="meal-name">
           ${f.name}
-          <button onclick="editSavedFoodName('${f.id}','${f.name.replace(/'/g, "\'")}')" style="background:none;border:none;cursor:pointer;font-size:12px;color:#ADADAD;padding:0 4px;vertical-align:middle">✏️</button>
+          <button onclick="openEditFoodModal('${f.id}')" style="background:none;border:none;cursor:pointer;font-size:12px;color:#ADADAD;padding:0 4px;vertical-align:middle">✏️</button>
         </div>
         <div class="meal-meta">${f.calories_per_unit} kcal · ${f.protein_per_unit}g P per ${f.unit}</div>
       </div>
@@ -2512,16 +2565,52 @@ async function logSavedMealWithType(type) {
   toast(`${m.name} added ✓`);
 }
 
-async function editSavedFoodName(id, currentName) {
-  const newName = prompt('Edit food name:', currentName);
-  if (!newName || newName.trim() === currentName) return;
-  await fetch(`${SUPABASE_URL}/rest/v1/saved_foods?id=eq.${id}`, {
+let _editFoodId = null;
+
+function openEditFoodModal(id) {
+  const food = savedFoods.find(f => f.id === id);
+  if (!food) return;
+  _editFoodId = id;
+  document.getElementById('edit-food-name').value = food.name || '';
+  document.getElementById('edit-food-cals').value = food.cals_per_unit || 0;
+  document.getElementById('edit-food-protein').value = food.protein_per_unit || 0;
+  document.getElementById('edit-food-carbs').value = food.carbs_per_unit || 0;
+  document.getElementById('edit-food-fat').value = food.fat_per_unit || 0;
+  document.getElementById('edit-food-fiber').value = food.fiber_per_unit || 0;
+  const unitSelect = document.getElementById('edit-food-unit');
+  const match = [...unitSelect.options].find(o => o.value === food.unit);
+  unitSelect.value = match ? food.unit : 'oz';
+  document.getElementById('edit-food-modal').style.display = 'flex';
+}
+
+function closeEditFoodModal() {
+  document.getElementById('edit-food-modal').style.display = 'none';
+  _editFoodId = null;
+}
+
+async function saveEditedFood() {
+  if (!_editFoodId) return;
+  const updates = {
+    name: document.getElementById('edit-food-name').value.trim(),
+    cals_per_unit: Math.round(+document.getElementById('edit-food-cals').value || 0),
+    protein_per_unit: Math.round(+document.getElementById('edit-food-protein').value * 10) / 10 || 0,
+    carbs_per_unit: Math.round(+document.getElementById('edit-food-carbs').value * 10) / 10 || 0,
+    fat_per_unit: Math.round(+document.getElementById('edit-food-fat').value * 10) / 10 || 0,
+    fiber_per_unit: Math.round(+document.getElementById('edit-food-fiber').value * 10) / 10 || 0,
+    unit: document.getElementById('edit-food-unit').value,
+  };
+  await fetch(`${SUPABASE_URL}/rest/v1/saved_foods?id=eq.${_editFoodId}`, {
     method: 'PATCH',
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: newName.trim() })
+    body: JSON.stringify(updates)
   });
+  closeEditFoodModal();
   await loadSavedFoods();
-  toast('Name updated ✓');
+  toast('Food updated ✓');
+}
+
+async function editSavedFoodName(id) {
+  openEditFoodModal(id);
 }
 
 async function editSavedMealName(id, currentName) {
