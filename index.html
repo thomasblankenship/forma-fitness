@@ -2600,8 +2600,11 @@ async function onBarcodeDetected(barcode) {
   console.log('Raw barcode:', barcode, 'Clean:', cleanBarcode);
   toast('Barcode detected — looking up nutrition...');
   try {
+    console.log('Fetching barcode:', WORKER_URL + '/barcode?code=' + cleanBarcode);
     const res = await fetch(`${WORKER_URL}/barcode?code=${cleanBarcode}`);
+    console.log('Barcode response status:', res.status);
     const data = await res.json();
+    console.log('Barcode response data:', JSON.stringify(data));
 
     if (!res.ok || data.error) {
       // Not found in Open Food Facts OR USDA — offer label scan fallback
@@ -2621,7 +2624,8 @@ async function onBarcodeDetected(barcode) {
     showLabelResult(labelScannedData);
     openLabelModal(true);
   } catch(e) {
-    toast('Network error — check connection and try again');
+    console.error('Barcode fetch error:', e.name, e.message);
+    toast('Barcode error: ' + e.message.substring(0, 60));
   }
 }
 
@@ -2753,8 +2757,17 @@ function showLabelResult(data) {
   document.getElementById('label-carbs').textContent = (data.carbs || 0) + 'g';
   document.getElementById('label-fat').textContent = (data.fat || 0) + 'g';
   document.getElementById('label-result').style.display = 'block';
-  document.getElementById('label-actions').style.display = 'grid';
   document.getElementById('label-cancel-btn').style.display = 'none';
+  const actions = document.getElementById('label-actions');
+  actions.style.display = 'grid';
+  if (!document.getElementById('fill-form-btn')) {
+    const fillBtn = document.createElement('button');
+    fillBtn.id = 'fill-form-btn';
+    fillBtn.textContent = 'Fill Meal Form';
+    fillBtn.style.cssText = 'background:linear-gradient(135deg,#F97316,#FB7185);color:white;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;grid-column:1/-1;margin-top:4px;width:100%';
+    fillBtn.onclick = () => { fillMealFormFromScan(labelScannedData); closeLabelModal(); };
+    actions.appendChild(fillBtn);
+  }
 }
 
 async function logLabelAsFood() {
@@ -2983,21 +2996,6 @@ function fillMealFormFromScan(data) {
   toast(`${data.name} loaded — review and tap Log Meal`);
 }
 
-// Patch showLabelResult to also offer "Fill Meal Form" option
-const _origShowLabelResult = showLabelResult;
-function showLabelResult(data) {
-  _origShowLabelResult(data);
-  // Add Fill Form button to label actions
-  const actions = document.getElementById('label-actions');
-  if (actions && !document.getElementById('fill-form-btn')) {
-    const fillBtn = document.createElement('button');
-    fillBtn.id = 'fill-form-btn';
-    fillBtn.textContent = 'Fill Meal Form';
-    fillBtn.style.cssText = 'background:linear-gradient(135deg,#F97316,#FB7185);color:white;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;grid-column:1/-1;margin-top:4px;width:100%';
-    fillBtn.onclick = () => { fillMealFormFromScan(labelScannedData); closeLabelModal(); };
-    actions.appendChild(fillBtn);
-  }
-}
 
 // Edit meal modal
 let _editMealId = null;
