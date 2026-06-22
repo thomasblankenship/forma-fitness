@@ -532,7 +532,10 @@
             oninput="onFoodSearchInput(this.value)" />
         </div>
         <div id="food-search-results" style="display:none;margin-bottom:12px"></div>
-        <div id="saved-foods-list"><div class="loading">Loading...</div></div>
+        <div style="margin-bottom:8px">
+  <button type="button" onclick="testWorker()" style="width:100%;background:#F4F4F4;color:#666;border:none;border-radius:8px;padding:8px;font-size:12px;cursor:pointer">🔧 Test Worker Connection</button>
+</div>
+<div id="saved-foods-list"><div class="loading">Loading...</div></div>
       </div>
 
       <!-- SAVED MEALS -->
@@ -2187,6 +2190,17 @@ function onFoodSearchInput(query) {
   foodSearchTimeout = setTimeout(() => searchFoodDatabase(query), 400);
 }
 
+async function testWorker() {
+  try {
+    toast('Testing Worker connection...');
+    const res = await fetch(WORKER_URL + '/search?q=chicken');
+    const text = await res.text();
+    alert('Status: ' + res.status + '\nResponse: ' + text.substring(0, 200));
+  } catch(e) {
+    alert('FETCH ERROR:\n' + e.name + ': ' + e.message);
+  }
+}
+
 async function searchFoodDatabase(query) {
   const resultsEl = document.getElementById('food-search-results');
   try {
@@ -2214,7 +2228,7 @@ async function searchFoodDatabase(query) {
             <div style="font-size:14px;font-weight:500">${f.name}</div>
             <div style="font-size:11px;color:#ADADAD">${f.cals_per_unit} kcal · ${f.protein_per_unit}g P per ${f.unit}</div>
           </div>
-          <button type="button" onclick="openFoodModal(${savedFoods.indexOf(f)})" style="background:linear-gradient(135deg,#F97316,#FB7185);color:white;border:none;border-radius:14px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer">+ Log</button>
+          <button type="button" onclick="openFoodModal('${f.id}')" style="background:linear-gradient(135deg,#F97316,#FB7185);color:white;border:none;border-radius:14px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer">+ Log</button>
         </div>`).join('');
     }
 
@@ -2382,7 +2396,12 @@ async function saveFoodFromForm() {
 
 // Food modal
 function openFoodModal(id) {
-  activeFoodForModal = savedFoods.find(f => f.id === id);
+  // Support both numeric index (from search results) and actual food id
+  if (typeof id === 'number' && id < savedFoods.length && savedFoods[id]) {
+    activeFoodForModal = savedFoods[id];
+  } else {
+    activeFoodForModal = savedFoods.find(f => f.id === id);
+  }
   if (!activeFoodForModal) return;
   document.getElementById('food-modal-name').textContent = activeFoodForModal.name;
   document.getElementById('food-modal-per').textContent = `${activeFoodForModal.calories_per_unit} kcal per ${activeFoodForModal.unit}`;
