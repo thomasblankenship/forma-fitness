@@ -36,6 +36,11 @@
     }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; background: var(--gray-50); color: var(--black); min-height: 100vh; }
 
+    .ob-step { width:8px;height:8px;border-radius:50%;background:#E8E8E8;transition:background 0.2s; }
+    .ob-step.active { background:#0F0F0F;width:24px;border-radius:4px; }
+    .ob-choice-btn { width:100%;border:1.5px solid #E8E8E8;border-radius:10px;background:white;cursor:pointer;font-size:14px;font-weight:600;color:#0F0F0F;padding:12px 14px;transition:all 0.15s; }
+    .ob-choice-btn.ob-active { border-color:#F97316;background:#FFF7ED;color:#F97316; }
+
     .range-pill { padding:4px 12px; font-size:12px; font-weight:600; border:none; border-radius:20px; background:#F4F4F4; color:#888; cursor:pointer; white-space:nowrap; transition:all 0.15s; }
     .range-pill.active-pill { background:#0F0F0F; color:white; }
 
@@ -1192,6 +1197,135 @@
   </div>
 </div>
 
+<!-- ONBOARDING MODAL -->
+<div id="onboarding-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:900;align-items:center;justify-content:center;padding:20px">
+  <div style="background:white;border-radius:20px;padding:28px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto">
+    <!-- Logo -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+      <div style="width:36px;height:36px;background:#0F0F0F;border-radius:10px;display:flex;align-items:center;justify-content:center">
+        <svg width="20" height="20" fill="white" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+      </div>
+      <div>
+        <div style="font-size:18px;font-weight:700;letter-spacing:-0.5px">Ratio Fitness</div>
+        <div style="font-size:11px;color:#ADADAD">Body Recomp & Macro Tracker</div>
+      </div>
+    </div>
+    <div style="font-size:22px;font-weight:700;margin-bottom:4px;margin-top:16px">Welcome 👋</div>
+    <div style="font-size:13px;color:#666;margin-bottom:24px;line-height:1.5">Let's set up your profile so Ratio can calculate your calorie targets, BMI, and projected goal dates accurately.</div>
+
+    <!-- Step indicator -->
+    <div style="display:flex;gap:6px;margin-bottom:24px">
+      <div class="ob-step active" id="ob-dot-1"></div>
+      <div class="ob-step" id="ob-dot-2"></div>
+      <div class="ob-step" id="ob-dot-3"></div>
+    </div>
+
+    <!-- Step 1: Basic info -->
+    <div id="ob-step-1">
+      <div style="font-size:14px;font-weight:700;color:#0F0F0F;margin-bottom:16px">About You</div>
+      <div class="form-group">
+        <div style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Sex</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button onclick="obSelectSex('male',this)" class="ob-choice-btn ob-active" id="ob-male">Male</button>
+          <button onclick="obSelectSex('female',this)" class="ob-choice-btn" id="ob-female">Female</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <div style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Age</div>
+        <input type="number" id="ob-age" placeholder="e.g. 35" min="13" max="99" inputmode="numeric"
+          style="width:100%;padding:12px 14px;border:1px solid #E8E8E8;border-radius:10px;font-size:16px;outline:none;box-sizing:border-box" />
+      </div>
+      <div class="form-group">
+        <div style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Height</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="position:relative">
+            <input type="number" id="ob-height-ft" placeholder="5" min="3" max="7" inputmode="numeric"
+              style="width:100%;padding:12px 36px 12px 14px;border:1px solid #E8E8E8;border-radius:10px;font-size:16px;outline:none;box-sizing:border-box" />
+            <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:13px;color:#888">ft</span>
+          </div>
+          <div style="position:relative">
+            <input type="number" id="ob-height-in" placeholder="9" min="0" max="11" inputmode="numeric"
+              style="width:100%;padding:12px 36px 12px 14px;border:1px solid #E8E8E8;border-radius:10px;font-size:16px;outline:none;box-sizing:border-box" />
+            <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:13px;color:#888">in</span>
+          </div>
+        </div>
+      </div>
+      <button class="btn" onclick="obNext(1)" style="margin-top:8px">Continue →</button>
+    </div>
+
+    <!-- Step 2: Activity & weight -->
+    <div id="ob-step-2" style="display:none">
+      <div style="font-size:14px;font-weight:700;color:#0F0F0F;margin-bottom:16px">Activity & Weight</div>
+      <div class="form-group">
+        <div style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Activity Level</div>
+        <div style="display:flex;flex-direction:column;gap:6px" id="ob-activity-group">
+          <button onclick="obSelectActivity('sedentary',this)" class="ob-choice-btn ob-activity" style="text-align:left;padding:10px 14px">
+            <div style="font-weight:600;font-size:13px">Sedentary</div>
+            <div style="font-size:11px;color:#888;margin-top:1px">Desk job, little or no exercise</div>
+          </button>
+          <button onclick="obSelectActivity('light',this)" class="ob-choice-btn ob-activity" style="text-align:left;padding:10px 14px">
+            <div style="font-weight:600;font-size:13px">Lightly Active</div>
+            <div style="font-size:11px;color:#888;margin-top:1px">Exercise 1–2x per week</div>
+          </button>
+          <button onclick="obSelectActivity('moderate',this)" class="ob-choice-btn ob-activity" style="text-align:left;padding:10px 14px">
+            <div style="font-weight:600;font-size:13px">Moderately Active</div>
+            <div style="font-size:11px;color:#888;margin-top:1px">Exercise 3–4x per week</div>
+          </button>
+          <button onclick="obSelectActivity('active',this)" class="ob-choice-btn ob-active ob-activity" style="text-align:left;padding:10px 14px">
+            <div style="font-weight:600;font-size:13px">Very Active</div>
+            <div style="font-size:11px;color:#888;margin-top:1px">Exercise 5+ days per week</div>
+          </button>
+          <button onclick="obSelectActivity('athlete',this)" class="ob-choice-btn ob-activity" style="text-align:left;padding:10px 14px">
+            <div style="font-weight:600;font-size:13px">Athlete</div>
+            <div style="font-size:11px;color:#888;margin-top:1px">2x/day training or physical job</div>
+          </button>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:16px">
+        <div style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Current Weight (lbs)</div>
+        <input type="number" id="ob-weight" placeholder="e.g. 185" min="80" max="500" step="0.1" inputmode="decimal"
+          style="width:100%;padding:12px 14px;border:1px solid #E8E8E8;border-radius:10px;font-size:16px;outline:none;box-sizing:border-box" />
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+        <button class="btn" onclick="obBack(2)" style="background:#F4F4F4;color:#0F0F0F">← Back</button>
+        <button class="btn" onclick="obNext(2)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Goals & targets -->
+    <div id="ob-step-3" style="display:none">
+      <div style="font-size:14px;font-weight:700;color:#0F0F0F;margin-bottom:4px">Your Goals</div>
+      <div style="font-size:12px;color:#888;margin-bottom:16px">We'll calculate suggested targets — you can always adjust these later.</div>
+      <div class="form-group">
+        <div style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Goal Weight (lbs) — optional</div>
+        <input type="number" id="ob-goal-weight" placeholder="e.g. 170" min="80" max="500" step="0.1" inputmode="decimal"
+          style="width:100%;padding:12px 14px;border:1px solid #E8E8E8;border-radius:10px;font-size:16px;outline:none;box-sizing:border-box"
+          oninput="obCalcSuggested()" />
+      </div>
+      <div class="form-group">
+        <div style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Goal Body Fat % — optional</div>
+        <input type="number" id="ob-goal-bf" placeholder="e.g. 15" min="5" max="50" step="0.1" inputmode="decimal"
+          style="width:100%;padding:12px 14px;border:1px solid #E8E8E8;border-radius:10px;font-size:16px;outline:none;box-sizing:border-box" />
+      </div>
+      <!-- Suggested targets -->
+      <div id="ob-suggested" style="display:none;background:#FFF7ED;border-radius:12px;padding:14px;margin-bottom:16px">
+        <div style="font-size:11px;font-weight:700;color:#F97316;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">💡 Suggested Daily Targets</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);text-align:center;gap:6px">
+          <div><div style="font-size:16px;font-weight:700;color:#0F0F0F" id="ob-sug-cals">—</div><div style="font-size:10px;color:#888">calories</div></div>
+          <div><div style="font-size:16px;font-weight:700;color:#F97316" id="ob-sug-protein">—</div><div style="font-size:10px;color:#888">protein</div></div>
+          <div><div style="font-size:16px;font-weight:700;color:#FB7185" id="ob-sug-carbs">—</div><div style="font-size:10px;color:#888">carbs</div></div>
+          <div><div style="font-size:16px;font-weight:700;color:#FBBF24" id="ob-sug-fat">—</div><div style="font-size:10px;color:#888">fat</div></div>
+        </div>
+        <div style="font-size:11px;color:#888;margin-top:8px;line-height:1.4" id="ob-sug-note"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="btn" onclick="obBack(3)" style="background:#F4F4F4;color:#0F0F0F">← Back</button>
+        <button class="btn" onclick="obFinish()" style="background:#0F0F0F">Let's go 🚀</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <button class="lightbox-close">×</button>
@@ -1452,17 +1586,173 @@ function dayScore(cals, protein) {
   return null;
 }
 
+// ONBOARDING
+let _obSex = 'male';
+let _obActivity = 'active';
+
+function obSelectSex(sex, btn) {
+  _obSex = sex;
+  document.getElementById('ob-male').classList.toggle('ob-active', sex === 'male');
+  document.getElementById('ob-female').classList.toggle('ob-active', sex === 'female');
+}
+
+function obSelectActivity(activity, btn) {
+  _obActivity = activity;
+  document.querySelectorAll('.ob-activity').forEach(b => b.classList.remove('ob-active'));
+  btn.classList.add('ob-active');
+}
+
+function obSetDot(step) {
+  [1,2,3].forEach(i => {
+    const dot = document.getElementById('ob-dot-' + i);
+    dot.classList.toggle('active', i === step);
+  });
+}
+
+function obNext(fromStep) {
+  if (fromStep === 1) {
+    const age = +document.getElementById('ob-age').value;
+    const ft = +document.getElementById('ob-height-ft').value;
+    const inn = document.getElementById('ob-height-in').value;
+    if (!age || age < 13 || age > 99) { toast('Enter a valid age'); return; }
+    if (!ft) { toast('Enter your height'); return; }
+    document.getElementById('ob-step-1').style.display = 'none';
+    document.getElementById('ob-step-2').style.display = 'block';
+    obSetDot(2);
+  } else if (fromStep === 2) {
+    const weight = +document.getElementById('ob-weight').value;
+    if (!weight || weight < 50) { toast('Enter your current weight'); return; }
+    document.getElementById('ob-step-2').style.display = 'none';
+    document.getElementById('ob-step-3').style.display = 'block';
+    obSetDot(3);
+    obCalcSuggested();
+  }
+}
+
+function obBack(fromStep) {
+  if (fromStep === 2) {
+    document.getElementById('ob-step-2').style.display = 'none';
+    document.getElementById('ob-step-1').style.display = 'block';
+    obSetDot(1);
+  } else if (fromStep === 3) {
+    document.getElementById('ob-step-3').style.display = 'none';
+    document.getElementById('ob-step-2').style.display = 'block';
+    obSetDot(2);
+  }
+}
+
+function obCalcSuggested() {
+  const weight = +document.getElementById('ob-weight').value;
+  const goalWeight = +document.getElementById('ob-goal-weight').value;
+  const age = +document.getElementById('ob-age').value;
+  const ft = +document.getElementById('ob-height-ft').value;
+  const inn = +(document.getElementById('ob-height-in').value || 0);
+  const heightIn = ft * 12 + inn;
+  if (!weight || !heightIn || !age) return;
+
+  const heightCm = heightIn * 2.54;
+  const weightKg = weight * 0.453592;
+  const bmr = _obSex === 'male'
+    ? 10 * weightKg + 6.25 * heightCm - 5 * age + 5
+    : 10 * weightKg + 6.25 * heightCm - 5 * age - 161;
+  const multipliers = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, athlete: 1.9 };
+  const tdee = Math.round(bmr * (multipliers[_obActivity] || 1.55));
+
+  // Deficit based on goal
+  let deficit = 500; // default moderate deficit
+  let note = 'Moderate deficit for steady fat loss (~0.5–1 lb/week).';
+  if (goalWeight && goalWeight < weight) {
+    const lbsToLose = weight - goalWeight;
+    if (lbsToLose <= 10) { deficit = 350; note = 'Small deficit — close to goal weight. Slow and steady.'; }
+    else if (lbsToLose <= 25) { deficit = 500; note = 'Moderate deficit for steady fat loss (~0.5–1 lb/week).'; }
+    else { deficit = 750; note = 'Larger deficit for faster progress. Prioritize protein to protect muscle.'; }
+  } else if (!goalWeight) {
+    deficit = 500;
+    note = 'Moderate deficit. Set a goal weight for a more tailored target.';
+  }
+
+  const cals = tdee - deficit;
+  const leanMass = weight * 0.83; // rough estimate ~17% bf
+  const protein = Math.round(leanMass * 1.1);
+  const fat = Math.round(cals * 0.25 / 9);
+  const carbs = Math.round((cals - protein * 4 - fat * 9) / 4);
+
+  document.getElementById('ob-sug-cals').textContent = cals.toLocaleString();
+  document.getElementById('ob-sug-protein').textContent = protein + 'g';
+  document.getElementById('ob-sug-carbs').textContent = Math.max(0, carbs) + 'g';
+  document.getElementById('ob-sug-fat').textContent = fat + 'g';
+  document.getElementById('ob-sug-note').textContent = note;
+  document.getElementById('ob-suggested').style.display = 'block';
+
+  // Store for finish
+  window._obSuggestedTargets = { calories: cals, protein, carbs: Math.max(0, carbs), fat };
+}
+
+async function obFinish() {
+  const age = +document.getElementById('ob-age').value;
+  const ft = +document.getElementById('ob-height-ft').value;
+  const inn = +(document.getElementById('ob-height-in').value || 0);
+  const weight = +document.getElementById('ob-weight').value;
+  const goalWeight = +document.getElementById('ob-goal-weight').value || null;
+  const goalBf = +document.getElementById('ob-goal-bf').value || null;
+
+  // Save profile
+  const profile = { heightIn: ft * 12 + inn, age, gender: _obSex, activity: _obActivity };
+  userProfile = profile;
+  localStorage.setItem('ff_profile', JSON.stringify(profile));
+
+  // Save targets (use suggested or defaults)
+  const t = window._obSuggestedTargets || { calories: 2000, protein: 150, carbs: 150, fat: 65 };
+  userTargets = t;
+  TARGETS.calories = t.calories; TARGETS.protein = t.protein; TARGETS.carbs = t.carbs; TARGETS.fat = t.fat;
+  localStorage.setItem('ff_targets', JSON.stringify(t));
+
+  // Save goals
+  userGoals = {
+    weightStart: weight, weightGoal: goalWeight,
+    bfCurrent: null, bfGoal: goalBf,
+    bfTrackingOn: true,
+    muscleCurrent: null, muscleGoal: null
+  };
+  localStorage.setItem('ff_goals', JSON.stringify(userGoals));
+
+  // Log starting weight as first scan entry
+  if (weight) {
+    try { await dbPost('scans', { date: today, weight }); } catch(e) {}
+  }
+
+  // Mark onboarding complete
+  localStorage.setItem('ff_onboarded', '1');
+  document.getElementById('onboarding-modal').style.display = 'none';
+
+  // Now fully init the app
+  await appInit();
+}
+
+function checkOnboarding() {
+  const done = localStorage.getItem('ff_onboarded');
+  const hasProfile = localStorage.getItem('ff_profile');
+  if (!done && !hasProfile) {
+    document.getElementById('onboarding-modal').style.display = 'flex';
+    return false;
+  }
+  return true;
+}
+
 // INIT
 async function init() {
-  // Ensure logDate is set to today before anything loads
+  if (!checkOnboarding()) return; // wait for onboarding to complete
+  await appInit();
+}
+
+async function appInit() {
   logDate = today;
   loadGoals();
+  updateGoalsDisplay();
   updateLogDateDisplay();
   const todayDateEl = document.getElementById('today-date');
   if (todayDateEl) todayDateEl.textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
   document.getElementById('photo-date').value = today;
-  // Lock photo uploads to today only
-  // Load sequentially to avoid race conditions
   await loadTodayMeals();
   await loadTodayWorkouts();
   loadDayTotals();
@@ -3071,6 +3361,35 @@ function renderBMI() {
 }
 
 
+function calcTDEE(weightLbs) {
+  // Mifflin-St Jeor BMR then activity multiplier
+  const heightCm = (userProfile.heightIn || 69) * 2.54;
+  const weightKg = weightLbs * 0.453592;
+  const age = userProfile.age || 35;
+  const isMale = (userProfile.gender || 'male') === 'male';
+  const bmr = isMale
+    ? 10 * weightKg + 6.25 * heightCm - 5 * age + 5
+    : 10 * weightKg + 6.25 * heightCm - 5 * age - 161;
+  const multipliers = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, athlete: 1.9 };
+  return bmr * (multipliers[userProfile.activity] || 1.55);
+}
+
+function projectGoalDate(currentWeight, goalWeight, currentDate) {
+  // Use TDEE vs calorie target to get daily deficit → lbs/week
+  const tdee = calcTDEE(currentWeight);
+  const deficit = tdee - userTargets.calories; // positive = deficit, negative = surplus
+  if (Math.abs(deficit) < 50) return null; // not meaningful
+  const lbsPerDay = deficit / 3500; // ~3500 cal per lb
+  const lbsToGo = currentWeight - goalWeight; // positive = losing
+  if (lbsPerDay <= 0 && lbsToGo > 0) return null; // eating at surplus, can't reach loss goal
+  if (lbsPerDay >= 0 && lbsToGo < 0) return null; // at deficit, can't reach gain goal
+  const daysToGoal = Math.abs(lbsToGo / lbsPerDay);
+  if (daysToGoal > 730) return null; // more than 2 years, don't project
+  const goalDate = new Date(currentDate + 'T12:00:00');
+  goalDate.setDate(goalDate.getDate() + Math.round(daysToGoal));
+  return goalDate;
+}
+
 function renderWeightChart() {
   const canvas = document.getElementById('weight-chart');
   const empty = document.getElementById('weight-chart-empty');
@@ -3080,21 +3399,22 @@ function renderWeightChart() {
   const filtered = filterScansByRange(weightScans, weightChartRange);
 
   // Update latest
-  if (weightScans.length) {
-    const latest = weightScans[weightScans.length - 1];
-    document.getElementById('weight-latest-val').textContent = latest.weight;
-    document.getElementById('weight-latest-date').textContent = new Date(latest.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const latestScan = weightScans.length ? weightScans[weightScans.length - 1] : null;
+  if (latestScan) {
+    document.getElementById('weight-latest-val').textContent = latestScan.weight;
+    document.getElementById('weight-latest-date').textContent = new Date(latestScan.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
   if (!filtered.length) {
-    empty.style.display = 'block'; canvas.style.display = 'none'; return;
+    empty.style.display = 'block'; canvas.style.display = 'none';
+    renderBMI(); return;
   }
   empty.style.display = 'none'; canvas.style.display = 'block';
 
-  const labels = filtered.map(s => new Date(s.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+  const fmtDate = d => new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const labels = filtered.map(s => fmtDate(s.date));
   const data = filtered.map(s => s.weight);
 
-  // Projected dashed line to goal
   const datasets = [{
     label: 'Weight',
     data,
@@ -3107,46 +3427,91 @@ function renderWeightChart() {
     fill: true
   }];
 
-  if (userGoals.weightGoal) {
-    // Extend with projection: last point → goal
-    const projLabels = [...labels];
-    const projData = [...data.map(() => null)];
-    projData[projData.length - 1] = data[data.length - 1];
-    projData.push(userGoals.weightGoal);
-    projLabels.push('Goal');
-    datasets.push({
-      label: 'Goal',
-      data: projData,
-      borderColor: '#16A34A',
-      borderWidth: 1.5,
-      borderDash: [6, 4],
-      pointRadius: [0,0,0,0,0,5],
-      pointBackgroundColor: '#16A34A',
-      tension: 0,
-      fill: false,
-      spanGaps: true
-    });
-    // Goal line
-    datasets.push({
-      label: 'Goal line',
-      data: Array(labels.length).fill(userGoals.weightGoal),
-      borderColor: 'rgba(22,163,74,0.2)',
-      borderWidth: 1,
-      borderDash: [4, 4],
-      pointRadius: 0,
-      fill: false
-    });
+  // Update goal display with projection date
+  const weightToGoEl = document.getElementById('disp-weight-to-go');
+
+  if (userGoals.weightGoal && latestScan) {
+    const goalDate = projectGoalDate(latestScan.weight, userGoals.weightGoal, latestScan.date);
+    const lbsLeft = Math.abs(latestScan.weight - userGoals.weightGoal).toFixed(1);
+    const dir = userGoals.weightGoal < latestScan.weight ? 'to lose' : 'to gain';
+
+    if (goalDate) {
+      const goalDateLabel = goalDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const daysLeft = Math.round((goalDate - new Date()) / 86400000);
+      if (weightToGoEl) weightToGoEl.textContent = `${lbsLeft} lbs ${dir} · Est. ${goalDateLabel} (${daysLeft} days)`;
+
+      // Build projected line: from last actual point → goal date
+      // Only add future projection points
+      const projLabel = fmtDate(goalDate.toISOString().split('T')[0]);
+
+      // Null-pad projection across existing labels, then add goal point
+      const projData = data.map(() => null);
+      projData[projData.length - 1] = latestScan.weight; // anchor at last real point
+      const projLabelsExtended = [...labels, projLabel];
+      const projDataExtended = [...projData, userGoals.weightGoal];
+
+      datasets.push({
+        label: 'Projection',
+        data: projDataExtended,
+        borderColor: '#16A34A',
+        borderWidth: 2,
+        borderDash: [6, 4],
+        pointRadius: projDataExtended.map((_, i) => i === projDataExtended.length - 1 ? 6 : 0),
+        pointBackgroundColor: '#16A34A',
+        pointBorderColor: 'white',
+        pointBorderWidth: 2,
+        tension: 0,
+        fill: false,
+        spanGaps: true
+      });
+
+      // Horizontal goal line across all labels including projection
+      datasets.push({
+        label: 'Goal line',
+        data: [...labels.map(() => userGoals.weightGoal), userGoals.weightGoal],
+        borderColor: 'rgba(22,163,74,0.25)',
+        borderWidth: 1,
+        borderDash: [3, 3],
+        pointRadius: 0,
+        fill: false
+      });
+
+      weightChartObj = new Chart(canvas, {
+        type: 'line',
+        data: { labels: projLabelsExtended, datasets },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              filter: item => item.dataset.label !== 'Goal line',
+              callbacks: {
+                label: ctx => {
+                  if (ctx.dataset.label === 'Projection') return ctx.raw != null ? `Goal: ${ctx.raw} lbs` : null;
+                  return ctx.raw != null ? `${ctx.raw} lbs` : null;
+                }
+              }
+            }
+          },
+          scales: {
+            y: { grid: { color: '#F5F5F5' }, ticks: { font: { size: 11 }, callback: v => v + ' lbs' } },
+            x: { grid: { display: false }, ticks: { font: { size: 11 }, maxTicksLimit: 7 } }
+          }
+        }
+      });
+      renderBMI(); return;
+    } else {
+      if (weightToGoEl) weightToGoEl.textContent = `${lbsLeft} lbs ${dir}`;
+    }
   }
 
+  // No goal or no projection — simple chart
   weightChartObj = new Chart(canvas, {
     type: 'line',
     data: { labels, datasets },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: ctx => ctx.dataset.label === 'Goal line' ? null : `${ctx.raw} lbs` }, filter: item => item.dataset.label !== 'Goal line' }
-      },
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.raw} lbs` } } },
       scales: {
         y: { grid: { color: '#F5F5F5' }, ticks: { font: { size: 11 }, callback: v => v + ' lbs' } },
         x: { grid: { display: false }, ticks: { font: { size: 11 }, maxTicksLimit: 6 } }
@@ -3268,10 +3633,15 @@ async function saveLogEntry() {
   if (_logModalType === 'weight') entry.weight = val;
   else if (_logModalType === 'bf') entry.body_fat = val;
   else if (_logModalType === 'muscle') entry.muscle_mass = val;
-  await dbPost('scans', entry);
-  closeLogModal();
-  await loadScans();
-  toast('Saved ✓');
+  try {
+    await dbPost('scans', entry);
+    closeLogModal();
+    await loadScans();
+    toast('Saved ✓');
+  } catch(e) {
+    console.error('saveLogEntry error:', e);
+    toast('Error: ' + (e.message || 'Save failed'));
+  }
 }
 
 async function loadScans() {
