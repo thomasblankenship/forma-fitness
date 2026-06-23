@@ -474,10 +474,10 @@
     <!-- MEALS -->
     <div id="tab-meals" style="display:none">
 
-      <!-- SAVED FOODS -->
+      <!-- MY FOODS -->
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-          <div class="card-title" style="margin-bottom:0">Saved Foods</div>
+          <div class="card-title" style="margin-bottom:0">My Foods</div>
           <div style="display:flex;gap:6px">
             <button onclick="openBarcodeScanner()" style="background:#0F0F0F;color:white;border:none;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;cursor:pointer">📷 Scan</button>
             <button onclick="openLabelModal()" style="background:#0F0F0F;color:white;border:none;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;cursor:pointer">🏷️ Label</button>
@@ -543,43 +543,6 @@
         <div id="saved-foods-list"><div class="loading">Loading...</div></div>
       </div>
 
-      <!-- SAVED MEALS -->
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-          <div class="card-title" style="margin-bottom:0">Saved Meals</div>
-          <button onclick="toggleAddSavedMeal()" style="background:var(--accent);color:white;border:none;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer">+ Add</button>
-        </div>
-        <div id="add-saved-meal-form" style="display:none;background:var(--gray-50);border-radius:10px;padding:12px;margin-bottom:12px">
-          <div class="form-group"><input type="text" id="saved-meal-name" placeholder="Meal name (e.g. Post-Workout Shake)" /></div>
-          <div class="form-row form-group">
-            <div>
-              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Calories</div>
-              <input type="number" id="saved-meal-cals" placeholder="0" min="0" step="1" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'');if(this.value<0)this.value=0">
-            </div>
-            <div>
-              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein (g)</div>
-              <input type="number" id="saved-meal-protein" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
-            </div>
-          </div>
-          <div class="form-row form-group">
-            <div>
-              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs (g)</div>
-              <input type="number" id="saved-meal-carbs" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
-            </div>
-            <div>
-              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat (g)</div>
-              <input type="number" id="saved-meal-fat" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
-            </div>
-          </div>
-          <div class="form-group">
-            <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber (g)</div>
-            <input type="number" id="saved-meal-fiber" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
-          </div>
-          <button class="btn" onclick="saveMeal()">Save Meal</button>
-          <button class="btn" onclick="toggleAddSavedMeal()" style="background:#FEF2F2;color:#DC2626;margin-top:8px">Cancel</button>
-        </div>
-        <div id="saved-meals-list"><div class="loading">Loading...</div></div>
-      </div>
     </div>
 
     <!-- PROGRESS -->
@@ -615,7 +578,7 @@
         <div class="card-title">Log Weight or Body Scan</div>
         <div style="font-size:12px;color:#ADADAD;margin-bottom:12px">Weight is required. Body fat % is optional — log weight only if you don't have a scan.</div>
         <div class="form-row form-group">
-          <input type="number" id="scan-weight" placeholder="Weight (lbs) *" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
+          <input type="number" id="scan-weight" placeholder="Weight (lbs) *" / min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
           <input type="number" min="0" id="scan-bf" placeholder="Body fat % (optional)" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
         </div>
         <div class="form-group"><input type="number" min="0" id="scan-muscle" placeholder="Muscle mass (lbs) — optional" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0"></div>
@@ -914,43 +877,6 @@
   </div>
 </div>
 
-<!-- EDIT SAVED MEAL MODAL -->
-<div id="edit-meal-saved-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:600;align-items:flex-end;justify-content:center">
-  <div style="background:white;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto">
-    <div style="font-size:16px;font-weight:700;margin-bottom:16px">Edit Saved Meal</div>
-    <div class="form-group">
-      <input type="text" id="edit-saved-meal-name" placeholder="Meal name" />
-    </div>
-    <div class="form-row form-group">
-      <div>
-        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Calories</div>
-        <input type="number" id="edit-saved-meal-cals" placeholder="0" min="0" step="1" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')" />
-      </div>
-      <div>
-        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein (g)</div>
-        <input type="number" id="edit-saved-meal-protein" placeholder="0" min="0" step="0.1" inputmode="decimal" />
-      </div>
-    </div>
-    <div class="form-row form-group">
-      <div>
-        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs (g)</div>
-        <input type="number" id="edit-saved-meal-carbs" placeholder="0" min="0" step="0.1" inputmode="decimal" />
-      </div>
-      <div>
-        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat (g)</div>
-        <input type="number" id="edit-saved-meal-fat" placeholder="0" min="0" step="0.1" inputmode="decimal" />
-      </div>
-    </div>
-    <div class="form-group">
-      <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber (g)</div>
-      <input type="number" id="edit-saved-meal-fiber" placeholder="0" min="0" step="0.1" inputmode="decimal" />
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
-      <button class="btn" onclick="closeEditSavedMealModal()" style="background:#F4F4F4;color:#0F0F0F">Cancel</button>
-      <button class="btn" onclick="saveEditedSavedMeal()">Save Changes</button>
-    </div>
-  </div>
-</div>
 
 <!-- BARCODE SCANNER MODAL -->
 <div id="barcode-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:600;flex-direction:column;align-items:center;justify-content:center">
@@ -993,33 +919,18 @@
   </div>
 </div>
 
-<!-- SAVED MEAL TYPE PICKER -->
-<div id="saved-meal-type-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:600;align-items:flex-end;justify-content:center">
-  <div style="background:white;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:520px">
-    <div style="font-size:16px;font-weight:700;margin-bottom:16px">Add to which meal?</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <button onclick="logSavedMealWithType('breakfast')" style="background:#FFF7ED;border:1px solid #F97316;color:#F97316;border-radius:12px;padding:16px;font-size:14px;font-weight:600;cursor:pointer">🍳 Breakfast</button>
-      <button onclick="logSavedMealWithType('lunch')" style="background:#F0FDF4;border:1px solid #16A34A;color:#16A34A;border-radius:12px;padding:16px;font-size:14px;font-weight:600;cursor:pointer">🥗 Lunch</button>
-      <button onclick="logSavedMealWithType('dinner')" style="background:#EFF6FF;border:1px solid #2563EB;color:#2563EB;border-radius:12px;padding:16px;font-size:14px;font-weight:600;cursor:pointer">🍽️ Dinner</button>
-      <button onclick="logSavedMealWithType('snack')" style="background:#FFF1F2;border:1px solid #FB7185;color:#FB7185;border-radius:12px;padding:16px;font-size:14px;font-weight:600;cursor:pointer">🍎 Snack</button>
-    </div>
-    <button onclick="document.getElementById('saved-meal-type-modal').style.display='none'" style="width:100%;background:#F4F4F4;color:#666;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;margin-top:12px">Cancel</button>
-  </div>
-</div>
 
 <!-- FOOD LOG MODAL -->
 <div id="food-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;align-items:flex-end;justify-content:center">
   <div style="background:white;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:520px">
     <div style="font-size:16px;font-weight:700;color:#0F0F0F;margin-bottom:4px" id="food-modal-name"></div>
     <div style="font-size:12px;color:#ADADAD;margin-bottom:16px" id="food-modal-per"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-      <div>
-        <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Number of servings</div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Amount</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <input type="number" min="0" id="food-modal-qty" placeholder="1" value="1" step="0.1" oninput="updateFoodModalPreview()"
           style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:16px;font-weight:600;outline:none;box-sizing:border-box" />
-      </div>
-      <div style="display:flex;align-items:flex-end;padding-bottom:2px">
-        <div id="food-modal-serving-label" style="font-size:13px;color:#666;padding:10px 12px;background:#F4F4F4;border-radius:8px;width:100%;box-sizing:border-box">1 serving</div>
+        <div id="food-modal-serving-label" style="font-size:14px;font-weight:600;color:#666;padding:10px 12px;background:#F4F4F4;border-radius:8px;display:flex;align-items:center">oz</div>
       </div>
     </div>
     <div style="background:#FFF7ED;border-radius:10px;padding:12px;margin-bottom:16px;display:grid;grid-template-columns:repeat(5,1fr);text-align:center">
@@ -1185,7 +1096,16 @@ const todayLocal = new Date();
 const today = `${todayLocal.getFullYear()}-${String(todayLocal.getMonth()+1).padStart(2,'0')}-${String(todayLocal.getDate()).padStart(2,'0')}`;
 let logDate = today; // currently viewed/editing date
 
-
+function changeLogDate(dir) {
+  const d = new Date(logDate + 'T12:00:00');
+  d.setDate(d.getDate() + dir);
+  const newDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  if (newDate > today) return; // can't go to future
+  logDate = newDate;
+  updateLogDateDisplay();
+  loadTodayMeals();
+  loadTodayWorkouts();
+}
 
 function updateLogDateDisplay() {
   const d = new Date(logDate + 'T12:00:00');
@@ -2361,11 +2281,10 @@ async function logSearchResult(jsonStr) {
 
 // MEALS TAB
 let savedFoods = [];
-let savedMeals = [];
 let activeFoodForModal = null;
 
 async function loadMealsTab() {
-  await Promise.all([loadSavedFoods(), loadSavedMeals()]);
+  await loadSavedFoods();
 }
 
 async function loadSavedFoods() {
@@ -2373,14 +2292,9 @@ async function loadSavedFoods() {
   renderSavedFoods();
 }
 
-async function loadSavedMeals() {
-  savedMeals = await dbGet('saved_meals', 'order=name.asc');
-  renderSavedMeals();
-}
-
 function renderSavedFoods() {
   const el = document.getElementById('saved-foods-list');
-  if (!savedFoods.length) { el.innerHTML = '<div class="empty">No saved foods yet</div>'; return; }
+  if (!savedFoods.length) { el.innerHTML = '<div class="empty">No foods saved yet — tap + Add to get started</div>'; return; }
   el.innerHTML = savedFoods.map(f => `
     <div class="meal-row">
       <div class="meal-info">
@@ -2397,25 +2311,6 @@ function renderSavedFoods() {
     </div>`).join('');
 }
 
-function renderSavedMeals() {
-  const el = document.getElementById('saved-meals-list');
-  if (!savedMeals.length) { el.innerHTML = '<div class="empty">No saved meals yet</div>'; return; }
-  el.innerHTML = savedMeals.map(m => `
-    <div class="meal-row">
-      <div class="meal-info">
-        <div class="meal-name">
-          ${m.name}
-          <button onclick="openEditSavedMealModal('${m.id}')" style="background:none;border:none;cursor:pointer;font-size:12px;color:#ADADAD;padding:0 4px;vertical-align:middle">✏️</button>
-        </div>
-        <div class="meal-meta">${Math.max(0,m.calories)} kcal · P:${Math.max(0,m.protein||0)}g C:${Math.max(0,m.carbs||0)}g F:${Math.max(0,m.fat||0)}g${m.fiber ? ` Fi:${Math.max(0,m.fiber)}g` : ''}</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <button onclick="logSavedMeal('${m.id}')" style="background:var(--accent);color:white;border:none;border-radius:16px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer">+ Log</button>
-        <button onclick="deleteSavedMeal('${m.id}')" style="background:none;border:none;color:#E8E8E8;cursor:pointer;font-size:20px;line-height:1">×</button>
-      </div>
-    </div>`).join('');
-}
-
 function toggleAddFood() {
   const el = document.getElementById('add-food-form');
   const isHidden = el.style.display === 'none';
@@ -2426,11 +2321,6 @@ function toggleAddFood() {
     document.getElementById('food-serving-qty').value = '';
     document.getElementById('food-unit').value = 'oz';
   }
-}
-
-function toggleAddSavedMeal() {
-  const el = document.getElementById('add-saved-meal-form');
-  el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
 async function saveFood() {
@@ -2457,48 +2347,23 @@ async function saveFood() {
   toast('Food saved ✓');
 }
 
-async function saveMeal() {
-  const name = document.getElementById('saved-meal-name').value.trim();
-  const cals = +document.getElementById('saved-meal-cals').value;
-  if (!name) { toast('Enter a meal name'); return; }
-  if (!cals) { toast('Enter calories'); return; }
-  try {
-    const result = await dbPost('saved_meals', {
-      name,
-      calories: cals,
-      protein: +document.getElementById('saved-meal-protein').value || 0,
-      carbs: +document.getElementById('saved-meal-carbs').value || 0,
-      fat: +document.getElementById('saved-meal-fat').value || 0,
-      fiber: +document.getElementById('saved-meal-fiber').value || 0,
-    });
-    console.log('saveMeal result:', result);
-    ['saved-meal-name','saved-meal-cals','saved-meal-protein','saved-meal-carbs','saved-meal-fat','saved-meal-fiber'].forEach(id => document.getElementById(id).value = '');
-    toggleAddSavedMeal();
-    await loadSavedMeals();
-    toast('Meal saved ✓');
-  } catch(e) {
-    console.error('saveMeal error:', e);
-    toast('Error saving meal: ' + e.message);
-  }
-}
-
 // Save food from Today's form
 async function saveFoodFromForm() {
   const name = document.getElementById('meal-name').value.trim();
   const cals = +document.getElementById('meal-cals').value;
   if (!name || !cals) { toast('Fill in meal details first'); return; }
-  // Save directly to saved_meals in background — no navigation
-  await dbPost('saved_meals', {
+  // Save to saved_foods as "1 serving" entry
+  await dbPost('saved_foods', {
     name,
-    calories: cals,
-    protein: +document.getElementById('meal-protein').value || 0,
-    carbs: +document.getElementById('meal-carbs').value || 0,
-    fat: +document.getElementById('meal-fat').value || 0,
+    unit: 'serving',
+    calories_per_unit: cals,
+    protein_per_unit: +document.getElementById('meal-protein').value || 0,
+    carbs_per_unit: +document.getElementById('meal-carbs').value || 0,
+    fat_per_unit: +document.getElementById('meal-fat').value || 0,
+    fiber_per_unit: 0,
   });
-  // Refresh saved meals in background silently
-  savedMeals = await dbGet('saved_meals', 'order=name.asc');
-  toast(`"${name}" saved to your Meals library ✓`);
-  // Stay on current screen — do nothing else
+  savedFoods = await dbGet('saved_foods', 'order=name.asc');
+  toast(`"${name}" saved to My Foods ✓`);
 }
 
 // Food modal
@@ -2510,9 +2375,18 @@ function openFoodModal(id) {
     activeFoodForModal = savedFoods.find(f => f.id === id);
   }
   if (!activeFoodForModal) return;
+  const calsPerUnit = activeFoodForModal.calories_per_unit || activeFoodForModal.cals_per_unit || 0;
+  // Parse serving size qty and unit from stored unit string (e.g. "5 oz" → qty=5, unit="oz")
+  const storedUnit = activeFoodForModal.unit || '1 serving';
+  const unitMatch = storedUnit.match(/^([\d.]+)\s*(.+)$/);
+  const servingQty = unitMatch ? parseFloat(unitMatch[1]) : 1;
+  const servingUnit = unitMatch ? unitMatch[2].trim() : storedUnit.trim();
+  activeFoodForModal._servingQty = servingQty;
+  activeFoodForModal._servingUnit = servingUnit;
   document.getElementById('food-modal-name').textContent = activeFoodForModal.name;
-  document.getElementById('food-modal-per').textContent = `${activeFoodForModal.cals_per_unit || activeFoodForModal.calories_per_unit || 0} kcal per ${activeFoodForModal.unit || 'serving'}`;
-  document.getElementById('food-modal-qty').value = 1;
+  document.getElementById('food-modal-per').textContent = `${calsPerUnit} kcal per ${storedUnit}`;
+  document.getElementById('food-modal-qty').value = servingQty;
+  document.getElementById('food-modal-serving-label').textContent = servingUnit;
   updateFoodModalPreview();
   window._foodModalType = 'breakfast';
   document.querySelectorAll('.food-modal-type-btn').forEach(b => {
@@ -2536,17 +2410,15 @@ function getUnitMultiplier(fromUnit, toUnit) {
 
 function updateFoodModalPreview() {
   if (!activeFoodForModal) return;
-  const qty = parseFloat(document.getElementById('food-modal-qty').value) || 1;
+  const amount = parseFloat(document.getElementById('food-modal-qty').value) || 0;
+  const servingQty = activeFoodForModal._servingQty || 1;
+  const ratio = servingQty > 0 ? amount / servingQty : 0;
   const calsPerUnit = activeFoodForModal.calories_per_unit || activeFoodForModal.cals_per_unit || 0;
-  document.getElementById('modal-cals').textContent = Math.round(calsPerUnit * qty);
-  document.getElementById('modal-protein').textContent = ((activeFoodForModal.protein_per_unit || 0) * qty).toFixed(1) + 'g';
-  document.getElementById('modal-carbs').textContent = ((activeFoodForModal.carbs_per_unit || 0) * qty).toFixed(1) + 'g';
-  document.getElementById('modal-fat').textContent = ((activeFoodForModal.fat_per_unit || 0) * qty).toFixed(1) + 'g';
-  document.getElementById('modal-fiber').textContent = ((activeFoodForModal.fiber_per_unit || 0) * qty).toFixed(1) + 'g';
-  const servingLabel = document.getElementById('food-modal-serving-label');
-  if (servingLabel) {
-    servingLabel.textContent = qty === 1 ? (activeFoodForModal.unit || '1 serving') : `${qty} × ${activeFoodForModal.unit || 'serving'}`;
-  }
+  document.getElementById('modal-cals').textContent = Math.round(calsPerUnit * ratio);
+  document.getElementById('modal-protein').textContent = ((activeFoodForModal.protein_per_unit || 0) * ratio).toFixed(1) + 'g';
+  document.getElementById('modal-carbs').textContent = ((activeFoodForModal.carbs_per_unit || 0) * ratio).toFixed(1) + 'g';
+  document.getElementById('modal-fat').textContent = ((activeFoodForModal.fat_per_unit || 0) * ratio).toFixed(1) + 'g';
+  document.getElementById('modal-fiber').textContent = ((activeFoodForModal.fiber_per_unit || 0) * ratio).toFixed(1) + 'g';
 }
 
 function closeFoodModal() {
@@ -2566,18 +2438,21 @@ function selectFoodModalType(type, btn) {
 
 async function logFoodFromModal() {
   if (!activeFoodForModal) return;
-  const qty = parseFloat(document.getElementById('food-modal-qty').value) || 1;
+  const amount = parseFloat(document.getElementById('food-modal-qty').value) || 0;
+  const servingQty = activeFoodForModal._servingQty || 1;
+  const servingUnit = activeFoodForModal._servingUnit || activeFoodForModal.unit || 'serving';
+  const ratio = servingQty > 0 ? amount / servingQty : 0;
   const calsPerUnit = activeFoodForModal.calories_per_unit || activeFoodForModal.cals_per_unit || 0;
-  const servingLabel = qty === 1 ? (activeFoodForModal.unit || '1 serving') : `${qty} × ${activeFoodForModal.unit || 'serving'}`;
+  const servingLabel = `${amount} ${servingUnit}`;
   const meal = {
     date: logDate,
     name: `${activeFoodForModal.name} (${servingLabel})`,
     meal_type: window._foodModalType || 'breakfast',
-    calories: Math.round(calsPerUnit * qty),
-    protein: Math.round((activeFoodForModal.protein_per_unit || 0) * qty * 10) / 10,
-    carbs: Math.round((activeFoodForModal.carbs_per_unit || 0) * qty * 10) / 10,
-    fat: Math.round((activeFoodForModal.fat_per_unit || 0) * qty * 10) / 10,
-    fiber: Math.round((activeFoodForModal.fiber_per_unit || 0) * qty * 10) / 10,
+    calories: Math.round(calsPerUnit * ratio),
+    protein: Math.round((activeFoodForModal.protein_per_unit || 0) * ratio * 10) / 10,
+    carbs: Math.round((activeFoodForModal.carbs_per_unit || 0) * ratio * 10) / 10,
+    fat: Math.round((activeFoodForModal.fat_per_unit || 0) * ratio * 10) / 10,
+    fiber: Math.round((activeFoodForModal.fiber_per_unit || 0) * ratio * 10) / 10,
     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   };
   await dbPost('meals', meal);
@@ -2585,29 +2460,6 @@ async function logFoodFromModal() {
   await loadTodayMeals();
   switchTab('today');
   toast(`${activeFoodForModal.name} added ✓`);
-}
-
-async function logSavedMeal(id) {
-  const m = savedMeals.find(m => m.id === id);
-  if (!m) return;
-  // Show meal type picker
-  window._pendingSavedMeal = m;
-  document.getElementById('saved-meal-type-modal').style.display = 'flex';
-}
-
-async function logSavedMealWithType(type) {
-  const m = window._pendingSavedMeal;
-  if (!m) return;
-  document.getElementById('saved-meal-type-modal').style.display = 'none';
-  await dbPost('meals', {
-    date: logDate, name: m.name, meal_type: type,
-    calories: m.calories, protein: m.protein, carbs: m.carbs,
-    fat: m.fat, fiber: m.fiber || 0,
-    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  });
-  await loadTodayMeals();
-  switchTab('today');
-  toast(`${m.name} added ✓`);
 }
 
 let _editFoodId = null;
@@ -2673,62 +2525,11 @@ async function editSavedFoodName(id) {
   openEditFoodModal(id);
 }
 
-let _editSavedMealId = null;
-
-function openEditSavedMealModal(id) {
-  const meal = savedMeals.find(m => m.id === id);
-  if (!meal) return;
-  _editSavedMealId = id;
-  document.getElementById('edit-saved-meal-name').value = meal.name || '';
-  document.getElementById('edit-saved-meal-cals').value = meal.calories || 0;
-  document.getElementById('edit-saved-meal-protein').value = meal.protein || 0;
-  document.getElementById('edit-saved-meal-carbs').value = meal.carbs || 0;
-  document.getElementById('edit-saved-meal-fat').value = meal.fat || 0;
-  document.getElementById('edit-saved-meal-fiber').value = meal.fiber || 0;
-  document.getElementById('edit-meal-saved-modal').style.display = 'flex';
-}
-
-function closeEditSavedMealModal() {
-  document.getElementById('edit-meal-saved-modal').style.display = 'none';
-  _editSavedMealId = null;
-}
-
-async function saveEditedSavedMeal() {
-  if (!_editSavedMealId) return;
-  const updates = {
-    name: document.getElementById('edit-saved-meal-name').value.trim(),
-    calories: Math.round(+document.getElementById('edit-saved-meal-cals').value || 0),
-    protein: Math.round(+document.getElementById('edit-saved-meal-protein').value * 10) / 10 || 0,
-    carbs: Math.round(+document.getElementById('edit-saved-meal-carbs').value * 10) / 10 || 0,
-    fat: Math.round(+document.getElementById('edit-saved-meal-fat').value * 10) / 10 || 0,
-    fiber: Math.round(+document.getElementById('edit-saved-meal-fiber').value * 10) / 10 || 0,
-  };
-  await fetch(`${SUPABASE_URL}/rest/v1/saved_meals?id=eq.${_editSavedMealId}`, {
-    method: 'PATCH',
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(updates)
-  });
-  closeEditSavedMealModal();
-  await loadSavedMeals();
-  toast('Meal updated ✓');
-}
-
-async function editSavedMealName(id) {
-  openEditSavedMealModal(id);
-}
-
 async function deleteSavedFood(id) {
   if (!confirm('Delete this saved food?')) return;
   await dbDelete('saved_foods', id);
   await loadSavedFoods();
   toast('Food deleted');
-}
-
-async function deleteSavedMeal(id) {
-  if (!confirm('Delete this saved meal?')) return;
-  await dbDelete('saved_meals', id);
-  await loadSavedMeals();
-  toast('Meal deleted');
 }
 
 // BARCODE SCANNER
@@ -2957,7 +2758,7 @@ function showLabelResult(data) {
 async function logLabelAsFood() {
   if (!labelScannedData) return;
   await dbPost('meals', {
-    date: logDate,
+    date: today,
     name: labelScannedData.name,
     calories: labelScannedData.calories,
     protein: labelScannedData.protein || 0,
@@ -2974,16 +2775,18 @@ async function logLabelAsFood() {
 
 async function saveLabelAsFood() {
   if (!labelScannedData) return;
-  await dbPost('saved_meals', {
+  await dbPost('saved_foods', {
     name: labelScannedData.name,
-    calories: labelScannedData.calories,
-    protein: labelScannedData.protein || 0,
-    carbs: labelScannedData.carbs || 0,
-    fat: labelScannedData.fat || 0,
+    unit: 'serving',
+    calories_per_unit: labelScannedData.calories,
+    protein_per_unit: labelScannedData.protein || 0,
+    carbs_per_unit: labelScannedData.carbs || 0,
+    fat_per_unit: labelScannedData.fat || 0,
+    fiber_per_unit: labelScannedData.fiber || 0,
   });
-  await loadSavedMeals();
+  await loadSavedFoods();
   closeLabelModal();
-  toast(`${labelScannedData.name} saved ✓`);
+  toast(`${labelScannedData.name} saved to My Foods ✓`);
 }
 
 // GOALS & TARGETS
