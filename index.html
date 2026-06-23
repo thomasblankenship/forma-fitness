@@ -1338,6 +1338,18 @@ function updateLogDateDisplay() {
   if (subEl) subEl.textContent = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   if (nextBtn) nextBtn.style.opacity = logDate === today ? '0.2' : '1';
 }
+const SUPABASE_URL = 'https://azcopsldgmqutqvaajhu.supabase.co';
+const WORKER_URL = 'https://ratio-api.sb-983.workers.dev';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6Y29wc2xkZ21xdXRxdmFhamh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MTYwMTEsImV4cCI6MjA5NzM5MjAxMX0.1cS2YNlIV0jeZPN9nZwpzBLcIiGeQVG0UtZO0bsbqaI';
+const TARGETS = { calories: 2250, protein: 160, carbs: 150, fat: 65, fiber: 30 };
+
+const todayLocal = new Date();
+const today = `${todayLocal.getFullYear()}-${String(todayLocal.getMonth()+1).padStart(2,'0')}-${String(todayLocal.getDate()).padStart(2,'0')}`;
+let logDate = today;
+let calendarMonth = todayLocal.getMonth();
+let calendarYear = todayLocal.getFullYear();
+let recentWorkoutsCache = null;
+
 let currentMeals = [];
 let currentWorkouts = [];
 let allScans = [];
@@ -1605,7 +1617,6 @@ function renderWorkouts() {
   }
 }
 
-let recentWorkoutsCache = null;
 
 async function loadRecentWorkouts() {
   // Cache so we don't refetch every render — only fetch once per session reload
@@ -2116,8 +2127,6 @@ function updateCompare() {
 
 
 // CALENDAR
-let calendarYear = new Date().getFullYear();
-let calendarMonth = new Date().getMonth();
 let dayTotalsCache = {};
 
 async function loadDayTotals() {
