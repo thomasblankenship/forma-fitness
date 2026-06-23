@@ -1730,13 +1730,7 @@ async function obFinish() {
 }
 
 function checkOnboarding() {
-  const done = localStorage.getItem('ff_onboarded');
-  const hasProfile = localStorage.getItem('ff_profile');
-  if (!done && !hasProfile) {
-    document.getElementById('onboarding-modal').style.display = 'flex';
-    return false;
-  }
-  return true;
+  return true; // disabled until multi-user auth is ready
 }
 
 // INIT
