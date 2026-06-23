@@ -1168,13 +1168,32 @@
     <input type="file" id="label-input" accept="image/*" style="display:none" onchange="previewLabel(event)" />
     <div id="label-result" style="display:none;background:#FFF7ED;border-radius:10px;padding:14px;margin-bottom:12px">
       <div style="font-size:12px;font-weight:700;color:#F97316;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Detected Nutrition</div>
-      <div id="label-result-name" style="font-size:15px;font-weight:700;margin-bottom:6px"></div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);text-align:center;gap:4px">
+      <div id="label-result-name" style="font-size:15px;font-weight:700;margin-bottom:10px"></div>
+      <!-- Macro grid -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);text-align:center;gap:4px;margin-bottom:14px">
         <div><div style="font-size:16px;font-weight:700;color:#F97316" id="label-cals">-</div><div style="font-size:10px;color:#ADADAD">kcal</div></div>
         <div><div style="font-size:16px;font-weight:700;color:#F97316" id="label-protein">-</div><div style="font-size:10px;color:#ADADAD">protein</div></div>
         <div><div style="font-size:16px;font-weight:700;color:#FB7185" id="label-carbs">-</div><div style="font-size:10px;color:#ADADAD">carbs</div></div>
         <div><div style="font-size:16px;font-weight:700;color:#FBBF24" id="label-fat">-</div><div style="font-size:10px;color:#ADADAD">fat</div></div>
       </div>
+      <!-- Serving size + unit pickers -->
+      <div style="font-size:11px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Serving Size (per label)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <!-- Serving size scroll wheel -->
+        <div style="background:white;border-radius:10px;overflow:hidden;border:1px solid #E8E8E8">
+          <div style="font-size:10px;color:#ADADAD;text-align:center;padding:4px 0;border-bottom:1px solid #F4F4F4">Amount</div>
+          <div id="label-serving-scroll" style="height:120px;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none"></div>
+          <div style="font-size:11px;color:#F97316;font-weight:700;text-align:center;padding:3px 0;border-top:1px solid #F4F4F4" id="label-serving-display">—</div>
+        </div>
+        <!-- Unit scroll wheel -->
+        <div style="background:white;border-radius:10px;overflow:hidden;border:1px solid #E8E8E8">
+          <div style="font-size:10px;color:#ADADAD;text-align:center;padding:4px 0;border-bottom:1px solid #F4F4F4">Unit</div>
+          <div id="label-unit-scroll" style="height:120px;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none"></div>
+          <div style="font-size:11px;color:#F97316;font-weight:700;text-align:center;padding:3px 0;border-top:1px solid #F4F4F4" id="label-unit-display">—</div>
+        </div>
+      </div>
+      <!-- Selection highlight overlay hint -->
+      <div style="font-size:11px;color:#ADADAD;text-align:center;margin-top:8px">Scroll to change • nutrition adjusts per serving</div>
     </div>
     <div id="label-loading" style="display:none;text-align:center;padding:16px;color:#ADADAD;font-size:13px">🤖 Claude is reading the label...</div>
     <div id="label-actions" style="display:none;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
@@ -3102,6 +3121,116 @@ async function readLabelWithClaude(base64DataUrl, mimeType) {
   }
 }
 
+// ── Label scroll-wheel state ──────────────────────────────────────────────
+let _labelServingG = 100;   // canonical grams for this serving (from scan)
+let _labelUnit = 'g';       // currently selected unit
+let _labelServingVal = 100; // displayed amount in current unit
+
+const LABEL_UNITS = ['g', 'oz', 'ml', 'fl oz'];
+
+// Conversion: always store canonical grams; convert for display
+function _labelGtoUnit(g, unit) {
+  if (unit === 'oz')    return +(g / 28.3495).toFixed(2);
+  if (unit === 'ml')    return +g.toFixed(1);   // 1ml water ≈ 1g; close enough for food
+  if (unit === 'fl oz') return +(g / 29.5735).toFixed(2);
+  return +g.toFixed(1); // g
+}
+function _labelUnitToG(val, unit) {
+  if (unit === 'oz')    return val * 28.3495;
+  if (unit === 'ml')    return val;
+  if (unit === 'fl oz') return val * 29.5735;
+  return val; // g
+}
+
+// Build serving amount options for scroll (steps of 0.5 for oz/floz, 5 for g/ml)
+function _labelServingOptions(unit) {
+  const opts = [];
+  if (unit === 'g' || unit === 'ml') {
+    for (let v = 5; v <= 1000; v += 5) opts.push(+v.toFixed(0));
+  } else {
+    for (let v = 0.5; v <= 35; v += 0.5) opts.push(+v.toFixed(1));
+  }
+  return opts;
+}
+
+function _buildScrollWheel(container, items, selectedVal, onSelect) {
+  container.innerHTML = '';
+  const itemH = 40;
+  container.style.height = itemH * 3 + 'px';
+
+  // spacers
+  const topSpacer = document.createElement('div');
+  topSpacer.style.height = itemH + 'px';
+  container.appendChild(topSpacer);
+
+  items.forEach(item => {
+    const el = document.createElement('div');
+    el.style.cssText = `height:${itemH}px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:#0F0F0F;scroll-snap-align:center;flex-shrink:0;cursor:pointer;`;
+    el.textContent = item;
+    el.dataset.val = item;
+    container.appendChild(el);
+  });
+
+  const botSpacer = document.createElement('div');
+  botSpacer.style.height = itemH + 'px';
+  container.appendChild(botSpacer);
+
+  // scroll to selected
+  const idx = items.findIndex(i => String(i) === String(selectedVal));
+  if (idx >= 0) {
+    setTimeout(() => { container.scrollTop = idx * itemH; }, 30);
+  }
+
+  // highlight centre item
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `position:sticky;top:${itemH}px;height:${itemH}px;background:rgba(249,115,22,0.08);border-top:1px solid #F97316;border-bottom:1px solid #F97316;pointer-events:none;margin-top:-${itemH*2}px;`;
+  container.appendChild(overlay);
+
+  let scrollTimer;
+  container.addEventListener('scroll', () => {
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      const idx2 = Math.round(container.scrollTop / itemH);
+      const val = items[Math.min(idx2, items.length - 1)];
+      onSelect(val);
+    }, 120);
+  });
+}
+
+function _rebuildServingWheel() {
+  const opts = _labelServingOptions(_labelUnit);
+  // find closest option to current converted value
+  const target = _labelGtoUnit(_labelServingG, _labelUnit);
+  const closest = opts.reduce((a, b) => Math.abs(b - target) < Math.abs(a - target) ? b : a);
+  _labelServingVal = closest;
+
+  _buildScrollWheel(
+    document.getElementById('label-serving-scroll'),
+    opts,
+    closest,
+    val => {
+      _labelServingVal = val;
+      _labelServingG = _labelUnitToG(val, _labelUnit);
+      document.getElementById('label-serving-display').textContent = val + ' ' + _labelUnit;
+    }
+  );
+  document.getElementById('label-serving-display').textContent = closest + ' ' + _labelUnit;
+}
+
+function _buildUnitWheel() {
+  _buildScrollWheel(
+    document.getElementById('label-unit-scroll'),
+    LABEL_UNITS,
+    _labelUnit,
+    val => {
+      _labelUnit = val;
+      document.getElementById('label-unit-display').textContent = val;
+      _rebuildServingWheel();
+    }
+  );
+  document.getElementById('label-unit-display').textContent = _labelUnit;
+}
+
 function showLabelResult(data) {
   document.getElementById('label-loading').style.display = 'none';
   document.getElementById('label-result-name').textContent = data.name || 'Scanned Food';
@@ -3109,6 +3238,15 @@ function showLabelResult(data) {
   document.getElementById('label-protein').textContent = (data.protein || 0) + 'g';
   document.getElementById('label-carbs').textContent = (data.carbs || 0) + 'g';
   document.getElementById('label-fat').textContent = (data.fat || 0) + 'g';
+
+  // Init canonical grams from scan data (serving_size_g preferred, fallback serving_size)
+  const rawG = parseFloat(data.serving_size_g || data.serving_size || 100);
+  _labelServingG = isNaN(rawG) ? 100 : rawG;
+  _labelUnit = 'g';
+
+  _buildUnitWheel();
+  _rebuildServingWheel();
+
   document.getElementById('label-result').style.display = 'block';
   document.getElementById('label-cancel-btn').style.display = 'none';
   const actions = document.getElementById('label-actions');
@@ -3143,9 +3281,13 @@ async function logLabelAsFood() {
 
 async function saveLabelAsFood() {
   if (!labelScannedData) return;
+  // Use the scroll-wheel chosen unit and serving size
+  const chosenUnit = _labelUnit;
+  const chosenServing = _labelServingVal;
   await dbPost('saved_foods', {
     name: labelScannedData.name,
-    unit: 'serving',
+    unit: chosenUnit,
+    serving_size: chosenServing,
     calories_per_unit: labelScannedData.calories,
     protein_per_unit: labelScannedData.protein || 0,
     carbs_per_unit: labelScannedData.carbs || 0,
