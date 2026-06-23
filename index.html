@@ -267,9 +267,13 @@
           <div class="macro-bar-header"><span class="macro-label">Fat</span><span class="macro-value" id="fat-val">0 / 65g</span></div>
           <div class="macro-track"><div class="macro-fill" id="fat-bar" style="background:#FBBF24;width:0%"></div></div>
         </div>
-        <div class="macro-bar" style="margin-bottom:0">
+        <div class="macro-bar">
           <div class="macro-bar-header"><span class="macro-label">Fiber</span><span class="macro-value" id="fiber-val">0 / 30g</span></div>
           <div class="macro-track"><div class="macro-fill" id="fiber-bar" style="background:#16A34A;width:0%"></div></div>
+        </div>
+        <div class="macro-bar" style="margin-bottom:0">
+          <div class="macro-bar-header"><span class="macro-label">Cholesterol</span><span class="macro-value" id="chol-val">0 / 300mg</span></div>
+          <div class="macro-track"><div class="macro-fill" id="chol-bar" style="background:#8B5CF6;width:0%"></div></div>
         </div>
         <!-- hidden elements kept for JS compat -->
         <span id="cal-val" style="display:none"></span>
@@ -327,7 +331,10 @@
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber (g)</div>
               <input type="number" id="meal-fiber" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
             </div>
-            <div></div>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Cholesterol (mg)</div>
+              <input type="number" id="meal-cholesterol" placeholder="0" min="0" step="1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value)||0">
+            </div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
             <button class="btn" onclick="saveFoodFromForm()" style="background:var(--gray-100);color:var(--black)">Save Food</button>
@@ -538,6 +545,10 @@
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber per serving</div>
               <input type="number" id="food-fiber" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Cholesterol (mg)</label>
+              <input type="number" id="food-cholesterol" placeholder="0" min="0" step="1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value)||0">
             </div>
           </div>
           <button class="btn" onclick="saveFood()">Save Food</button>
@@ -1057,6 +1068,8 @@
       <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber (g)</div>
       <input type="number" id="edit-meal-fiber-input" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
     </div>
+    <div class="form-group"><div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Cholesterol (mg)</div>
+      <input type="number" id="edit-meal-cholesterol-input" placeholder="0" min="0" step="1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value)||0"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
       <button class="btn" onclick="closeEditMealModal()" style="background:#F4F4F4;color:#0F0F0F">Cancel</button>
       <button class="btn" onclick="saveEditedMeal()">Save Changes</button>
@@ -1135,6 +1148,8 @@
       <div>
         <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber per unit (g)</div>
         <input type="number" id="edit-food-fiber" placeholder="0" min="0" step="0.1" inputmode="decimal" />
+      <div class="form-group"><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Cholesterol (mg)</div>
+        <input type="number" id="edit-food-cholesterol" placeholder="0" min="0" step="1" inputmode="decimal" /></div>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
@@ -1222,6 +1237,7 @@
       <div><div style="font-size:15px;font-weight:700;color:#FB7185" id="modal-carbs">0</div><div style="font-size:9px;color:#ADADAD">carbs</div></div>
       <div><div style="font-size:15px;font-weight:700;color:#FBBF24" id="modal-fat">0</div><div style="font-size:9px;color:#ADADAD">fat</div></div>
       <div><div style="font-size:15px;font-weight:700;color:#16A34A" id="modal-fiber">0</div><div style="font-size:9px;color:#ADADAD">fiber</div></div>
+      <div><div style="font-size:15px;font-weight:700;color:#8B5CF6" id="modal-chol">0</div><div style="font-size:9px;color:#ADADAD">chol mg</div></div>
     </div>
     <div style="margin-bottom:12px">
       <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Add to</div>
@@ -1517,7 +1533,7 @@ function updateLogDateDisplay() {
 const SUPABASE_URL = 'https://azcopsldgmqutqvaajhu.supabase.co';
 const WORKER_URL = 'https://ratio-api.sb-983.workers.dev';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6Y29wc2xkZ21xdXRxdmFhamh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MTYwMTEsImV4cCI6MjA5NzM5MjAxMX0.1cS2YNlIV0jeZPN9nZwpzBLcIiGeQVG0UtZO0bsbqaI';
-const TARGETS = { calories: 2250, protein: 160, carbs: 150, fat: 65, fiber: 30 };
+const TARGETS = { calories: 2250, protein: 160, carbs: 150, fat: 65, fiber: 30, cholesterol: 300 };
 
 const todayLocal = new Date();
 const today = `${todayLocal.getFullYear()}-${String(todayLocal.getMonth()+1).padStart(2,'0')}-${String(todayLocal.getDate()).padStart(2,'0')}`;
@@ -1800,7 +1816,7 @@ async function appInit() {
 // TODAY
 async function loadTodayMeals() {
   console.log('Loading meals for date:', logDate);
-  currentMeals = await dbGet('meals', `date=eq.${logDate}&select=id,date,name,meal_type,calories,protein,carbs,fat,fiber,time`);
+  currentMeals = await dbGet('meals', `date=eq.${logDate}&select=id,date,name,meal_type,calories,protein,carbs,fat,fiber,cholesterol,time`);
   console.log('Meals loaded:', currentMeals.length, currentMeals);
   renderMeals();
 }
@@ -1821,7 +1837,7 @@ function renderMealSection(meals, indices, showEmpty) {
           <span>${m.name}</span>
           <button data-edit="${i}" style="background:none;border:none;cursor:pointer;font-size:11px;color:#ADADAD;padding:0 2px;flex-shrink:0">✏️</button>
         </div>
-        <div class="meal-meta">Protein:${m.protein}g · Carbs:${m.carbs}g · Fat:${m.fat}g · Fiber:${m.fiber||0}g</div>
+        <div class="meal-meta">Protein:${m.protein}g · Carbs:${m.carbs}g · Fat:${m.fat}g · Fiber:${m.fiber||0}g · Chol:${m.cholesterol||0}mg</div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
         <span style="font-size:14px;font-weight:600;color:#111">${m.calories} kcal</span>
@@ -1873,7 +1889,7 @@ function renderMeals() {
   el.querySelectorAll('[data-edit]').forEach(btn => {
     btn.addEventListener('click', () => {
       const m = currentMeals[+btn.dataset.edit];
-      openEditMealModal(m.id, m.name, m.calories, m.protein, m.carbs, m.fat, m.fiber, m.meal_type, 'today');
+      openEditMealModal(m.id, m.name, m.calories, m.protein, m.carbs, m.fat, m.fiber, m.cholesterol, m.meal_type, 'today');
     });
   });
   el.querySelectorAll('[data-delete]').forEach(btn => {
@@ -1989,13 +2005,14 @@ function renderRecentWorkouts() {
 }
 
 function calcTotals(meals) {
-  let calories = 0, protein = 0, carbs = 0, fat = 0, fiber = 0;
+  let calories = 0, protein = 0, carbs = 0, fat = 0, fiber = 0, cholesterol = 0;
   meals.forEach(m => {
     calories += parseFloat(m.calories) || 0;
     protein += parseFloat(m.protein) || 0;
     carbs += parseFloat(m.carbs) || 0;
     fat += parseFloat(m.fat) || 0;
     fiber += parseFloat(m.fiber) || 0;
+    cholesterol += parseFloat(m.cholesterol) || 0;
   });
   console.log('calcTotals fiber total:', fiber, 'from', meals.length, 'meals');
   return {
@@ -2004,6 +2021,7 @@ function calcTotals(meals) {
     carbs: Math.round(carbs * 10) / 10,
     fat: Math.round(fat * 10) / 10,
     fiber: Math.round(fiber * 10) / 10,
+    cholesterol: Math.round(cholesterol * 10) / 10,
   };
 }
 
@@ -2015,6 +2033,9 @@ function updateMacroBars(t) {
   const fiberVal = t.fiber || 0;
   document.getElementById('fiber-val').textContent = `${fiberVal} / 30g`;
   document.getElementById('fiber-bar').style.width = pct(fiberVal, 30) + '%';
+  const cholVal = t.cholesterol || 0;
+  document.getElementById('chol-val').textContent = `${cholVal} / 300mg`;
+  document.getElementById('chol-bar').style.width = pct(cholVal, 300) + '%';
   console.log('Fiber display updated:', fiberVal);
   document.getElementById('pro-bar').style.width = pct(t.protein, TARGETS.protein) + '%';
   document.getElementById('carb-bar').style.width = pct(t.carbs, TARGETS.carbs) + '%';
@@ -2086,11 +2107,12 @@ async function addMeal() {
     carbs: Math.round((+document.getElementById('meal-carbs').value||0)*10)/10,
     fat: Math.round((+document.getElementById('meal-fat').value||0)*10)/10,
     fiber: Math.round((+document.getElementById('meal-fiber').value||0)*10)/10,
+    cholesterol: Math.round((+document.getElementById('meal-cholesterol').value||0)*10)/10,
     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   };
   console.log('Logging meal with type:', mealType, meal);
   await dbPost('meals', meal);
-  ['meal-name','meal-cals','meal-protein','meal-carbs','meal-fat','meal-fiber'].forEach(id => document.getElementById(id).value = '');
+  ['meal-name','meal-cals','meal-protein','meal-carbs','meal-fat','meal-fiber','meal-cholesterol'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('meal-form').style.display='none';
   document.getElementById('add-meal-btn').style.display='block';
   window._selectedMealType = 'breakfast';
@@ -2124,7 +2146,7 @@ async function addWorkout() {
 async function showHistoryDetail(date) {
   document.getElementById('history-list-view').style.display = 'none';
   document.getElementById('history-detail-view').style.display = 'block';
-  const [meals, workouts] = await Promise.all([dbGet('meals', `date=eq.${date}&select=id,date,name,meal_type,calories,protein,carbs,fat,fiber,time`), dbGet('workouts', `date=eq.${date}`)]);
+  const [meals, workouts] = await Promise.all([dbGet('meals', `date=eq.${date}&select=id,date,name,meal_type,calories,protein,carbs,fat,fiber,cholesterol,time`), dbGet('workouts', `date=eq.${date}`)]);
   const t = calcTotals(meals);
   const score = dayScore(t.calories, t.protein);
   const scoreMap = { great: ['⭐ Great Day','score-great'], good: ['✅ Good Day','score-good'], over: ['❌ Over Limit','score-needs'] };
@@ -2175,7 +2197,7 @@ async function showHistoryDetail(date) {
     </div>
     <div class="card-title">Macros</div>
     ${['Calories','Protein','Carbs','Fat','Fiber'].map((label, i) => {
-      const keys = ['calories','protein','carbs','fat','fiber'];
+      const keys = ['calories','protein','carbs','fat','fiber','cholesterol'];
       const tgt = [TARGETS.calories, TARGETS.protein, TARGETS.carbs, TARGETS.fat, 30];
       const cols = ['#0F0F0F','#F97316','#FB7185','#FBBF24','#16A34A'];
       const raw = t[keys[i]] || 0;
@@ -2198,7 +2220,7 @@ async function showHistoryDetail(date) {
           <span>${m.name}</span>
           <button data-hist-edit="${i}" style="background:none;border:none;cursor:pointer;font-size:11px;color:#ADADAD;padding:0 2px">✏️</button>
         </div>
-        <div class="meal-meta">Protein:${m.protein}g · Carbs:${m.carbs}g · Fat:${m.fat}g · Fiber:${m.fiber||0}g</div>
+        <div class="meal-meta">Protein:${m.protein}g · Carbs:${m.carbs}g · Fat:${m.fat}g · Fiber:${m.fiber||0}g · Chol:${m.cholesterol||0}mg</div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
         <span style="font-size:14px;font-weight:600;color:#111">${m.calories} kcal</span>
@@ -2236,7 +2258,7 @@ async function showHistoryDetail(date) {
   detailMealsEl.querySelectorAll('[data-hist-edit]').forEach(btn => {
     btn.addEventListener('click', () => {
       const m = window._historyMeals[+btn.dataset.histEdit];
-      openEditMealModal(m.id, m.name, m.calories, m.protein, m.carbs, m.fat, m.fiber, m.meal_type, 'history');
+      openEditMealModal(m.id, m.name, m.calories, m.protein, m.carbs, m.fat, m.fiber, m.cholesterol, m.meal_type, 'history');
     });
   });
   detailMealsEl.querySelectorAll('[data-hist-delete]').forEach(btn => {
@@ -2653,6 +2675,7 @@ async function logSearchResult(jsonStr) {
     carbs: f.carbs,
     fat: f.fat,
     fiber: f.fiber || 0,
+    cholesterol: f.cholesterol || 0,
     unit: f.serving_size
   };
   showLabelResult(labelScannedData);
@@ -2724,8 +2747,9 @@ async function saveFood() {
     carbs_per_unit: +document.getElementById('food-carbs').value || 0,
     fat_per_unit: +document.getElementById('food-fat').value || 0,
     fiber_per_unit: +document.getElementById('food-fiber').value || 0,
+    cholesterol_per_unit: +document.getElementById('food-cholesterol').value || 0,
   });
-  ['food-name','food-cals','food-protein','food-carbs','food-fat','food-fiber'].forEach(id => document.getElementById(id).value = ''); document.getElementById('food-unit').value = 'oz'; document.getElementById('food-serving-qty').value = '';
+  ['food-name','food-cals','food-protein','food-carbs','food-fat','food-fiber','food-cholesterol'].forEach(id => document.getElementById(id).value = ''); document.getElementById('food-unit').value = 'oz'; document.getElementById('food-serving-qty').value = '';
   toggleAddFood();
   await loadSavedFoods();
   toast('Food saved ✓');
@@ -2745,6 +2769,7 @@ async function saveFoodFromForm() {
     carbs_per_unit: +document.getElementById('meal-carbs').value || 0,
     fat_per_unit: +document.getElementById('meal-fat').value || 0,
     fiber_per_unit: 0,
+    cholesterol_per_unit: 0,
   });
   savedFoods = await dbGet('saved_foods', 'order=name.asc');
   toast(`"${name}" saved to My Foods ✓`);
@@ -2803,6 +2828,7 @@ function updateFoodModalPreview() {
   document.getElementById('modal-carbs').textContent = ((activeFoodForModal.carbs_per_unit || 0) * ratio).toFixed(1) + 'g';
   document.getElementById('modal-fat').textContent = ((activeFoodForModal.fat_per_unit || 0) * ratio).toFixed(1) + 'g';
   document.getElementById('modal-fiber').textContent = ((activeFoodForModal.fiber_per_unit || 0) * ratio).toFixed(1) + 'g';
+  document.getElementById('modal-chol').textContent = Math.round((activeFoodForModal.cholesterol_per_unit || 0) * ratio) + 'mg';
 }
 
 function closeFoodModal() {
@@ -2837,6 +2863,7 @@ async function logFoodFromModal() {
     carbs: Math.round((activeFoodForModal.carbs_per_unit || 0) * ratio * 10) / 10,
     fat: Math.round((activeFoodForModal.fat_per_unit || 0) * ratio * 10) / 10,
     fiber: Math.round((activeFoodForModal.fiber_per_unit || 0) * ratio * 10) / 10,
+    cholesterol: Math.round((activeFoodForModal.cholesterol_per_unit || 0) * ratio * 10) / 10,
     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   };
   await dbPost('meals', meal);
@@ -2858,6 +2885,7 @@ function openEditFoodModal(id) {
   document.getElementById('edit-food-carbs').value = food.carbs_per_unit || 0;
   document.getElementById('edit-food-fat').value = food.fat_per_unit || 0;
   document.getElementById('edit-food-fiber').value = food.fiber_per_unit || 0;
+  document.getElementById('edit-food-cholesterol').value = food.cholesterol_per_unit || 0;
   // Parse stored unit back into qty + dropdown
   const storedUnit = food.unit || '1 oz';
   const unitParts = storedUnit.match(/^([\d.]+)\s*(.+)$/);
@@ -2889,6 +2917,7 @@ async function saveEditedFood() {
     carbs_per_unit: Math.round(+document.getElementById('edit-food-carbs').value * 10) / 10 || 0,
     fat_per_unit: Math.round(+document.getElementById('edit-food-fat').value * 10) / 10 || 0,
     fiber_per_unit: Math.round(+document.getElementById('edit-food-fiber').value * 10) / 10 || 0,
+    cholesterol_per_unit: Math.round(+document.getElementById('edit-food-cholesterol').value * 10) / 10 || 0,
     unit: (() => {
       const qty = document.getElementById('edit-food-serving-qty').value || '1';
       const u = document.getElementById('edit-food-unit').value;
@@ -2988,6 +3017,7 @@ async function onBarcodeDetected(barcode) {
       carbs: data.carbs,
       fat: data.fat,
       fiber: data.fiber,
+      cholesterol: data.cholesterol || 0,
       unit: data.serving_size + ' serving'
     };
     showLabelResult(labelScannedData);
@@ -3293,6 +3323,7 @@ async function logLabelAsFood() {
       carbs_per_unit: labelScannedData.carbs || 0,
       fat_per_unit: labelScannedData.fat || 0,
       fiber_per_unit: labelScannedData.fiber || 0,
+      cholesterol_per_unit: labelScannedData.cholesterol || 0,
     });
     savedFoods = await dbGet('saved_foods', 'order=name.asc');
     foodId = saved && saved[0] ? saved[0].id : null;
@@ -3317,6 +3348,7 @@ async function saveLabelAsFood() {
     carbs_per_unit: labelScannedData.carbs || 0,
     fat_per_unit: labelScannedData.fat || 0,
     fiber_per_unit: labelScannedData.fiber || 0,
+    cholesterol_per_unit: labelScannedData.cholesterol || 0,
   });
   await loadSavedFoods();
   closeLabelModal();
@@ -4214,7 +4246,7 @@ function fillMealFormFromScan(data) {
 let _editMealId = null;
 let _editMealSource = null; // 'today' or 'history'
 
-function openEditMealModal(mealId, name, calories, protein, carbs, fat, fiber, mealType, source) {
+function openEditMealModal(mealId, name, calories, protein, carbs, fat, fiber, cholesterol, mealType, source) {
   _editMealId = mealId;
   _editMealSource = source;
   window._editMealType = mealType || 'breakfast';
@@ -4231,6 +4263,7 @@ function openEditMealModal(mealId, name, calories, protein, carbs, fat, fiber, m
   document.getElementById('edit-meal-carbs-input').value = carbs;
   document.getElementById('edit-meal-fat-input').value = fat;
   document.getElementById('edit-meal-fiber-input').value = fiber || 0;
+  document.getElementById('edit-meal-cholesterol-input').value = cholesterol || 0;
   document.getElementById('edit-meal-modal').style.display = 'flex';
 }
 
@@ -4249,6 +4282,7 @@ async function saveEditedMeal() {
     carbs: +document.getElementById('edit-meal-carbs-input').value || 0,
     fat: +document.getElementById('edit-meal-fat-input').value || 0,
     fiber: +document.getElementById('edit-meal-fiber-input').value || 0,
+    cholesterol: +document.getElementById('edit-meal-cholesterol-input').value || 0,
   };
   await fetch(`${SUPABASE_URL}/rest/v1/meals?id=eq.${_editMealId}`, {
     method: 'PATCH',
