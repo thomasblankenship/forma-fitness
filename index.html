@@ -3139,14 +3139,21 @@ function _labelConvert(grams, unit) {
 }
 
 function _parseServingSizeG(raw) {
-  if (!raw) return 100;
-  // handles "117g", "117 g", "4 oz", "1/2 cup (117g)", etc.
-  // prefer the parenthesized gram value if present
-  const parenG = String(raw).match(/\((\d+\.?\d*)\s*g\)/i);
+  if (!raw) return _labelServingG; // use existing default rather than 100
+  const s = String(raw);
+  // prefer the parenthesized gram value e.g. "1/2 cup (117g)"
+  const parenG = s.match(/\((\d+\.?\d*)\s*g\)/i);
   if (parenG) return parseFloat(parenG[1]);
-  const num = parseFloat(String(raw));
-  if (!isNaN(num)) return num;
-  return 100;
+  // explicit gram value e.g. "117g" or "117 g"
+  const gMatch = s.match(/^(\d+\.?\d*)\s*g\b/i);
+  if (gMatch) return parseFloat(gMatch[1]);
+  // oz value — convert to grams e.g. "4 oz"
+  const ozMatch = s.match(/^(\d+\.?\d*)\s*oz\b/i);
+  if (ozMatch) return Math.round(parseFloat(ozMatch[1]) * 28.3495 * 10) / 10;
+  // plain number
+  const num = parseFloat(s);
+  if (!isNaN(num) && num > 0) return num;
+  return _labelServingG; // fall back to current default, not 100
 }
 
 function _buildUnitWheel() {
@@ -3252,10 +3259,10 @@ async function logLabelAsFood() {
   if (existing) {
     foodId = existing.id;
   } else {
+    const unitStr = (chosenServing === 1 || LABEL_COUNT_SET.has(chosenUnit)) ? chosenUnit : `${chosenServing} ${chosenUnit}`;
     const saved = await dbPost('saved_foods', {
       name: labelScannedData.name,
-      unit: chosenUnit,
-      serving_size: chosenServing,
+      unit: unitStr,
       calories_per_unit: labelScannedData.calories,
       protein_per_unit: labelScannedData.protein || 0,
       carbs_per_unit: labelScannedData.carbs || 0,
@@ -3276,10 +3283,10 @@ async function saveLabelAsFood() {
   // Use the scroll-wheel chosen unit and serving size
   const chosenUnit = _labelUnit;
   const chosenServing = _labelServingVal;
+  const unitStr2 = (chosenServing === 1 || LABEL_COUNT_SET.has(chosenUnit)) ? chosenUnit : `${chosenServing} ${chosenUnit}`;
   await dbPost('saved_foods', {
     name: labelScannedData.name,
-    unit: chosenUnit,
-    serving_size: chosenServing,
+    unit: unitStr2,
     calories_per_unit: labelScannedData.calories,
     protein_per_unit: labelScannedData.protein || 0,
     carbs_per_unit: labelScannedData.carbs || 0,
