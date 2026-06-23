@@ -2678,6 +2678,7 @@ async function logSearchResult(jsonStr) {
     fat: f.fat,
     fiber: f.fiber || 0,
     cholesterol: f.cholesterol || 0,
+    serving_size: f.serving_size,
     unit: f.serving_size
   };
   showLabelResult(labelScannedData);
@@ -3020,6 +3021,7 @@ async function onBarcodeDetected(barcode) {
       fat: data.fat,
       fiber: data.fiber,
       cholesterol: data.cholesterol || 0,
+      serving_size: data.serving_size,
       unit: data.serving_size + ' serving'
     };
     showLabelResult(labelScannedData);
@@ -3227,7 +3229,7 @@ function _buildUnitWheel() {
 
   // scroll to current unit
   const idx = LABEL_ALL_UNITS.indexOf(_labelUnit);
-  if (idx >= 0) setTimeout(() => { container.scrollTop = idx * itemH; }, 50);
+  if (idx >= 0) setTimeout(() => { container.scrollTop = idx * itemH; }, 150);
 
   let t;
   container.addEventListener('scroll', () => {
