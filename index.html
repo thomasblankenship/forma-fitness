@@ -553,13 +553,31 @@
 
       <!-- WEIGHT CHART CARD -->
       <div class="card" style="padding:16px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <div style="font-size:16px;font-weight:700;color:#0F0F0F">Weight</div>
           <button onclick="toggleGoalEdit('weight')" style="font-size:12px;font-weight:600;color:var(--accent);background:none;border:none;cursor:pointer">Edit Goal</button>
         </div>
-        <div style="font-size:12px;color:#ADADAD;margin-bottom:12px">
-          <span id="weight-goal-summary">Set a goal weight to track progress</span>
+        <!-- Goal display -->
+        <div id="weight-goal-display" style="display:none;background:#F4F4F4;border-radius:10px;padding:12px;margin-bottom:12px">
+          <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;text-align:center">
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px">Starting</div>
+              <div style="font-size:20px;font-weight:700;color:#0F0F0F" id="disp-weight-start">—</div>
+              <div style="font-size:11px;color:#888">lbs</div>
+            </div>
+            <div style="font-size:18px;color:#ADADAD">→</div>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#16A34A;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px">Goal</div>
+              <div style="font-size:20px;font-weight:700;color:#16A34A" id="disp-weight-goal">—</div>
+              <div style="font-size:11px;color:#888">lbs</div>
+            </div>
+          </div>
+          <div style="margin-top:10px;padding-top:10px;border-top:1px solid #E8E8E8;text-align:center">
+            <span style="font-size:13px;font-weight:600;color:#0F0F0F" id="disp-weight-to-go">—</span>
+            <span style="font-size:12px;color:#888"> to go</span>
+          </div>
         </div>
+        <div id="weight-no-goal" style="font-size:12px;color:#ADADAD;margin-bottom:12px">Tap <b>Edit Goal</b> to set your target weight</div>
         <!-- Time range pills -->
         <div style="display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px">
           <button class="range-pill weight-range active-pill" data-range="1W" onclick="setChartRange('weight','1W')">1W</button>
@@ -592,43 +610,163 @@
         </div>
       </div>
 
+      <!-- BMI CARD -->
+      <div class="card" style="padding:16px" id="bmi-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="font-size:16px;font-weight:700;color:#0F0F0F">BMI</div>
+          <div style="font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px" id="bmi-badge">—</div>
+        </div>
+        <div id="bmi-no-data" style="font-size:12px;color:#ADADAD">Log your weight and make sure your height is set in Profile to see your BMI.</div>
+        <div id="bmi-content" style="display:none">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:14px">
+            <div style="font-size:42px;font-weight:700;letter-spacing:-1px" id="bmi-value">—</div>
+            <div style="font-size:14px;color:#888">BMI</div>
+          </div>
+          <!-- BMI scale bar -->
+          <div style="position:relative;margin-bottom:8px">
+            <div style="display:grid;grid-template-columns:2fr 2fr 1.5fr 2fr;height:8px;border-radius:6px;overflow:hidden;gap:2px">
+              <div style="background:#3B82F6"></div>
+              <div style="background:#16A34A"></div>
+              <div style="background:#D97706"></div>
+              <div style="background:#DC2626"></div>
+            </div>
+            <!-- Pointer -->
+            <div id="bmi-pointer" style="position:absolute;top:-3px;width:14px;height:14px;border-radius:50%;background:#0F0F0F;border:2px solid white;transform:translateX(-50%);box-shadow:0 1px 4px rgba(0,0,0,0.3);transition:left 0.4s ease"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:2fr 2fr 1.5fr 2fr;margin-bottom:14px">
+            <div style="font-size:10px;color:#3B82F6;font-weight:600">Under<br><18.5</div>
+            <div style="font-size:10px;color:#16A34A;font-weight:600">Normal<br>18.5–25</div>
+            <div style="font-size:10px;color:#D97706;font-weight:600">Over<br>25–30</div>
+            <div style="font-size:10px;color:#DC2626;font-weight:600">Obese<br>>30</div>
+          </div>
+          <div style="background:#F4F4F4;border-radius:10px;padding:12px;font-size:12px;color:#666;line-height:1.5" id="bmi-context"></div>
+        </div>
+      </div>
+
       <!-- BODY FAT CHART CARD -->
-      <div class="card" style="padding:16px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <div id="bf-tracking-card" class="card" style="padding:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <div style="font-size:16px;font-weight:700;color:#0F0F0F">Body Fat %</div>
-          <button onclick="toggleGoalEdit('bf')" style="font-size:12px;font-weight:600;color:var(--accent);background:none;border:none;cursor:pointer">Edit Goal</button>
+          <div style="display:flex;align-items:center;gap:10px">
+            <button onclick="toggleGoalEdit('bf')" style="font-size:12px;font-weight:600;color:var(--accent);background:none;border:none;cursor:pointer">Edit Goal</button>
+            <!-- Toggle switch -->
+            <div onclick="toggleBfTracking()" style="cursor:pointer;width:40px;height:22px;border-radius:11px;background:var(--accent);position:relative;transition:background 0.2s;flex-shrink:0" id="bf-toggle-track">
+              <div style="position:absolute;top:3px;right:3px;width:16px;height:16px;border-radius:50%;background:white;transition:right 0.2s" id="bf-toggle-knob"></div>
+            </div>
+          </div>
         </div>
-        <div style="font-size:12px;color:#ADADAD;margin-bottom:12px">
-          <span id="bf-goal-summary">Set a body fat % goal to track recomp</span>
+        <div id="bf-card-inner">
+          <!-- Goal display -->
+          <div id="bf-goal-display-card" style="display:none;background:#FFF7ED;border-radius:10px;padding:12px;margin-bottom:12px">
+            <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;text-align:center">
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px">Current</div>
+                <div style="font-size:20px;font-weight:700;color:#0F0F0F" id="disp-bf-current">—</div>
+                <div style="font-size:11px;color:#888">%</div>
+              </div>
+              <div style="font-size:18px;color:#ADADAD">→</div>
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#16A34A;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px">Goal</div>
+                <div style="font-size:20px;font-weight:700;color:#16A34A" id="disp-bf-goal-val">—</div>
+                <div style="font-size:11px;color:#888">%</div>
+              </div>
+            </div>
+            <div style="margin-top:10px;padding-top:10px;border-top:1px solid #FFE4C4;text-align:center">
+              <span style="font-size:13px;font-weight:600;color:#0F0F0F" id="disp-bf-to-go">—</span>
+              <span style="font-size:12px;color:#888"> to go</span>
+            </div>
+          </div>
+          <div id="bf-no-goal" style="font-size:12px;color:#ADADAD;margin-bottom:12px">Tap <b>Edit Goal</b> to set your body fat % target</div>
+          <!-- Estimate button -->
+          <button onclick="openBfCalculator()" style="width:100%;background:#F4F4F4;color:#0F0F0F;border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:12px">📏 Estimate My Body Fat %</button>
+          <!-- Time range pills -->
+          <div style="display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px">
+            <button class="range-pill bf-range active-pill" data-range="1W" onclick="setChartRange('bf','1W')">1W</button>
+            <button class="range-pill bf-range" data-range="1M" onclick="setChartRange('bf','1M')">1M</button>
+            <button class="range-pill bf-range" data-range="3M" onclick="setChartRange('bf','3M')">3M</button>
+            <button class="range-pill bf-range" data-range="6M" onclick="setChartRange('bf','6M')">6M</button>
+            <button class="range-pill bf-range" data-range="1Y" onclick="setChartRange('bf','1Y')">1Y</button>
+            <button class="range-pill bf-range" data-range="All" onclick="setChartRange('bf','All')">All</button>
+          </div>
+          <div id="bf-chart-empty" style="display:none;text-align:center;color:#ADADAD;font-size:13px;padding:30px 0">No body fat logged yet — tap Record below</div>
+          <div class="chart-wrap" id="bf-chart-wrap"><canvas id="bf-chart"></canvas></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px" id="bf-latest-date">No entries yet</div>
+              <div style="font-size:26px;font-weight:700;color:#0F0F0F;letter-spacing:-0.5px"><span id="bf-latest-val">—</span> <span style="font-size:14px;font-weight:500;color:#888">%</span></div>
+            </div>
+            <button onclick="openLogModal('bf')" style="background:var(--accent);color:white;border:none;border-radius:20px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer">Record Body Fat</button>
+          </div>
+          <!-- Goal edit inline -->
+          <div id="bf-goal-edit" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid #F4F4F4">
+            <div class="form-row form-group">
+              <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Current Body Fat %</div><input type="number" min="0" id="edit-bf-current" placeholder="18" step="0.1" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
+              <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Goal Body Fat %</div><input type="number" min="0" id="edit-bf-goal" placeholder="13" step="0.1" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <button class="btn" onclick="toggleGoalEdit('bf')" style="background:#F4F4F4;color:#0F0F0F">Cancel</button>
+              <button class="btn" onclick="saveBfGoal()">Save</button>
+            </div>
+          </div>
         </div>
+        <!-- Turned off state -->
+        <div id="bf-card-off" style="display:none;text-align:center;padding:16px 0;color:#ADADAD;font-size:13px">Body fat tracking is off — toggle to enable</div>
+      </div>
+
+      <!-- MUSCLE MASS CHART CARD -->
+      <div class="card" style="padding:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div style="font-size:16px;font-weight:700;color:#0F0F0F">Skeletal Muscle Mass</div>
+          <button onclick="toggleGoalEdit('muscle')" style="font-size:12px;font-weight:600;color:var(--accent);background:none;border:none;cursor:pointer">Edit Goal</button>
+        </div>
+        <!-- Goal display -->
+        <div id="muscle-goal-display" style="display:none;background:#F0FDF4;border-radius:10px;padding:12px;margin-bottom:12px">
+          <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;text-align:center">
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px">Current</div>
+              <div style="font-size:20px;font-weight:700;color:#0F0F0F" id="disp-muscle-current">—</div>
+              <div style="font-size:11px;color:#888">lbs</div>
+            </div>
+            <div style="font-size:18px;color:#ADADAD">→</div>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#16A34A;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px">Goal</div>
+              <div style="font-size:20px;font-weight:700;color:#16A34A" id="disp-muscle-goal">—</div>
+              <div style="font-size:11px;color:#888">lbs</div>
+            </div>
+          </div>
+          <div style="margin-top:10px;padding-top:10px;border-top:1px solid #BBF7D0;text-align:center">
+            <span style="font-size:13px;font-weight:600;color:#0F0F0F" id="disp-muscle-to-go">—</span>
+            <span style="font-size:12px;color:#888"> to go</span>
+          </div>
+        </div>
+        <div id="muscle-no-goal" style="font-size:12px;color:#ADADAD;margin-bottom:12px">Tap <b>Edit Goal</b> to set a muscle mass target</div>
         <!-- Time range pills -->
         <div style="display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px">
-          <button class="range-pill bf-range active-pill" data-range="1W" onclick="setChartRange('bf','1W')">1W</button>
-          <button class="range-pill bf-range" data-range="1M" onclick="setChartRange('bf','1M')">1M</button>
-          <button class="range-pill bf-range" data-range="3M" onclick="setChartRange('bf','3M')">3M</button>
-          <button class="range-pill bf-range" data-range="6M" onclick="setChartRange('bf','6M')">6M</button>
-          <button class="range-pill bf-range" data-range="1Y" onclick="setChartRange('bf','1Y')">1Y</button>
-          <button class="range-pill bf-range" data-range="All" onclick="setChartRange('bf','All')">All</button>
+          <button class="range-pill muscle-range active-pill" data-range="1W" onclick="setChartRange('muscle','1W')">1W</button>
+          <button class="range-pill muscle-range" data-range="1M" onclick="setChartRange('muscle','1M')">1M</button>
+          <button class="range-pill muscle-range" data-range="3M" onclick="setChartRange('muscle','3M')">3M</button>
+          <button class="range-pill muscle-range" data-range="6M" onclick="setChartRange('muscle','6M')">6M</button>
+          <button class="range-pill muscle-range" data-range="1Y" onclick="setChartRange('muscle','1Y')">1Y</button>
+          <button class="range-pill muscle-range" data-range="All" onclick="setChartRange('muscle','All')">All</button>
         </div>
-        <div id="bf-chart-empty" style="display:none;text-align:center;color:#ADADAD;font-size:13px;padding:30px 0">No body fat logged yet — tap Record below</div>
-        <div class="chart-wrap" id="bf-chart-wrap"><canvas id="bf-chart"></canvas></div>
-        <!-- Latest + record row -->
+        <div id="muscle-chart-empty" style="display:none;text-align:center;color:#ADADAD;font-size:13px;padding:30px 0">No muscle mass logged yet — tap Record below</div>
+        <div class="chart-wrap"><canvas id="muscle-chart"></canvas></div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
           <div>
-            <div style="font-size:11px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px" id="bf-latest-date">No entries yet</div>
-            <div style="font-size:26px;font-weight:700;color:#0F0F0F;letter-spacing:-0.5px"><span id="bf-latest-val">—</span> <span style="font-size:14px;font-weight:500;color:#888">%</span></div>
+            <div style="font-size:11px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px" id="muscle-latest-date">No entries yet</div>
+            <div style="font-size:26px;font-weight:700;color:#0F0F0F;letter-spacing:-0.5px"><span id="muscle-latest-val">—</span> <span style="font-size:14px;font-weight:500;color:#888">lbs</span></div>
           </div>
-          <button onclick="openLogModal('bf')" style="background:var(--accent);color:white;border:none;border-radius:20px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer">Record Body Fat</button>
+          <button onclick="openLogModal('muscle')" style="background:#16A34A;color:white;border:none;border-radius:20px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer">Record Muscle</button>
         </div>
         <!-- Goal edit inline -->
-        <div id="bf-goal-edit" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid #F4F4F4">
+        <div id="muscle-goal-edit" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid #F4F4F4">
           <div class="form-row form-group">
-            <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Current Body Fat %</div><input type="number" min="0" id="edit-bf-current" placeholder="18" step="0.1" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
-            <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Goal Body Fat %</div><input type="number" min="0" id="edit-bf-goal" placeholder="13" step="0.1" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
+            <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Current Muscle (lbs)</div><input type="number" min="0" id="edit-muscle-current" placeholder="88" step="0.1" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
+            <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Goal Muscle (lbs)</div><input type="number" min="0" id="edit-muscle-goal" placeholder="95" step="0.1" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <button class="btn" onclick="toggleGoalEdit('bf')" style="background:#F4F4F4;color:#0F0F0F">Cancel</button>
-            <button class="btn" onclick="saveBfGoal()">Save</button>
+            <button class="btn" onclick="toggleGoalEdit('muscle')" style="background:#F4F4F4;color:#0F0F0F">Cancel</button>
+            <button class="btn" onclick="saveMuscleGoal()" style="background:#16A34A">Save</button>
           </div>
         </div>
       </div>
@@ -764,6 +902,61 @@
         <div class="card-title">All Photos</div>
         <div id="photos-list"><div class="loading">Loading...</div></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- BODY FAT CALCULATOR MODAL -->
+<div id="bf-calc-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:600;align-items:flex-end;justify-content:center">
+  <div style="background:white;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto">
+    <div style="font-size:16px;font-weight:700;margin-bottom:4px">Estimate Body Fat %</div>
+    <div style="font-size:12px;color:#ADADAD;margin-bottom:16px">Uses the U.S. Navy tape method — more accurate than BMI alone</div>
+
+    <!-- Method toggle -->
+    <div style="display:flex;background:#F4F4F4;border-radius:10px;padding:3px;gap:2px;margin-bottom:16px">
+      <button id="calc-navy-btn" onclick="setBfCalcMethod('navy')" style="flex:1;padding:8px;font-size:12px;font-weight:600;border:none;border-radius:8px;background:#0F0F0F;color:white;cursor:pointer">📏 Navy Tape</button>
+      <button id="calc-bmi-btn" onclick="setBfCalcMethod('bmi')" style="flex:1;padding:8px;font-size:12px;font-weight:600;border:none;border-radius:8px;background:transparent;color:#888;cursor:pointer">⚖️ BMI Estimate</button>
+    </div>
+
+    <!-- Navy method inputs -->
+    <div id="calc-navy-inputs">
+      <div style="background:#FFF7ED;border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#666;line-height:1.5">
+        Measure in inches with a soft tape. <b>Neck:</b> below larynx. <b>Waist:</b> at navel (men) or narrowest point (women). <b>Hips:</b> widest point (women only).
+      </div>
+      <div class="form-row form-group">
+        <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Neck (inches)</div><input type="number" min="0" step="0.1" id="calc-neck" placeholder="15.0" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" oninput="calcBfEstimate()" /></div>
+        <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Waist (inches)</div><input type="number" min="0" step="0.1" id="calc-waist" placeholder="34.0" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" oninput="calcBfEstimate()" /></div>
+      </div>
+      <div id="calc-hips-row" class="form-group" style="display:none">
+        <div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Hips (inches) — women only</div>
+        <input type="number" min="0" step="0.1" id="calc-hips" placeholder="38.0" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" oninput="calcBfEstimate()" />
+      </div>
+    </div>
+
+    <!-- BMI method note -->
+    <div id="calc-bmi-inputs" style="display:none">
+      <div style="background:#F4F4F4;border-radius:10px;padding:12px;margin-bottom:14px;font-size:12px;color:#666;line-height:1.5">
+        Uses your height, weight, age, and sex from your Profile. Accuracy is ±3–5% — good enough to get started, but the Navy method is more reliable.
+      </div>
+      <div style="font-size:12px;color:#ADADAD;text-align:center;margin-bottom:8px">Make sure your Profile is up to date for best results.</div>
+    </div>
+
+    <!-- Height + Weight (always shown for BMI; shown for Navy too for height) -->
+    <div id="calc-height-weight" class="form-row form-group">
+      <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Height (inches)</div><input type="number" min="0" step="0.5" id="calc-height" placeholder="69" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" oninput="calcBfEstimate()" /></div>
+      <div id="calc-weight-col"><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Weight (lbs)</div><input type="number" min="0" step="0.1" id="calc-weight" placeholder="180" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" oninput="calcBfEstimate()" /></div>
+    </div>
+
+    <!-- Result -->
+    <div id="calc-result" style="display:none;background:#FFF7ED;border-radius:12px;padding:16px;text-align:center;margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;color:#F97316;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Estimated Body Fat</div>
+      <div style="font-size:36px;font-weight:700;color:#0F0F0F" id="calc-result-val">—</div>
+      <div style="font-size:12px;color:#888;margin-top:4px" id="calc-result-cat"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="btn" onclick="closeBfCalculator()" style="background:#F4F4F4;color:#0F0F0F">Cancel</button>
+      <button class="btn" id="calc-use-btn" onclick="useBfEstimate()" style="display:none">Use This Result</button>
     </div>
   </div>
 </div>
@@ -2677,8 +2870,10 @@ let userProfile = { heightIn: 69, age: 43, gender: 'male', activity: 'active' };
 // Chart range state
 let weightChartRange = '1W';
 let bfChartRange = '1W';
+let muscleChartRange = '1W';
 let weightChartObj = null;
 let bfChartObj = null;
+let muscleChartObj = null;
 
 function loadGoals() {
   const savedTargets = localStorage.getItem('ff_targets');
@@ -2687,12 +2882,14 @@ function loadGoals() {
   if (savedTargets) userTargets = JSON.parse(savedTargets);
   if (savedGoals) {
     const g = JSON.parse(savedGoals);
-    // Migrate old format
     userGoals = {
       weightStart: g.weightStart || g.weight || null,
       weightGoal: g.weightGoal || null,
       bfCurrent: g.bfCurrent || g.bfStart || null,
-      bfGoal: g.bfGoal || null
+      bfGoal: g.bfGoal || null,
+      bfTrackingOn: g.bfTrackingOn !== false,
+      muscleCurrent: g.muscleCurrent || g.muscle || null,
+      muscleGoal: g.muscleGoal || null
     };
   }
   if (savedProfile) userProfile = JSON.parse(savedProfile);
@@ -2708,36 +2905,78 @@ function updateGoalsDisplay() {
   document.getElementById('disp-protein').textContent = userTargets.protein + 'g';
   document.getElementById('disp-carbs').textContent = userTargets.carbs + 'g';
   document.getElementById('disp-fat').textContent = userTargets.fat + 'g';
-  // Weight goal summary
-  const wSummary = document.getElementById('weight-goal-summary');
+
+  // Weight goal
+  const wGoalCard = document.getElementById('weight-goal-display');
+  const wNoGoal = document.getElementById('weight-no-goal');
   if (userGoals.weightStart && userGoals.weightGoal) {
+    wGoalCard.style.display = 'block';
+    wNoGoal.style.display = 'none';
+    document.getElementById('disp-weight-start').textContent = userGoals.weightStart;
+    document.getElementById('disp-weight-goal').textContent = userGoals.weightGoal;
     const diff = Math.abs(userGoals.weightStart - userGoals.weightGoal).toFixed(1);
-    const dir = userGoals.weightGoal < userGoals.weightStart ? 'Lose' : 'Gain';
-    wSummary.textContent = `Goal: ${userGoals.weightGoal} lbs · ${dir} ${diff} lbs`;
+    const dir = userGoals.weightGoal < userGoals.weightStart ? `${diff} lbs to lose` : `${diff} lbs to gain`;
+    document.getElementById('disp-weight-to-go').textContent = dir;
   } else {
-    wSummary.textContent = 'Set a goal weight to track progress';
+    wGoalCard.style.display = 'none';
+    wNoGoal.style.display = 'block';
   }
-  // BF goal summary
-  const bfSummary = document.getElementById('bf-goal-summary');
+
+  // BF goal
+  const bfGoalCard = document.getElementById('bf-goal-display-card');
+  const bfNoGoal = document.getElementById('bf-no-goal');
   if (userGoals.bfCurrent && userGoals.bfGoal) {
+    bfGoalCard.style.display = 'block';
+    bfNoGoal.style.display = 'none';
+    document.getElementById('disp-bf-current').textContent = userGoals.bfCurrent + '%';
+    document.getElementById('disp-bf-goal-val').textContent = userGoals.bfGoal + '%';
     const diff = Math.abs(userGoals.bfCurrent - userGoals.bfGoal).toFixed(1);
-    bfSummary.textContent = `Goal: ${userGoals.bfGoal}% · Lose ${diff}% body fat`;
+    document.getElementById('disp-bf-to-go').textContent = `${diff}% body fat to lose`;
   } else {
-    bfSummary.textContent = 'Set a body fat % goal to track recomp';
+    bfGoalCard.style.display = 'none';
+    bfNoGoal.style.display = 'block';
   }
+
+  // Muscle goal
+  const muscleGoalCard = document.getElementById('muscle-goal-display');
+  const muscleNoGoal = document.getElementById('muscle-no-goal');
+  if (userGoals.muscleCurrent && userGoals.muscleGoal) {
+    muscleGoalCard.style.display = 'block';
+    muscleNoGoal.style.display = 'none';
+    document.getElementById('disp-muscle-current').textContent = userGoals.muscleCurrent;
+    document.getElementById('disp-muscle-goal').textContent = userGoals.muscleGoal;
+    const diff = Math.abs(userGoals.muscleGoal - userGoals.muscleCurrent).toFixed(1);
+    const dir = userGoals.muscleGoal > userGoals.muscleCurrent ? `${diff} lbs to gain` : `${diff} lbs to maintain`;
+    document.getElementById('disp-muscle-to-go').textContent = dir;
+  } else {
+    muscleGoalCard.style.display = 'none';
+    muscleNoGoal.style.display = 'block';
+  }
+
+  // BF toggle state
+  const bfOn = userGoals.bfTrackingOn !== false;
+  document.getElementById('bf-toggle-track').style.background = bfOn ? 'var(--accent)' : '#ADADAD';
+  document.getElementById('bf-toggle-knob').style.right = bfOn ? '3px' : 'auto';
+  document.getElementById('bf-toggle-knob').style.left = bfOn ? 'auto' : '3px';
+  document.getElementById('bf-card-inner').style.display = bfOn ? 'block' : 'none';
+  document.getElementById('bf-card-off').style.display = bfOn ? 'none' : 'block';
 }
 
 function toggleGoalEdit(type) {
-  const el = document.getElementById(type === 'weight' ? 'weight-goal-edit' : 'bf-goal-edit');
+  const idMap = { weight: 'weight-goal-edit', bf: 'bf-goal-edit', muscle: 'muscle-goal-edit' };
+  const el = document.getElementById(idMap[type]);
   const isOpen = el.style.display !== 'none';
   el.style.display = isOpen ? 'none' : 'block';
   if (!isOpen) {
     if (type === 'weight') {
       document.getElementById('edit-weight-start').value = userGoals.weightStart || '';
       document.getElementById('edit-weight-goal').value = userGoals.weightGoal || '';
-    } else {
+    } else if (type === 'bf') {
       document.getElementById('edit-bf-current').value = userGoals.bfCurrent || '';
       document.getElementById('edit-bf-goal').value = userGoals.bfGoal || '';
+    } else {
+      document.getElementById('edit-muscle-current').value = userGoals.muscleCurrent || '';
+      document.getElementById('edit-muscle-goal').value = userGoals.muscleGoal || '';
     }
   }
 }
@@ -2771,16 +3010,16 @@ function saveBfGoal() {
 function setChartRange(type, range) {
   if (type === 'weight') {
     weightChartRange = range;
-    document.querySelectorAll('.weight-range').forEach(b => {
-      b.classList.toggle('active-pill', b.dataset.range === range);
-    });
+    document.querySelectorAll('.weight-range').forEach(b => b.classList.toggle('active-pill', b.dataset.range === range));
     renderWeightChart();
-  } else {
+  } else if (type === 'bf') {
     bfChartRange = range;
-    document.querySelectorAll('.bf-range').forEach(b => {
-      b.classList.toggle('active-pill', b.dataset.range === range);
-    });
+    document.querySelectorAll('.bf-range').forEach(b => b.classList.toggle('active-pill', b.dataset.range === range));
     renderBfChart();
+  } else {
+    muscleChartRange = range;
+    document.querySelectorAll('.muscle-range').forEach(b => b.classList.toggle('active-pill', b.dataset.range === range));
+    renderMuscleChart();
   }
 }
 
@@ -2796,7 +3035,52 @@ function filterScansByRange(scans, range) {
   return scans.filter(s => new Date(s.date + 'T12:00:00') >= cutoff);
 }
 
-function renderWeightChart() {
+function renderBMI() {
+  const heightIn = userProfile.heightIn || 0;
+  const weightScans = allScans.filter(s => s.weight);
+  const latestWeight = weightScans.length ? weightScans[weightScans.length - 1].weight : null;
+
+  if (!heightIn || !latestWeight) {
+    document.getElementById('bmi-no-data').style.display = 'block';
+    document.getElementById('bmi-content').style.display = 'none';
+    document.getElementById('bmi-badge').textContent = '—';
+    document.getElementById('bmi-badge').style.background = '#F4F4F4';
+    document.getElementById('bmi-badge').style.color = '#888';
+    return;
+  }
+
+  const bmi = Math.round((latestWeight / (heightIn * heightIn)) * 703 * 10) / 10;
+
+  let category, color, bgColor, context;
+  if (bmi < 18.5) {
+    category = 'Underweight'; color = '#3B82F6'; bgColor = '#EFF6FF';
+    context = `A BMI under 18.5 is considered underweight. Focus on building muscle and ensuring adequate nutrition.`;
+  } else if (bmi < 25) {
+    category = 'Normal'; color = '#16A34A'; bgColor = '#F0FDF4';
+    context = `You're in the healthy BMI range. Keep it up — maintaining this range reduces risk of most weight-related health issues.`;
+  } else if (bmi < 30) {
+    category = 'Overweight'; color = '#D97706'; bgColor = '#FFFBEB';
+    context = `A BMI of 25–30 is considered overweight. Even modest weight loss (5–10%) can significantly improve health markers.`;
+  } else {
+    category = 'Obese'; color = '#DC2626'; bgColor = '#FEF2F2';
+    context = `A BMI over 30 is classified as obese. Consistent nutrition tracking and gradual weight loss are the most effective approaches.`;
+  }
+
+  document.getElementById('bmi-no-data').style.display = 'none';
+  document.getElementById('bmi-content').style.display = 'block';
+  document.getElementById('bmi-value').textContent = bmi;
+  document.getElementById('bmi-value').style.color = color;
+  document.getElementById('bmi-badge').textContent = category;
+  document.getElementById('bmi-badge').style.background = bgColor;
+  document.getElementById('bmi-badge').style.color = color;
+  document.getElementById('bmi-context').textContent = context;
+
+  // Position pointer on scale bar (range 15–40)
+  const pct = Math.min(Math.max((bmi - 15) / (40 - 15), 0), 1) * 100;
+  document.getElementById('bmi-pointer').style.left = pct + '%';
+}
+
+
   const canvas = document.getElementById('weight-chart');
   const empty = document.getElementById('weight-chart-empty');
   if (weightChartObj) { weightChartObj.destroy(); weightChartObj = null; }
@@ -2878,6 +3162,7 @@ function renderWeightChart() {
       }
     }
   });
+  renderBMI();
 }
 
 function renderBfChart() {
@@ -2964,11 +3249,15 @@ let _logModalType = 'weight';
 
 function openLogModal(type) {
   _logModalType = type;
-  document.getElementById('log-modal-title').textContent = type === 'weight' ? 'Record Weight' : 'Record Body Fat %';
-  document.getElementById('log-modal-subtitle').textContent = type === 'weight' ? 'Track your weight over time' : 'Track your body fat % over time';
-  document.getElementById('log-modal-value-label').textContent = type === 'weight' ? 'Weight (lbs)' : 'Body Fat %';
-  document.getElementById('log-modal-value').placeholder = type === 'weight' ? '185.0' : '16.5';
-  document.getElementById('log-modal-extra').style.display = type === 'bf' ? 'block' : 'none';
+  const titles = { weight: 'Record Weight', bf: 'Record Body Fat %', muscle: 'Record Muscle Mass' };
+  const subs = { weight: 'Track your weight over time', bf: 'Track your body fat % over time', muscle: 'Track your skeletal muscle mass over time' };
+  const labels = { weight: 'Weight (lbs)', bf: 'Body Fat %', muscle: 'Muscle Mass (lbs)' };
+  const placeholders = { weight: '185.0', bf: '16.5', muscle: '88.0' };
+  document.getElementById('log-modal-title').textContent = titles[type];
+  document.getElementById('log-modal-subtitle').textContent = subs[type];
+  document.getElementById('log-modal-value-label').textContent = labels[type];
+  document.getElementById('log-modal-value').placeholder = placeholders[type];
+  document.getElementById('log-modal-extra').style.display = 'none';
   document.getElementById('log-modal-value').value = '';
   document.getElementById('log-modal-muscle').value = '';
   document.getElementById('log-modal-date').value = today;
@@ -2985,13 +3274,9 @@ async function saveLogEntry() {
   const date = document.getElementById('log-modal-date').value;
   if (!val || !date) { toast('Enter a value and date'); return; }
   const entry = { date };
-  if (_logModalType === 'weight') {
-    entry.weight = val;
-  } else {
-    entry.body_fat = val;
-    const muscle = +document.getElementById('log-modal-muscle').value;
-    if (muscle) entry.muscle_mass = muscle;
-  }
+  if (_logModalType === 'weight') entry.weight = val;
+  else if (_logModalType === 'bf') entry.body_fat = val;
+  else if (_logModalType === 'muscle') entry.muscle_mass = val;
   await dbPost('scans', entry);
   closeLogModal();
   await loadScans();
@@ -3003,6 +3288,100 @@ async function loadScans() {
   renderScans();
   renderWeightChart();
   renderBfChart();
+  renderMuscleChart();
+  renderBMI();
+}
+
+function renderMuscleChart() {
+  const canvas = document.getElementById('muscle-chart');
+  const empty = document.getElementById('muscle-chart-empty');
+  if (muscleChartObj) { muscleChartObj.destroy(); muscleChartObj = null; }
+
+  const muscleScans = allScans.filter(s => s.muscle_mass);
+  const filtered = filterScansByRange(muscleScans, muscleChartRange);
+
+  // Update latest
+  if (muscleScans.length) {
+    const latest = muscleScans[muscleScans.length - 1];
+    document.getElementById('muscle-latest-val').textContent = latest.muscle_mass;
+    document.getElementById('muscle-latest-date').textContent = new Date(latest.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  if (!filtered.length) {
+    empty.style.display = 'block'; canvas.style.display = 'none'; return;
+  }
+  empty.style.display = 'none'; canvas.style.display = 'block';
+
+  const labels = filtered.map(s => new Date(s.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+  const data = filtered.map(s => s.muscle_mass);
+
+  const datasets = [{
+    label: 'Muscle Mass',
+    data,
+    borderColor: '#16A34A',
+    backgroundColor: 'rgba(22,163,74,0.08)',
+    borderWidth: 2.5,
+    pointBackgroundColor: '#16A34A',
+    pointRadius: 4,
+    tension: 0.3,
+    fill: true
+  }];
+
+  if (userGoals.muscleGoal) {
+    const projData = [...data.map(() => null)];
+    projData[projData.length - 1] = data[data.length - 1];
+    projData.push(userGoals.muscleGoal);
+    datasets.push({
+      label: 'Goal',
+      data: projData,
+      borderColor: '#F97316',
+      borderWidth: 1.5,
+      borderDash: [6, 4],
+      pointRadius: [0,0,0,0,0,5],
+      pointBackgroundColor: '#F97316',
+      tension: 0,
+      fill: false,
+      spanGaps: true
+    });
+    datasets.push({
+      label: 'Goal line',
+      data: Array(labels.length).fill(userGoals.muscleGoal),
+      borderColor: 'rgba(249,115,22,0.2)',
+      borderWidth: 1,
+      borderDash: [4, 4],
+      pointRadius: 0,
+      fill: false
+    });
+  }
+
+  muscleChartObj = new Chart(canvas, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label === 'Goal line' ? null : `${ctx.raw} lbs` }, filter: item => item.dataset.label !== 'Goal line' }
+      },
+      scales: {
+        y: { grid: { color: '#F5F5F5' }, ticks: { font: { size: 11 }, callback: v => v + ' lbs' } },
+        x: { grid: { display: false }, ticks: { font: { size: 11 }, maxTicksLimit: 6 } }
+      }
+    }
+  });
+}
+
+function saveMuscleGoal() {
+  const current = +document.getElementById('edit-muscle-current').value;
+  const goal = +document.getElementById('edit-muscle-goal').value;
+  if (!current || !goal) { toast('Enter both current and goal muscle mass'); return; }
+  userGoals.muscleCurrent = current;
+  userGoals.muscleGoal = goal;
+  localStorage.setItem('ff_goals', JSON.stringify(userGoals));
+  toggleGoalEdit('muscle');
+  updateGoalsDisplay();
+  renderMuscleChart();
+  toast('Muscle goal saved ✓');
 }
 
 function renderScans() {
@@ -3099,6 +3478,112 @@ function saveProfile() {
   document.getElementById('disp-activity').textContent = activityLabels[activity];
   toggleEditProfile();
   toast('Profile saved ✓');
+}
+
+function toggleBfTracking() {
+  userGoals.bfTrackingOn = userGoals.bfTrackingOn === false ? true : false;
+  localStorage.setItem('ff_goals', JSON.stringify(userGoals));
+  updateGoalsDisplay();
+}
+
+// BF Calculator
+let _bfCalcMethod = 'navy';
+let _bfCalcResult = null;
+
+function openBfCalculator() {
+  _bfCalcResult = null;
+  document.getElementById('calc-result').style.display = 'none';
+  document.getElementById('calc-use-btn').style.display = 'none';
+  // Pre-fill height and weight from profile/last scan
+  document.getElementById('calc-height').value = userProfile.heightIn || '';
+  const lastWeight = allScans.filter(s => s.weight).slice(-1)[0];
+  document.getElementById('calc-weight').value = lastWeight ? lastWeight.weight : '';
+  ['calc-neck','calc-waist','calc-hips'].forEach(id => document.getElementById(id).value = '');
+  setBfCalcMethod('navy');
+  document.getElementById('bf-calc-modal').style.display = 'flex';
+}
+
+function closeBfCalculator() {
+  document.getElementById('bf-calc-modal').style.display = 'none';
+}
+
+function setBfCalcMethod(method) {
+  _bfCalcMethod = method;
+  document.getElementById('calc-navy-btn').style.background = method === 'navy' ? '#0F0F0F' : 'transparent';
+  document.getElementById('calc-navy-btn').style.color = method === 'navy' ? 'white' : '#888';
+  document.getElementById('calc-bmi-btn').style.background = method === 'bmi' ? '#0F0F0F' : 'transparent';
+  document.getElementById('calc-bmi-btn').style.color = method === 'bmi' ? 'white' : '#888';
+  document.getElementById('calc-navy-inputs').style.display = method === 'navy' ? 'block' : 'none';
+  document.getElementById('calc-bmi-inputs').style.display = method === 'bmi' ? 'block' : 'none';
+  // Navy only needs height, BMI needs height + weight
+  document.getElementById('calc-weight-col').style.display = method === 'bmi' ? 'block' : 'none';
+  // Show hips row for women in navy method
+  const isFemale = userProfile.gender === 'female';
+  document.getElementById('calc-hips-row').style.display = (method === 'navy' && isFemale) ? 'block' : 'none';
+  calcBfEstimate();
+}
+
+function calcBfEstimate() {
+  const height = +document.getElementById('calc-height').value;
+  const gender = userProfile.gender || 'male';
+  let bf = null;
+
+  if (_bfCalcMethod === 'navy') {
+    const neck = +document.getElementById('calc-neck').value;
+    const waist = +document.getElementById('calc-waist').value;
+    if (!height || !neck || !waist) { hideCalcResult(); return; }
+    if (gender === 'female') {
+      const hips = +document.getElementById('calc-hips').value;
+      if (!hips) { hideCalcResult(); return; }
+      bf = 163.205 * Math.log10(waist + hips - neck) - 97.684 * Math.log10(height) - 78.387;
+    } else {
+      bf = 86.010 * Math.log10(waist - neck) - 70.041 * Math.log10(height) + 36.76;
+    }
+  } else {
+    // Deurenberg BMI-based formula
+    const weight = +document.getElementById('calc-weight').value;
+    const age = userProfile.age || 30;
+    if (!height || !weight) { hideCalcResult(); return; }
+    const bmi = (weight / (height * height)) * 703;
+    const sexVal = gender === 'male' ? 1 : 0;
+    bf = (1.20 * bmi) + (0.23 * age) - (10.8 * sexVal) - 5.4;
+  }
+
+  if (!bf || bf < 3 || bf > 60) { hideCalcResult(); return; }
+  bf = Math.round(bf * 10) / 10;
+  _bfCalcResult = bf;
+
+  // Category
+  const cats = gender === 'male'
+    ? [{max:6,'label':'Essential Fat'},{max:14,'label':'Athletic'},{max:18,'label':'Fitness'},{max:25,'label':'Average'},{max:100,'label':'Obese'}]
+    : [{max:14,'label':'Essential Fat'},{max:21,'label':'Athletic'},{max:25,'label':'Fitness'},{max:32,'label':'Average'},{max:100,'label':'Obese'}];
+  const cat = cats.find(c => bf <= c.max) || cats[cats.length-1];
+
+  document.getElementById('calc-result-val').textContent = bf + '%';
+  document.getElementById('calc-result-cat').textContent = cat.label;
+  document.getElementById('calc-result').style.display = 'block';
+  document.getElementById('calc-use-btn').style.display = 'block';
+}
+
+function hideCalcResult() {
+  _bfCalcResult = null;
+  document.getElementById('calc-result').style.display = 'none';
+  document.getElementById('calc-use-btn').style.display = 'none';
+}
+
+function useBfEstimate() {
+  if (!_bfCalcResult) return;
+  closeBfCalculator();
+  // Pre-fill the Edit Goal form with this estimate as current BF
+  document.getElementById('edit-bf-current').value = _bfCalcResult;
+  // Open the edit goal section
+  const el = document.getElementById('bf-goal-edit');
+  el.style.display = 'block';
+  // Also update userGoals.bfCurrent
+  userGoals.bfCurrent = _bfCalcResult;
+  localStorage.setItem('ff_goals', JSON.stringify(userGoals));
+  updateGoalsDisplay();
+  toast(`Body fat set to ${_bfCalcResult}% — now set your goal below`);
 }
 
 // Open barcode scanner and pre-fill meal form
