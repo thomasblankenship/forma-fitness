@@ -1270,7 +1270,7 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <input type="number" min="0" id="food-modal-qty" placeholder="1" value="1" step="0.1" oninput="updateFoodModalPreview()"
           style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:16px;font-weight:600;outline:none;box-sizing:border-box" />
-        <select id="food-modal-unit-select" onchange="setFoodModalUnit(this.value)" style="font-size:14px;font-weight:700;color:#F97316;padding:10px 12px;background:#FFF7ED;border:1px solid #F97316;border-radius:8px;cursor:pointer;width:100%;outline:none;text-align:center">
+        <select id="food-modal-unit-select" onchange="setFoodModalUnit(this.value)" style="font-size:16px;font-weight:700;color:#F97316;padding:10px;background:#FFF7ED;border:2px solid #F97316;border-radius:8px;width:100%;height:44px;box-sizing:border-box">
           <option value="g">g</option>
           <option value="oz">oz</option>
           <option value="each">each</option>
@@ -3293,7 +3293,7 @@ let _labelIsCountable = false; // true only if scan suggests whole units (packag
 
 const LABEL_WEIGHT_UNITS = ['g', 'oz'];
 const LABEL_VOL_UNITS    = ['ml', 'fl oz', 'tbsp', 'tsp'];
-const LABEL_COUNT_UNITS  = ['serving', 'slice', 'piece', 'package', 'cup'];
+const LABEL_COUNT_UNITS  = ['serving', 'each', 'slice', 'piece', 'package', 'cup', 'bar', 'scoop', 'tablet'];
 const LABEL_ALL_UNITS    = [...LABEL_WEIGHT_UNITS, ...LABEL_VOL_UNITS, ...LABEL_COUNT_UNITS];
 const LABEL_COUNT_SET    = new Set(LABEL_COUNT_UNITS);
 
@@ -3402,15 +3402,20 @@ function showLabelResult(data) {
   _labelServingG = _parseServingSizeG(rawServing);
   // Auto-select unit based on what the label says
   const rawStr = String(rawServing).toLowerCase();
-  if (/tbsp|tablespoon/.test(rawStr)) {
-    _labelUnit = 'tbsp';
-    _labelServingVal = parseFloat(rawStr) || 1;
+  if (/\bslice\b/.test(rawStr)) {
+    _labelUnit = 'slice'; _labelServingVal = parseFloat(rawStr) || 1;
+  } else if (/\beach\b/.test(rawStr)) {
+    _labelUnit = 'each'; _labelServingVal = parseFloat(rawStr) || 1;
+  } else if (/\bpiece\b/.test(rawStr)) {
+    _labelUnit = 'piece'; _labelServingVal = parseFloat(rawStr) || 1;
+  } else if (/\bscoop\b/.test(rawStr)) {
+    _labelUnit = 'scoop'; _labelServingVal = parseFloat(rawStr) || 1;
+  } else if (/tbsp|tablespoon/.test(rawStr)) {
+    _labelUnit = 'tbsp'; _labelServingVal = parseFloat(rawStr) || 1;
   } else if (/tsp|teaspoon/.test(rawStr)) {
-    _labelUnit = 'tsp';
-    _labelServingVal = parseFloat(rawStr) || 1;
+    _labelUnit = 'tsp'; _labelServingVal = parseFloat(rawStr) || 1;
   } else if (/\boz\b/.test(rawStr) && !/\(.*g\)/.test(rawStr)) {
-    _labelUnit = 'oz';
-    _labelServingVal = Math.round(_labelServingG / 28.3495 * 10) / 10;
+    _labelUnit = 'oz'; _labelServingVal = Math.round(_labelServingG / 28.3495 * 10) / 10;
   } else {
     _labelUnit = 'g';
     _labelServingVal = Math.round(_labelServingG * 10) / 10;
@@ -3420,7 +3425,8 @@ function showLabelResult(data) {
   // (servings_per_container = 1, or name contains package/meal/entrée keywords)
   const servings = parseFloat(data.servings_per_container || data.servings || 0);
   const nameLC = (data.name || '').toLowerCase();
-  _labelIsCountable = servings === 1 || /\b(meal|entrée|entree|kit|package|dinner|lunch)\b/.test(nameLC);
+  const servingSizeStr = String(data.serving_size || '').toLowerCase();
+  _labelIsCountable = servings === 1 || /\b(meal|entr.e|entree|kit|package|dinner|lunch)\b/.test(nameLC) || /\b(slice|piece|each|bar|patty|strip|cookie|cracker|chip|egg|tablet|capsule|scoop|packet)\b/.test(servingSizeStr);
 
   const disp = document.getElementById('label-serving-display');
   const unitLbl = document.getElementById('label-serving-unit-label');
@@ -3444,7 +3450,7 @@ function showLabelResult(data) {
 }
 
 async function logLabelAsFood() {
-  if (!labelScannedData) { toast('No food data loaded'); return; }
+  if (!labelScannedData || !labelScannedData.name) { toast('No food data loaded'); return; }
   // Save to My Foods first (with chosen unit), then open the log modal
   const chosenUnit = _labelUnit;
   const chosenServing = _labelServingVal;
@@ -3474,6 +3480,7 @@ async function logLabelAsFood() {
 }
 
 async function saveLabelAsFood() {
+  if (!labelScannedData || !labelScannedData.name) { toast('No food data'); return; }
   if (!labelScannedData) return;
   // Use the scroll-wheel chosen unit and serving size
   const chosenUnit = _labelUnit;
