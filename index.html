@@ -619,8 +619,8 @@
         <!-- Goal edit inline -->
         <div id="weight-goal-edit" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid #F4F4F4">
           <div class="form-row form-group">
-            <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Starting Weight (lbs)</div><input type="number" min="0" id="edit-weight-start" placeholder="185" step="0.1" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
-            <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Goal Weight (lbs)</div><input type="number" min="0" id="edit-weight-goal" placeholder="170" step="0.1" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
+            <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Starting Weight (lbs)</div><input type="number" min="0" id="edit-weight-start" placeholder="185" step="1" inputmode="decimal" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
+            <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Goal Weight (lbs)</div><input type="number" min="0" id="edit-weight-goal" placeholder="170" step="1" inputmode="decimal" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;outline:none" /></div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
             <button class="btn" onclick="toggleGoalEdit('weight')" style="background:#F4F4F4;color:#0F0F0F">Cancel</button>
@@ -3523,7 +3523,8 @@ function toggleGoalEdit(type) {
   el.style.display = isOpen ? 'none' : 'block';
   if (!isOpen) {
     if (type === 'weight') {
-      document.getElementById('edit-weight-start').value = userGoals.weightStart || '';
+      const latestW = allScans.filter(s => s.weight).slice(-1)[0]?.weight;
+      document.getElementById('edit-weight-start').value = userGoals.weightStart ? Math.round(userGoals.weightStart * 10) / 10 : (latestW ? Math.round(latestW * 10) / 10 : '');
       document.getElementById('edit-weight-goal').value = userGoals.weightGoal || '';
     } else if (type === 'bf') {
       document.getElementById('edit-bf-current').value = userGoals.bfCurrent || '';
@@ -3536,8 +3537,8 @@ function toggleGoalEdit(type) {
 }
 
 function saveWeightGoal() {
-  const start = +document.getElementById('edit-weight-start').value;
-  const goal = +document.getElementById('edit-weight-goal').value;
+  const start = Math.round(+document.getElementById('edit-weight-start').value * 10) / 10;
+  const goal = Math.round(+document.getElementById('edit-weight-goal').value * 10) / 10;
   if (!start || !goal) { toast('Enter both starting and goal weight'); return; }
   userGoals.weightStart = start;
   userGoals.weightGoal = goal;
