@@ -1567,6 +1567,15 @@ async function dbGet(table, filters = '') {
     return [];
   }
 }
+async function dbPatch(table, id, data) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { ...SUPABASE_HEADERS, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error(await res.text());
+}
+
 async function dbPost(table, data) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
     method: 'POST',
@@ -3180,8 +3189,8 @@ function _parseServingSizeG(raw) {
   // prefer parenthesized gram value e.g. "1 tsp. (5g)" or "1/2 cup (117g)"
   const parenG = s.match(/\((\d+\.?\d*)\s*g\)/i);
   if (parenG) return parseFloat(parenG[1]);
-  // explicit gram value e.g. "125g" or "117 g" or "125 g"
-  const gMatch = s.match(/^(\d+\.?\d*)\s*g(\s|$)/i);
+  // explicit gram value e.g. "117g" or "117 g"
+  const gMatch = s.match(/^(\d+\.?\d*)\s*g\b/i);
   if (gMatch) return parseFloat(gMatch[1]);
   // oz → grams e.g. "4 oz"
   const ozMatch = s.match(/(\d+\.?\d*)\s*oz\b/i);
@@ -3886,6 +3895,8 @@ async function saveLogEntry() {
   const val = parseFloat(_numpadValue);
   const date = document.getElementById('log-modal-date').value;
   if (!val || !date) { toast('Enter a value and date'); return; }
+  const typeLabel = _logModalType === 'weight' ? `${val} lbs` : _logModalType === 'bf' ? `${val}%` : `${val} lbs muscle`;
+  if (!confirm(`Save ${typeLabel} for ${date}?`)) return;
   const entry = { date };
   if (_logModalType === 'weight') entry.weight = val;
   else if (_logModalType === 'bf') entry.body_fat = val;
@@ -4014,6 +4025,7 @@ function renderScans() {
     <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #F5F5F5">
       <div style="font-size:13px;color:#666">${new Date(s.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
       <div style="font-size:13px;display:flex;gap:10px;align-items:center">${parts.join(' · ')}
+        <button onclick="editScan('${s.id}','${s.date}',${s.weight||'null'},${s.body_fat||'null'},${s.muscle_mass||'null'})" style="background:none;border:none;color:#ADADAD;cursor:pointer;font-size:12px;line-height:1;padding:0 4px">edit</button>
         <button onclick="deleteScan('${s.id}')" style="background:none;border:none;color:#E8E8E8;cursor:pointer;font-size:18px;line-height:1;padding:0 0 0 4px">×</button>
       </div>
     </div>`;
@@ -4025,6 +4037,26 @@ async function deleteScan(id) {
   await dbDelete('scans', id);
   await loadScans();
   toast('Deleted');
+}
+
+async function editScan(id, date, weight, bodyFat, muscle) {
+  const current = weight !== null ? weight : bodyFat !== null ? bodyFat : muscle;
+  const type = weight !== null ? 'weight (lbs)' : bodyFat !== null ? 'body fat (%)' : 'muscle mass (lbs)';
+  const newVal = prompt(`Edit ${type} for ${date}:`, current);
+  if (newVal === null) return;
+  const val = parseFloat(newVal);
+  if (isNaN(val) || val <= 0) { toast('Invalid value'); return; }
+  const entry = {};
+  if (weight !== null) entry.weight = val;
+  else if (bodyFat !== null) entry.body_fat = val;
+  else entry.muscle_mass = val;
+  try {
+    await dbPatch('scans', id, entry);
+    await loadScans();
+    toast('Updated ✓');
+  } catch(e) {
+    toast('Error: ' + (e.message || 'Update failed'));
+  }
 }
 
 function toggleEditTargets() {
