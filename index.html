@@ -3118,11 +3118,15 @@ async function openBarcodeScanner() {
     try {
       html5QrcodeScanner = new Html5Qrcode("barcode-reader");
       html5QrcodeScanner.start(
-        { facingMode: "environment" },
+        {
+          facingMode: { exact: "environment" },
+          advanced: [{ focusMode: "continuous" }, { zoom: 1.0 }]
+        },
         { 
-          fps: 15,
-          qrbox: { width: 250, height: 150 },
-          experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+          fps: 10,
+          qrbox: { width: 280, height: 160 },
+          experimentalFeatures: { useBarCodeDetectorIfSupported: true },
+          aspectRatio: 1.7778
         },
         onBarcodeDetected,
         err => {}
