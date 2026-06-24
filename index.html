@@ -3125,7 +3125,7 @@ async function onBarcodeDetected(barcode) {
       fiber: data.fiber,
       cholesterol: data.cholesterol || 0,
       serving_size: data.serving_size,
-      unit: data.serving_size + ' serving'
+      unit: data.serving_size
     };
     showLabelResult(labelScannedData);
     openLabelModal(true);
@@ -3284,7 +3284,7 @@ function _parseServingSizeG(raw) {
   const parenG = s.match(/\((\d+\.?\d*)\s*g\)/i);
   if (parenG) return parseFloat(parenG[1]);
   // explicit gram value e.g. "117g" or "117 g"
-  const gMatch = s.match(/^(\d+\.?\d*)\s*g\b/i);
+  const gMatch = s.match(/^(\d+\.?\d*)\s*g(\s|$)/i);
   if (gMatch) return parseFloat(gMatch[1]);
   // oz → grams e.g. "4 oz"
   const ozMatch = s.match(/(\d+\.?\d*)\s*oz\b/i);
@@ -3414,7 +3414,7 @@ function showLabelResult(data) {
 }
 
 async function logLabelAsFood() {
-  if (!labelScannedData) return;
+  if (!labelScannedData) { toast('No food data loaded'); return; }
   // Save to My Foods first (with chosen unit), then open the log modal
   const chosenUnit = _labelUnit;
   const chosenServing = _labelServingVal;
