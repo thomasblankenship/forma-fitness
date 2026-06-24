@@ -3158,10 +3158,8 @@ async function onBarcodeDetected(barcode) {
       return;
     }
 
-    // Warn if data looks like per-100g (serving_size exactly '100g' with no unit context)
-    const isPer100g = data.serving_size === '100g' && !data.serving_size_g;
     labelScannedData = {
-      name: data.name + (isPer100g ? ' (per 100g)' : ''),
+      name: data.name,
       calories: data.calories,
       protein: data.protein,
       carbs: data.carbs,
@@ -3171,7 +3169,6 @@ async function onBarcodeDetected(barcode) {
       serving_size: data.serving_size,
       unit: data.serving_size
     };
-    if (isPer100g) toast('⚠️ Serving size is 100g — adjust amount for actual serving');
     showLabelResult(labelScannedData);
     openLabelModal(true);
   } catch(e) {
