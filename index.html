@@ -3771,17 +3771,17 @@ function renderWeightChart() {
     const projLabel = fmtDate(goalDate.toISOString().split('T')[0]);
     const allLabels = [...labels, ...monthlyLabels, projLabel];
 
-    // Actual data: real points + nulls for future
-    const actualDataExtended = [...data, ...monthlyActualData.map(() => null), null];
+    // Actual data: real points + nulls for future months + null for goal endpoint
+    const actualDataExtended = [...data, ...monthlyLabels.map(() => null), null];
 
-    // Projection data: null for past points, then interpolated line from anchor → goal
+    // Projection data: nulls for past real points (except last = anchor), monthly interp, goal
+    const nReal = data.length;
     const projDataExtended = [
-      ...data.map(() => null),           // nulls for past real points
-      ...monthlyProjData,                // monthly interpolated
-      userGoals.weightGoal               // goal endpoint
+      ...Array(Math.max(nReal - 1, 0)).fill(null),  // nulls before anchor
+      anchorScan.weight,                              // anchor at last real point
+      ...monthlyProjData,                             // monthly interpolated
+      userGoals.weightGoal                            // goal endpoint
     ];
-    // Anchor projection at last real point
-    projDataExtended[data.length - 1] = anchorScan.weight;
 
     // Horizontal goal line across all labels
     const goalLineData = allLabels.map(() => userGoals.weightGoal);
