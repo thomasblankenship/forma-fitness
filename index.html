@@ -598,10 +598,10 @@
         <div id="weight-no-goal" style="font-size:12px;color:#ADADAD;margin-bottom:12px">Tap <b>Edit Goal</b> to set your target weight</div>
         <!-- Time range pills -->
         <div style="display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px">
-          <button class="range-pill weight-range active-pill" data-range="1W" onclick="setChartRange('weight','1W')">1W</button>
+          <button class="range-pill weight-range" data-range="1W" onclick="setChartRange('weight','1W')">1W</button>
           <button class="range-pill weight-range" data-range="1M" onclick="setChartRange('weight','1M')">1M</button>
           <button class="range-pill weight-range" data-range="3M" onclick="setChartRange('weight','3M')">3M</button>
-          <button class="range-pill weight-range" data-range="6M" onclick="setChartRange('weight','6M')">6M</button>
+          <button class="range-pill weight-range active-pill" data-range="6M" onclick="setChartRange('weight','6M')">6M</button>
           <button class="range-pill weight-range" data-range="1Y" onclick="setChartRange('weight','1Y')">1Y</button>
           <button class="range-pill weight-range" data-range="All" onclick="setChartRange('weight','All')">All</button>
         </div>
@@ -700,10 +700,10 @@
           <button onclick="openBfCalculator()" style="width:100%;background:#F4F4F4;color:#0F0F0F;border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:12px">📏 Estimate My Body Fat %</button>
           <!-- Time range pills -->
           <div style="display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px">
-            <button class="range-pill bf-range active-pill" data-range="1W" onclick="setChartRange('bf','1W')">1W</button>
+            <button class="range-pill bf-range" data-range="1W" onclick="setChartRange('bf','1W')">1W</button>
             <button class="range-pill bf-range" data-range="1M" onclick="setChartRange('bf','1M')">1M</button>
             <button class="range-pill bf-range" data-range="3M" onclick="setChartRange('bf','3M')">3M</button>
-            <button class="range-pill bf-range" data-range="6M" onclick="setChartRange('bf','6M')">6M</button>
+            <button class="range-pill bf-range active-pill" data-range="6M" onclick="setChartRange('bf','6M')">6M</button>
             <button class="range-pill bf-range" data-range="1Y" onclick="setChartRange('bf','1Y')">1Y</button>
             <button class="range-pill bf-range" data-range="All" onclick="setChartRange('bf','All')">All</button>
           </div>
@@ -767,10 +767,10 @@
           <div id="muscle-no-goal" style="font-size:12px;color:#ADADAD;margin-bottom:12px">Tap <b>Edit Goal</b> to set a muscle mass target</div>
           <!-- Time range pills -->
           <div style="display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px">
-            <button class="range-pill muscle-range active-pill" data-range="1W" onclick="setChartRange('muscle','1W')">1W</button>
+            <button class="range-pill muscle-range" data-range="1W" onclick="setChartRange('muscle','1W')">1W</button>
             <button class="range-pill muscle-range" data-range="1M" onclick="setChartRange('muscle','1M')">1M</button>
             <button class="range-pill muscle-range" data-range="3M" onclick="setChartRange('muscle','3M')">3M</button>
-            <button class="range-pill muscle-range" data-range="6M" onclick="setChartRange('muscle','6M')">6M</button>
+            <button class="range-pill muscle-range active-pill" data-range="6M" onclick="setChartRange('muscle','6M')">6M</button>
             <button class="range-pill muscle-range" data-range="1Y" onclick="setChartRange('muscle','1Y')">1Y</button>
             <button class="range-pill muscle-range" data-range="All" onclick="setChartRange('muscle','All')">All</button>
           </div>
@@ -3383,9 +3383,9 @@ let userGoals = {
 let userProfile = { heightIn: 69, age: 43, gender: 'male', activity: 'active' };
 
 // Chart range state
-let weightChartRange = '1W';
-let bfChartRange = '1W';
-let muscleChartRange = '1W';
+let weightChartRange = '6M';
+let bfChartRange = '6M';
+let muscleChartRange = '6M';
 let weightChartObj = null;
 let bfChartObj = null;
 let muscleChartObj = null;
@@ -3703,8 +3703,16 @@ function renderWeightChart() {
   empty.style.display = 'none'; canvas.style.display = 'block';
 
   const fmtDate = d => new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  // Always use latestScan as anchor even if not in filtered range
+  const anchorScan = latestScan || filtered[filtered.length - 1];
   const labels = filtered.map(s => fmtDate(s.date));
   const data = filtered.map(s => s.weight);
+
+  // If filtered has no points in range but we have a latest, show just that point
+  if (!labels.length && anchorScan) {
+    labels.push(fmtDate(anchorScan.date));
+    data.push(anchorScan.weight);
+  }
 
   const datasets = [{
     label: 'Weight',
@@ -3721,9 +3729,9 @@ function renderWeightChart() {
   // Update goal display with projection date
   const weightToGoEl = document.getElementById('disp-weight-to-go');
 
-  if (userGoals.weightGoal && latestScan) {
-    const goalDate = projectGoalDate(latestScan.weight, userGoals.weightGoal, latestScan.date);
-    const lbsLeft = Math.abs(latestScan.weight - userGoals.weightGoal).toFixed(1);
+  if (userGoals.weightGoal && anchorScan) {
+    const goalDate = projectGoalDate(anchorScan.weight, userGoals.weightGoal, anchorScan.date);
+    const lbsLeft = Math.abs(anchorScan.weight - userGoals.weightGoal).toFixed(1);
     const dir = userGoals.weightGoal < latestScan.weight ? 'to lose' : 'to gain';
 
     if (goalDate) {
@@ -3737,7 +3745,7 @@ function renderWeightChart() {
 
       // Null-pad projection across existing labels, then add goal point
       const projData = data.map(() => null);
-      projData[projData.length - 1] = latestScan.weight; // anchor at last real point
+      projData[projData.length - 1] = anchorScan.weight; // anchor at last real point
       const projLabelsExtended = [...labels, projLabel];
       const projDataExtended = [...projData, userGoals.weightGoal];
 
