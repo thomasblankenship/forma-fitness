@@ -313,23 +313,23 @@
             </div>
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein (g)</div>
-              <input type="number" id="meal-protein" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
+              <input type="number" id="meal-protein" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
             </div>
           </div>
           <div class="form-row form-group">
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs (g)</div>
-              <input type="number" id="meal-carbs" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
+              <input type="number" id="meal-carbs" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
             </div>
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat (g)</div>
-              <input type="number" id="meal-fat" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
+              <input type="number" id="meal-fat" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
             </div>
           </div>
           <div class="form-row form-group">
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber (g)</div>
-              <input type="number" id="meal-fiber" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
+              <input type="number" id="meal-fiber" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
             </div>
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Cholesterol (mg)</div>
@@ -446,17 +446,17 @@
               </div>
               <div>
                 <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein (g)</div>
-                <input type="number" id="hist-meal-protein" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
+                <input type="number" id="hist-meal-protein" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
               </div>
             </div>
             <div class="form-row form-group">
               <div>
                 <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs (g)</div>
-                <input type="number" id="hist-meal-carbs" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
+                <input type="number" id="hist-meal-carbs" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
               </div>
               <div>
                 <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat (g)</div>
-                <input type="number" id="hist-meal-fat" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
+                <input type="number" id="hist-meal-fat" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
               </div>
             </div>
             <button class="btn" onclick="addMealToHistoryDay()" style="margin-top:4px">Log Meal</button>
@@ -530,21 +530,21 @@
           <div class="form-row form-group">
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein per serving</div>
-              <input type="number" id="food-protein" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
+              <input type="number" id="food-protein" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
             </div>
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs per serving</div>
-              <input type="number" id="food-carbs" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
+              <input type="number" id="food-carbs" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
             </div>
           </div>
           <div class="form-row form-group">
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat per serving</div>
-              <input type="number" id="food-fat" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
+              <input type="number" id="food-fat" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
             </div>
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber per serving</div>
-              <input type="number" id="food-fiber" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
+              <input type="number" id="food-fiber" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
             </div>
             <div class="form-group">
               <label class="form-label">Cholesterol (mg)</label>
@@ -1091,22 +1091,22 @@
       </div>
       <div>
         <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein (g)</div>
-        <input type="number" id="edit-meal-protein-input" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
+        <input type="number" id="edit-meal-protein-input" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
       </div>
     </div>
     <div class="form-row form-group">
       <div>
         <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs (g)</div>
-        <input type="number" id="edit-meal-carbs-input" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
+        <input type="number" id="edit-meal-carbs-input" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
       </div>
       <div>
         <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat (g)</div>
-        <input type="number" id="edit-meal-fat-input" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
+        <input type="number" id="edit-meal-fat-input" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
       </div>
     </div>
     <div class="form-group">
       <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber (g)</div>
-      <input type="number" id="edit-meal-fiber-input" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
+      <input type="number" id="edit-meal-fiber-input" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
     </div>
     <div class="form-group"><div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Cholesterol (mg)</div>
       <input type="number" id="edit-meal-cholesterol-input" placeholder="0" min="0" step="1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value)||0"></div>
@@ -2815,14 +2815,14 @@ function toggleAddFood() {
 
 async function saveFood() {
   const name = document.getElementById('food-name').value.trim();
-  const calsRaw = document.getElementById('food-cals').value.replace(/[^0-9.]/g, '');
+  const calsRaw = document.getElementById('food-cals').value.replace(/[^0-9.]/g, '') || '0';
   const cals = parseFloat(calsRaw) || 0;
   console.log('saveFood name:', name, 'cals:', cals, 'raw:', document.getElementById('food-cals').value);
   const servingQty = document.getElementById('food-serving-qty').value || '1';
   const servingUnit = document.getElementById('food-unit').value;
   const unit = (+servingQty === 1 || servingQty === '1') ? servingUnit : `${servingQty} ${servingUnit}`;
   if (!name) { toast('Enter a food name'); return; }
-  if (!cals) { toast('Enter calories per serving'); return; }
+  if (cals === null || cals === undefined || isNaN(cals)) { toast('Enter calories per serving'); return; }
   await dbPost('saved_foods', {
     name, unit,
     calories_per_unit: cals,
@@ -4036,11 +4036,30 @@ function renderBfChart() {
   const fmtDateBf = d => new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   if (userGoals.bfGoal && anchorBf) {
-    // Project at 0.5% per month pace
-    const pctToGo = Math.abs(anchorBf.body_fat - userGoals.bfGoal);
-    const months = Math.max(pctToGo / 0.5, 1);
-    const goalDate = new Date(anchorBf.date + 'T12:00:00');
-    goalDate.setMonth(goalDate.getMonth() + Math.round(months));
+    // Project using calorie deficit math
+    const tdee_bf = calcTDEE(anchorScan ? anchorScan.weight : 180);
+    const deficit_bf = tdee_bf - userTargets.calories;
+    const currentWeightLbs = anchorScan ? anchorScan.weight : 180;
+    const currentFatLbs = currentWeightLbs * (anchorBf.body_fat / 100);
+    const goalFatLbs = currentWeightLbs * (userGoals.bfGoal / 100); // approx goal fat at current weight
+
+    let goalDate;
+    if (Math.abs(deficit_bf) >= 50) {
+      const fatLossPerDay = (deficit_bf / 3500) * 0.8; // 80% of deficit from fat
+      const fatToLose = currentFatLbs - goalFatLbs;
+      if (fatLossPerDay > 0 && fatToLose > 0) {
+        const days = Math.min(fatToLose / fatLossPerDay, 730);
+        goalDate = new Date(anchorBf.date + 'T12:00:00');
+        goalDate.setDate(goalDate.getDate() + Math.round(days));
+      }
+    }
+    if (!goalDate) {
+      // Fallback: 0.5% per month
+      const pctToGo = Math.abs(anchorBf.body_fat - userGoals.bfGoal);
+      const months = Math.max(pctToGo / 0.5, 1);
+      goalDate = new Date(anchorBf.date + 'T12:00:00');
+      goalDate.setMonth(goalDate.getMonth() + Math.round(months));
+    }
 
     const anchorDateObj = new Date(anchorBf.date + 'T12:00:00');
     const monthlyLabels = [];
@@ -4231,9 +4250,27 @@ function renderMuscleChart() {
   const fmtDateM = d => new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   if (userGoals.muscleGoal && anchorMuscle) {
-    // Project at 0.5 lb/month gain pace if no better estimate
+    // Project muscle gain using protein target and calorie balance
+    const currentWeightM = anchorScan ? anchorScan.weight : 180;
+    const tdee_m = calcTDEE(currentWeightM);
+    const deficit_m = tdee_m - userTargets.calories;
+    const proteinTarget = userTargets.protein || 160;
+    const proteinRatio = Math.min(proteinTarget / (currentWeightM * 0.8), 1); // 0.8g/lb = full pace
+
+    // At deficit: can only preserve/very slowly gain muscle (~0.1-0.2 lb/month)
+    // At surplus: can gain up to ~1 lb/month with good protein
+    let monthlyGain;
+    if (deficit_m > 200) {
+      monthlyGain = 0.15 * proteinRatio; // deficit — muscle preservation
+    } else if (deficit_m > -200) {
+      monthlyGain = 0.5 * proteinRatio; // maintenance — slow gain
+    } else {
+      monthlyGain = Math.min(1.0 * proteinRatio, 1.0); // surplus — faster gain
+    }
+    monthlyGain = Math.max(monthlyGain, 0.1); // min pace
+
     const lbsToGo = Math.abs(anchorMuscle.muscle_mass - userGoals.muscleGoal);
-    const months = Math.max(lbsToGo / 0.5, 1);
+    const months = Math.max(lbsToGo / monthlyGain, 1);
     const goalDate = new Date(anchorMuscle.date + 'T12:00:00');
     goalDate.setMonth(goalDate.getMonth() + Math.round(months));
 
