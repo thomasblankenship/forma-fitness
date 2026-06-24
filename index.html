@@ -3682,7 +3682,7 @@ function cancelGoalNumpad() {
   document.getElementById('goal-numpad-modal').style.display = 'none';
 }
 
-function saveWeightGoal() {
+async function saveWeightGoal() {
   const start = Math.round(+document.getElementById('edit-weight-start').value * 10) / 10;
   const goal = Math.round(+document.getElementById('edit-weight-goal').value * 10) / 10;
   if (!start || !goal) { toast('Enter both starting and goal weight'); return; }
@@ -3695,7 +3695,7 @@ function saveWeightGoal() {
   toast('Weight goal saved ✓');
 }
 
-function saveBfGoal() {
+async function saveBfGoal() {
   const current = +document.getElementById('edit-bf-current').value;
   const goal = +document.getElementById('edit-bf-goal').value;
   if (!current || !goal) { toast('Enter both current and goal body fat %'); return; }
@@ -4393,7 +4393,7 @@ function renderMuscleChart() {
   });
 }
 
-function saveMuscleGoal() {
+async function saveMuscleGoal() {
   const current = +document.getElementById('edit-muscle-current').value;
   const goal = +document.getElementById('edit-muscle-goal').value;
   if (!current || !goal) { toast('Enter both current and goal muscle mass'); return; }
@@ -4468,7 +4468,7 @@ function toggleEditTargets() {
   }
 }
 
-function saveTargets() {
+async function saveTargets() {
   const cals = +document.getElementById('edit-calories').value;
   const protein = +document.getElementById('edit-protein').value;
   const carbs = +document.getElementById('edit-carbs').value;
@@ -4502,7 +4502,7 @@ function toggleEditProfile() {
   }
 }
 
-function saveProfile() {
+async function saveProfile() {
   const heightFt = +document.getElementById('edit-height-ft').value || 5;
   const heightInches = +document.getElementById('edit-height-in').value || 0;
   const heightIn = (heightFt * 12) + heightInches;
@@ -4524,13 +4524,13 @@ function saveProfile() {
   toast('Profile saved ✓');
 }
 
-function toggleMuscleTracking() {
+async function toggleMuscleTracking() {
   userGoals.muscleTrackingOn = userGoals.muscleTrackingOn === false ? true : false;
   await saveSetting('goals', userGoals);
   updateGoalsDisplay();
 }
 
-function toggleBfTracking() {
+async function toggleBfTracking() {
   userGoals.bfTrackingOn = userGoals.bfTrackingOn === false ? true : false;
   await saveSetting('goals', userGoals);
   updateGoalsDisplay();
@@ -4621,7 +4621,7 @@ function hideCalcResult() {
   document.getElementById('calc-use-btn').style.display = 'none';
 }
 
-function useBfEstimate() {
+async function useBfEstimate() {
   if (!_bfCalcResult) return;
   closeBfCalculator();
   // Pre-fill the Edit Goal form with this estimate as current BF
