@@ -1838,13 +1838,13 @@ async function obFinish() {
   // Save profile
   const profile = { heightIn: ft * 12 + inn, age, gender: _obSex, activity: _obActivity };
   userProfile = profile;
-  saveSetting('profile', profile);
+  await saveSetting('profile', profile);
 
   // Save targets (use suggested or defaults)
   const t = window._obSuggestedTargets || { calories: 2000, protein: 150, carbs: 150, fat: 65 };
   userTargets = t;
   TARGETS.calories = t.calories; TARGETS.protein = t.protein; TARGETS.carbs = t.carbs; TARGETS.fat = t.fat;
-  saveSetting('targets', t);
+  await saveSetting('targets', t);
 
   // Save goals
   userGoals = {
@@ -1853,7 +1853,7 @@ async function obFinish() {
     bfTrackingOn: true,
     muscleCurrent: null, muscleGoal: null
   };
-  saveSetting('goals', userGoals);
+  await saveSetting('goals', userGoals);
 
   // Log starting weight as first scan entry
   if (weight) {
@@ -2816,7 +2816,7 @@ function toggleAddFood() {
 async function saveFood() {
   const name = document.getElementById('food-name').value.trim();
   const calsRaw = document.getElementById('food-cals').value.replace(/[^0-9.]/g, '') || '0';
-  const cals = parseFloat(calsRaw) || 0;
+  const cals = calsRaw !== '' ? parseFloat(calsRaw) : 0;
   console.log('saveFood name:', name, 'cals:', cals, 'raw:', document.getElementById('food-cals').value);
   const servingQty = document.getElementById('food-serving-qty').value || '1';
   const servingUnit = document.getElementById('food-unit').value;
@@ -2842,7 +2842,7 @@ async function saveFood() {
 async function saveFoodFromForm() {
   const name = document.getElementById('meal-name').value.trim();
   const cals = +document.getElementById('meal-cals').value;
-  if (!name || !cals) { toast('Fill in meal details first'); return; }
+  if (!name) { toast('Fill in meal details first'); return; }
   // Save to saved_foods as "1 serving" entry
   await dbPost('saved_foods', {
     name,
@@ -3653,7 +3653,7 @@ function saveWeightGoal() {
   if (!start || !goal) { toast('Enter both starting and goal weight'); return; }
   userGoals.weightStart = start;
   userGoals.weightGoal = goal;
-  saveSetting('goals', userGoals);
+  await saveSetting('goals', userGoals);
   toggleGoalEdit('weight');
   updateGoalsDisplay();
   renderWeightChart();
@@ -3666,7 +3666,7 @@ function saveBfGoal() {
   if (!current || !goal) { toast('Enter both current and goal body fat %'); return; }
   userGoals.bfCurrent = current;
   userGoals.bfGoal = goal;
-  saveSetting('goals', userGoals);
+  await saveSetting('goals', userGoals);
   toggleGoalEdit('bf');
   updateGoalsDisplay();
   renderBfChart();
@@ -4362,7 +4362,7 @@ function saveMuscleGoal() {
   if (!current || !goal) { toast('Enter both current and goal muscle mass'); return; }
   userGoals.muscleCurrent = current;
   userGoals.muscleGoal = goal;
-  saveSetting('goals', userGoals);
+  await saveSetting('goals', userGoals);
   toggleGoalEdit('muscle');
   updateGoalsDisplay();
   renderMuscleChart();
@@ -4439,7 +4439,7 @@ function saveTargets() {
   if (!cals || !protein) { toast('Enter at least calories and protein'); return; }
   userTargets = { calories: cals, protein, carbs: carbs || 150, fat: fat || 65 };
   TARGETS.calories = cals; TARGETS.protein = protein; TARGETS.carbs = carbs || 150; TARGETS.fat = fat || 65;
-  saveSetting('targets', userTargets);
+  await saveSetting('targets', userTargets);
   toggleEditTargets();
   updateGoalsDisplay();
   renderMeals();
@@ -4476,7 +4476,8 @@ function saveProfile() {
   const dispFt = Math.floor(heightIn / 12);
   const dispIn = heightIn % 12;
   userProfile = { heightIn, age, gender, activity };
-  saveSetting('profile', userProfile);
+  await saveSetting('profile', userProfile);
+  await saveSetting('targets', userTargets);
   document.getElementById('disp-height').textContent = `${dispFt}'${dispIn}"`;
   document.getElementById('disp-age').textContent = age;
   document.getElementById('disp-gender').textContent = gender === 'male' ? 'Male' : 'Female';
@@ -4488,13 +4489,13 @@ function saveProfile() {
 
 function toggleMuscleTracking() {
   userGoals.muscleTrackingOn = userGoals.muscleTrackingOn === false ? true : false;
-  saveSetting('goals', userGoals);
+  await saveSetting('goals', userGoals);
   updateGoalsDisplay();
 }
 
 function toggleBfTracking() {
   userGoals.bfTrackingOn = userGoals.bfTrackingOn === false ? true : false;
-  saveSetting('goals', userGoals);
+  await saveSetting('goals', userGoals);
   updateGoalsDisplay();
 }
 
@@ -4593,7 +4594,7 @@ function useBfEstimate() {
   el.style.display = 'block';
   // Also update userGoals.bfCurrent
   userGoals.bfCurrent = _bfCalcResult;
-  saveSetting('goals', userGoals);
+  await saveSetting('goals', userGoals);
   updateGoalsDisplay();
   toast(`Body fat set to ${_bfCalcResult}% — now set your goal below`);
 }
