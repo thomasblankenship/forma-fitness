@@ -2862,9 +2862,16 @@ function openFoodModal(id) {
   // Parse serving size qty and unit from stored unit string (e.g. "5 oz" → qty=5, unit="oz")
   const storedUnit = activeFoodForModal.unit || '1 serving';
   const unitMatch = storedUnit.match(/^([\d.]+)\s*(.+)$/);
-  const servingQty = unitMatch ? parseFloat(unitMatch[1]) : 1;
+  const servingQtyRaw = unitMatch ? parseFloat(unitMatch[1]) : 1;
   const servingUnit = unitMatch ? unitMatch[2].trim() : storedUnit.trim();
-  activeFoodForModal._servingQty = servingQty;
+  // Always store _servingQty in grams for consistent ratio calculation
+  const _countUnits = ['each','serving','slice','piece','cup','tbsp','tsp','scoop','packet','bar','can','bottle'];
+  let servingQtyG;
+  if (servingUnit === 'oz') servingQtyG = servingQtyRaw * 28.3495;
+  else if (servingUnit === 'ml') servingQtyG = servingQtyRaw;
+  else if (_countUnits.includes(servingUnit)) servingQtyG = servingQtyRaw; // count units: qty=1 each
+  else servingQtyG = servingQtyRaw; // grams
+  activeFoodForModal._servingQty = servingQtyG;
   activeFoodForModal._servingUnit = servingUnit;
   document.getElementById('food-modal-name').textContent = activeFoodForModal.name;
   document.getElementById('food-modal-per').textContent = `${calsPerUnit} kcal per ${storedUnit}`;
@@ -3484,10 +3491,11 @@ async function logLabelAsFood() {
   if (existing) {
     foodId = existing.id;
   } else {
-    const unitStr = (chosenServing === 1 || LABEL_COUNT_SET.has(chosenUnit)) ? chosenUnit : `${chosenServing} ${chosenUnit}`;
+    // Always save the canonical unit (what the label says), not the user's scroll position
+    const canonicalUnit = LABEL_COUNT_SET.has(chosenUnit) ? `${chosenServing} ${chosenUnit}` : `${_labelServingG}g`;
     const saved = await dbPost('saved_foods', {
       name: labelScannedData.name,
-      unit: unitStr,
+      unit: canonicalUnit,
       calories_per_unit: labelScannedData.calories,
       protein_per_unit: labelScannedData.protein || 0,
       carbs_per_unit: labelScannedData.carbs || 0,
@@ -3510,10 +3518,10 @@ async function saveLabelAsFood() {
   // Use the scroll-wheel chosen unit and serving size
   const chosenUnit = _labelUnit;
   const chosenServing = _labelServingVal;
-  const unitStr2 = (chosenServing === 1 || LABEL_COUNT_SET.has(chosenUnit)) ? chosenUnit : `${chosenServing} ${chosenUnit}`;
+  const canonicalUnit2 = LABEL_COUNT_SET.has(chosenUnit) ? `${chosenServing} ${chosenUnit}` : `${_labelServingG}g`;
   await dbPost('saved_foods', {
     name: labelScannedData.name,
-    unit: unitStr2,
+    unit: canonicalUnit2,
     calories_per_unit: labelScannedData.calories,
     protein_per_unit: labelScannedData.protein || 0,
     carbs_per_unit: labelScannedData.carbs || 0,
