@@ -319,17 +319,17 @@
           <div class="form-row form-group">
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs (g)</div>
-              <input type="number" id="meal-carbs" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
+              <input type="number" id="meal-carbs" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
             </div>
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat (g)</div>
-              <input type="number" id="meal-fat" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
+              <input type="number" id="meal-fat" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
             </div>
           </div>
           <div class="form-row form-group">
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber (g)</div>
-              <input type="number" id="meal-fiber" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
+              <input type="number" id="meal-fiber" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
             </div>
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Cholesterol (mg)</div>
@@ -446,17 +446,17 @@
               </div>
               <div>
                 <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein (g)</div>
-                <input type="number" id="hist-meal-protein" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
+                <input type="number" id="hist-meal-protein" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
               </div>
             </div>
             <div class="form-row form-group">
               <div>
                 <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs (g)</div>
-                <input type="number" id="hist-meal-carbs" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
+                <input type="number" id="hist-meal-carbs" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
               </div>
               <div>
                 <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat (g)</div>
-                <input type="number" id="hist-meal-fat" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
+                <input type="number" id="hist-meal-fat" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
               </div>
             </div>
             <button class="btn" onclick="addMealToHistoryDay()" style="margin-top:4px">Log Meal</button>
@@ -530,21 +530,21 @@
           <div class="form-row form-group">
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein per serving</div>
-              <input type="number" id="food-protein" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
+              <input type="number" id="food-protein" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
             </div>
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs per serving</div>
-              <input type="number" id="food-carbs" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
+              <input type="number" id="food-carbs" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
             </div>
           </div>
           <div class="form-row form-group">
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat per serving</div>
-              <input type="number" id="food-fat" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
+              <input type="number" id="food-fat" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
             </div>
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber per serving</div>
-              <input type="number" id="food-fiber" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
+              <input type="number" id="food-fiber" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
             </div>
             <div class="form-group">
               <label class="form-label">Cholesterol (mg)</label>
@@ -601,7 +601,7 @@
           <button class="range-pill weight-range" data-range="1W" onclick="setChartRange('weight','1W')">1W</button>
           <button class="range-pill weight-range" data-range="1M" onclick="setChartRange('weight','1M')">1M</button>
           <button class="range-pill weight-range" data-range="3M" onclick="setChartRange('weight','3M')">3M</button>
-          <button class="range-pill weight-range active-pill" data-range="6M" onclick="setChartRange('weight','6M')">6M</button>
+          <button class="range-pill weight-range" class="range-pill weight-range active-pill" data-range="6M" onclick="setChartRange('weight','6M')">6M</button>
           <button class="range-pill weight-range" data-range="1Y" onclick="setChartRange('weight','1Y')">1Y</button>
           <button class="range-pill weight-range" data-range="All" onclick="setChartRange('weight','All')">All</button>
         </div>
@@ -620,10 +620,10 @@
         <div id="weight-goal-edit" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid #F4F4F4">
           <div class="form-row form-group">
             <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Starting Weight (lbs)</div>
-              <button onclick="openGoalNumpad('weight-start','lbs')" id="edit-weight-start-btn" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;text-align:left;background:white;cursor:pointer;color:#0F0F0F">—</button>
+              <button onclick="openGoalNumpad('weight-start','lbs')" id="edit-weight-start-btn" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;text-align:left;background:white;cursor:pointer;color:#0F0F0F">Tap to set</button>
               <input type="hidden" id="edit-weight-start" /></div>
             <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Goal Weight (lbs)</div>
-              <button onclick="openGoalNumpad('weight-goal','lbs')" id="edit-weight-goal-btn" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;text-align:left;background:white;cursor:pointer;color:#0F0F0F">—</button>
+              <button onclick="openGoalNumpad('weight-goal','lbs')" id="edit-weight-goal-btn" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;text-align:left;background:white;cursor:pointer;color:#0F0F0F">Tap to set</button>
               <input type="hidden" id="edit-weight-goal" /></div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -707,7 +707,7 @@
             <button class="range-pill bf-range" data-range="1W" onclick="setChartRange('bf','1W')">1W</button>
             <button class="range-pill bf-range" data-range="1M" onclick="setChartRange('bf','1M')">1M</button>
             <button class="range-pill bf-range" data-range="3M" onclick="setChartRange('bf','3M')">3M</button>
-            <button class="range-pill bf-range active-pill" data-range="6M" onclick="setChartRange('bf','6M')">6M</button>
+            <button class="range-pill bf-range" class="range-pill bf-range active-pill" data-range="6M" onclick="setChartRange('bf','6M')">6M</button>
             <button class="range-pill bf-range" data-range="1Y" onclick="setChartRange('bf','1Y')">1Y</button>
             <button class="range-pill bf-range" data-range="All" onclick="setChartRange('bf','All')">All</button>
           </div>
@@ -724,10 +724,10 @@
           <div id="bf-goal-edit" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid #F4F4F4">
             <div class="form-row form-group">
               <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Current Body Fat %</div>
-                <button onclick="openGoalNumpad('bf-current','%')" id="edit-bf-current-btn" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;text-align:left;background:white;cursor:pointer;color:#0F0F0F">—</button>
+                <button onclick="openGoalNumpad('bf-current','%')" id="edit-bf-current-btn" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;text-align:left;background:white;cursor:pointer;color:#0F0F0F">Tap to set</button>
                 <input type="hidden" id="edit-bf-current" /></div>
               <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Goal Body Fat %</div>
-                <button onclick="openGoalNumpad('bf-goal','%')" id="edit-bf-goal-btn" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;text-align:left;background:white;cursor:pointer;color:#0F0F0F">—</button>
+                <button onclick="openGoalNumpad('bf-goal','%')" id="edit-bf-goal-btn" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;text-align:left;background:white;cursor:pointer;color:#0F0F0F">Tap to set</button>
                 <input type="hidden" id="edit-bf-goal" /></div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -778,7 +778,7 @@
             <button class="range-pill muscle-range" data-range="1W" onclick="setChartRange('muscle','1W')">1W</button>
             <button class="range-pill muscle-range" data-range="1M" onclick="setChartRange('muscle','1M')">1M</button>
             <button class="range-pill muscle-range" data-range="3M" onclick="setChartRange('muscle','3M')">3M</button>
-            <button class="range-pill muscle-range active-pill" data-range="6M" onclick="setChartRange('muscle','6M')">6M</button>
+            <button class="range-pill muscle-range" class="range-pill muscle-range active-pill" data-range="6M" onclick="setChartRange('muscle','6M')">6M</button>
             <button class="range-pill muscle-range" data-range="1Y" onclick="setChartRange('muscle','1Y')">1Y</button>
             <button class="range-pill muscle-range" data-range="All" onclick="setChartRange('muscle','All')">All</button>
           </div>
@@ -795,10 +795,10 @@
           <div id="muscle-goal-edit" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid #F4F4F4">
             <div class="form-row form-group">
               <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Current Muscle (lbs)</div>
-                <button onclick="openGoalNumpad('muscle-current','lbs')" id="edit-muscle-current-btn" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;text-align:left;background:white;cursor:pointer;color:#0F0F0F">—</button>
+                <button onclick="openGoalNumpad('muscle-current','lbs')" id="edit-muscle-current-btn" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;text-align:left;background:white;cursor:pointer;color:#0F0F0F">Tap to set</button>
                 <input type="hidden" id="edit-muscle-current" /></div>
               <div><div style="font-size:11px;color:#666;margin-bottom:4px;font-weight:600">Goal Muscle (lbs)</div>
-                <button onclick="openGoalNumpad('muscle-goal','lbs')" id="edit-muscle-goal-btn" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;text-align:left;background:white;cursor:pointer;color:#0F0F0F">—</button>
+                <button onclick="openGoalNumpad('muscle-goal','lbs')" id="edit-muscle-goal-btn" style="width:100%;padding:10px 12px;border:1px solid #E8E8E8;border-radius:8px;font-size:14px;text-align:left;background:white;cursor:pointer;color:#0F0F0F">Tap to set</button>
                 <input type="hidden" id="edit-muscle-goal" /></div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -1091,22 +1091,22 @@
       </div>
       <div>
         <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Protein (g)</div>
-        <input type="number" id="edit-meal-protein-input" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
+        <input type="number" id="edit-meal-protein-input" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
       </div>
     </div>
     <div class="form-row form-group">
       <div>
         <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Carbs (g)</div>
-        <input type="number" id="edit-meal-carbs-input" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
+        <input type="number" id="edit-meal-carbs-input" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
       </div>
       <div>
         <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fat (g)</div>
-        <input type="number" id="edit-meal-fat-input" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
+        <input type="number" id="edit-meal-fat-input" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
       </div>
     </div>
     <div class="form-group">
       <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fiber (g)</div>
-      <input type="number" id="edit-meal-fiber-input" placeholder="0" min="0" step="0.1" onblur="if(this.value==='')return;if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10">
+      <input type="number" id="edit-meal-fiber-input" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
     </div>
     <div class="form-group"><div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Cholesterol (mg)</div>
       <input type="number" id="edit-meal-cholesterol-input" placeholder="0" min="0" step="1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value)||0"></div>
@@ -1608,7 +1608,6 @@ async function dbGet(table, filters = '') {
   }
 }
 async function saveSetting(key, value) {
-  if (!SUPABASE_URL || !SUPABASE_KEY) { console.warn('saveSetting: missing Supabase config'); return; }
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/user_settings`, {
       method: 'POST',
@@ -1620,30 +1619,18 @@ async function saveSetting(key, value) {
       },
       body: JSON.stringify({ key, value })
     });
-    if (!res.ok) { const errText = await res.text(); console.error('saveSetting HTTP error', res.status, errText); throw new Error(errText); }
+    if (!res.ok) { const t = await res.text(); console.error('saveSetting error', res.status, t); }
   } catch(e) { console.error('saveSetting error', e); }
 }
 
 async function loadSetting(key) {
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/user_settings?key=eq.${key}&select=value`, {
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`
-      }
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/user_settings?key=eq.${encodeURIComponent(key)}&select=value`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
     });
     const data = await res.json();
     return data?.[0]?.value ?? null;
   } catch(e) { return null; }
-}
-
-async function dbPatch(table, id, data) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
-    method: 'PATCH',
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-    body: JSON.stringify(data)
-  });
-  if (!res.ok) throw new Error(await res.text());
 }
 
 async function dbPost(table, data) {
@@ -1839,13 +1826,13 @@ async function obFinish() {
   // Save profile
   const profile = { heightIn: ft * 12 + inn, age, gender: _obSex, activity: _obActivity };
   userProfile = profile;
-  await saveSetting('profile', profile);
+  localStorage.setItem('ff_profile', JSON.stringify(profile));
 
   // Save targets (use suggested or defaults)
   const t = window._obSuggestedTargets || { calories: 2000, protein: 150, carbs: 150, fat: 65 };
   userTargets = t;
   TARGETS.calories = t.calories; TARGETS.protein = t.protein; TARGETS.carbs = t.carbs; TARGETS.fat = t.fat;
-  await saveSetting('targets', t);
+  localStorage.setItem('ff_targets', JSON.stringify(t));
 
   // Save goals
   userGoals = {
@@ -1854,7 +1841,7 @@ async function obFinish() {
     bfTrackingOn: true,
     muscleCurrent: null, muscleGoal: null
   };
-  await saveSetting('goals', userGoals);
+  saveSetting('goals', userGoals);
 
   // Log starting weight as first scan entry
   if (weight) {
@@ -1863,8 +1850,6 @@ async function obFinish() {
 
   // Mark onboarding complete
   localStorage.setItem('ff_onboarded', '1');
-  // Persist to Supabase
-  await Promise.all([saveSetting('goals', userGoals), saveSetting('targets', userTargets), saveSetting('profile', userProfile)]);
   document.getElementById('onboarding-modal').style.display = 'none';
 
   // Now fully init the app
@@ -2816,14 +2801,13 @@ function toggleAddFood() {
 
 async function saveFood() {
   const name = document.getElementById('food-name').value.trim();
-  const calsRaw = document.getElementById('food-cals').value.replace(/[^0-9.]/g, '') || '0';
-  const cals = calsRaw !== '' ? parseFloat(calsRaw) : 0;
+  const calsRaw = document.getElementById('food-cals').value.replace(/[^0-9.]/g, '');
+  const cals = parseFloat(calsRaw) || 0;
   console.log('saveFood name:', name, 'cals:', cals, 'raw:', document.getElementById('food-cals').value);
   const servingQty = document.getElementById('food-serving-qty').value || '1';
   const servingUnit = document.getElementById('food-unit').value;
   const unit = (+servingQty === 1 || servingQty === '1') ? servingUnit : `${servingQty} ${servingUnit}`;
   if (!name) { toast('Enter a food name'); return; }
-  if (cals === null || cals === undefined || isNaN(cals)) { toast('Enter calories per serving'); return; }
   await dbPost('saved_foods', {
     name, unit,
     calories_per_unit: cals,
@@ -2879,8 +2863,8 @@ function openFoodModal(id) {
   document.getElementById('food-modal-name').textContent = activeFoodForModal.name;
   document.getElementById('food-modal-per').textContent = `${calsPerUnit} kcal per ${storedUnit}`;
   document.getElementById('food-modal-qty').value = servingQty;
-  _foodModalUnit = servingUnit === 'oz' ? 'oz' : 'g';
-  document.getElementById('food-modal-serving-label').textContent = _foodModalUnit;
+  _foodModalUnit = 'g';
+  document.getElementById('food-modal-serving-label').textContent = 'g';
   updateFoodModalPreview();
   window._foodModalType = 'breakfast';
   document.querySelectorAll('.food-modal-type-btn').forEach(b => {
@@ -2902,24 +2886,19 @@ function getUnitMultiplier(fromUnit, toUnit) {
   return ozPerTo / ozPerFrom;
 }
 
-const FOOD_MODAL_UNITS = ['g', 'oz', 'serving'];
 let _foodModalUnit = 'g';
 
 function cycleFoodModalUnit() {
-  const units = activeFoodForModal?._servingUnit === 'serving'
-    ? ['serving', 'g', 'oz']
-    : ['g', 'oz', 'serving'];
+  const units = ['g', 'oz', 'serving'];
   const idx = units.indexOf(_foodModalUnit);
+  const oldUnit = _foodModalUnit;
   _foodModalUnit = units[(idx + 1) % units.length];
   document.getElementById('food-modal-serving-label').textContent = _foodModalUnit;
-  // Convert current qty to new unit
-  const servingGrams = activeFoodForModal._servingQty || 1;
-  const currentQty = parseFloat(document.getElementById('food-modal-qty').value) || servingGrams;
-  // Convert from old unit to grams first, then to new unit
-  const oldUnit = units[(idx) % units.length];
+  const servingQty = activeFoodForModal?._servingQty || 1;
+  const currentQty = parseFloat(document.getElementById('food-modal-qty').value) || servingQty;
   let grams = currentQty;
   if (oldUnit === 'oz') grams = currentQty * 28.3495;
-  else if (oldUnit === 'serving') grams = servingGrams;
+  else if (oldUnit === 'serving') grams = servingQty;
   let newQty;
   if (_foodModalUnit === 'oz') newQty = Math.round(grams / 28.3495 * 10) / 10;
   else if (_foodModalUnit === 'serving') newQty = 1;
@@ -2932,7 +2911,6 @@ function updateFoodModalPreview() {
   if (!activeFoodForModal) return;
   const amount = parseFloat(document.getElementById('food-modal-qty').value) || 0;
   const servingQty = activeFoodForModal._servingQty || 1;
-  // Convert amount to grams based on selected unit
   let amountInGrams = amount;
   if (_foodModalUnit === 'oz') amountInGrams = amount * 28.3495;
   else if (_foodModalUnit === 'serving') amountInGrams = servingQty;
@@ -3496,17 +3474,12 @@ let bfChartObj = null;
 let muscleChartObj = null;
 
 async function loadGoals() {
-  // Load from Supabase, fall back to localStorage for migration
   const [sbGoals, sbTargets, sbProfile] = await Promise.all([
-    loadSetting('goals'),
-    loadSetting('targets'),
-    loadSetting('profile'),
+    loadSetting('goals'), loadSetting('targets'), loadSetting('profile')
   ]);
-
-  const goalsData = sbGoals || (localStorage.getItem('ff_goals') ? JSON.parse(localStorage.getItem('ff_goals')) : null);
+  const goalsData   = sbGoals   || (localStorage.getItem('ff_goals')   ? JSON.parse(localStorage.getItem('ff_goals'))   : null);
   const targetsData = sbTargets || (localStorage.getItem('ff_targets') ? JSON.parse(localStorage.getItem('ff_targets')) : null);
   const profileData = sbProfile || (localStorage.getItem('ff_profile') ? JSON.parse(localStorage.getItem('ff_profile')) : null);
-
   if (targetsData) userTargets = targetsData;
   if (goalsData) {
     const g = goalsData;
@@ -3635,30 +3608,25 @@ let _goalNumpadVal = '';
 function openGoalNumpad(field, unit) {
   _goalNumpadField = field;
   _goalNumpadUnit = unit;
-  const existingVal = document.getElementById('edit-' + field)?.value;
-  _goalNumpadVal = (existingVal && parseFloat(existingVal) > 0 && parseFloat(existingVal) < 500) ? existingVal : '';
-  const modal = document.getElementById('goal-numpad-modal');
-  const display = document.getElementById('goal-numpad-display');
-  const title = document.getElementById('goal-numpad-title');
+  const existing = document.getElementById('edit-' + field)?.value;
+  _goalNumpadVal = (existing && parseFloat(existing) > 0 && parseFloat(existing) < 500) ? existing : '';
   const labels = {
-    'weight-start': 'Starting Weight', 'weight-goal': 'Goal Weight',
-    'bf-current': 'Current Body Fat', 'bf-goal': 'Goal Body Fat',
-    'muscle-current': 'Current Muscle Mass', 'muscle-goal': 'Goal Muscle Mass'
+    'weight-start':'Starting Weight','weight-goal':'Goal Weight',
+    'bf-current':'Current Body Fat','bf-goal':'Goal Body Fat',
+    'muscle-current':'Current Muscle Mass','muscle-goal':'Goal Muscle Mass'
   };
-  title.textContent = labels[field] || field;
-  display.textContent = _goalNumpadVal || '0';
-  modal.style.display = 'flex';
+  document.getElementById('goal-numpad-title').textContent = labels[field] || field;
+  document.getElementById('goal-numpad-display').textContent = _goalNumpadVal || '0';
+  document.getElementById('goal-numpad-modal').style.display = 'flex';
 }
 
 function goalNumpadPress(key) {
-  if (key === 'del') {
-    _goalNumpadVal = _goalNumpadVal.slice(0, -1);
-  } else if (key === '.') {
+  if (key === 'del') { _goalNumpadVal = _goalNumpadVal.slice(0,-1); }
+  else if (key === '.') {
     if (_goalNumpadVal.includes('.')) return;
     if (!_goalNumpadVal) _goalNumpadVal = '0';
     _goalNumpadVal += '.';
   } else {
-    // Limit to 1 decimal place
     const dotIdx = _goalNumpadVal.indexOf('.');
     if (dotIdx >= 0 && _goalNumpadVal.length - dotIdx > 1) return;
     if (_goalNumpadVal === '0') _goalNumpadVal = '';
@@ -3684,10 +3652,10 @@ function cancelGoalNumpad() {
 
 async function saveWeightGoal() {
   const start = Math.round(+document.getElementById('edit-weight-start').value * 10) / 10;
-  const goal = Math.round(+document.getElementById('edit-weight-goal').value * 10) / 10;
+  const goal  = Math.round(+document.getElementById('edit-weight-goal').value  * 10) / 10;
   if (!start || !goal) { toast('Enter both starting and goal weight'); return; }
   userGoals.weightStart = start;
-  userGoals.weightGoal = goal;
+  userGoals.weightGoal  = goal;
   await saveSetting('goals', userGoals);
   toggleGoalEdit('weight');
   updateGoalsDisplay();
@@ -3832,40 +3800,26 @@ function renderWeightChart() {
   // Update latest
   const latestScan = weightScans.length ? weightScans[weightScans.length - 1] : null;
   if (latestScan) {
-    document.getElementById('weight-latest-val').textContent = latestScan.weight;
+    document.getElementById('weight-latest-val').textContent = Math.round(latestScan.weight * 10) / 10;
     document.getElementById('weight-latest-date').textContent = new Date(latestScan.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    // Fun weight loss fact
     const funFactEl = document.getElementById('weight-fun-fact');
     if (userGoals.weightStart && latestScan.weight < userGoals.weightStart) {
       const lost = Math.round((userGoals.weightStart - latestScan.weight) * 10) / 10;
       const facts = [
-        [1,  '🍞 a loaf of bread'],
-        [2,  '🔨 a hammer'],
-        [3,  '🍷 a box of wine'],
-        [4,  '🍉 a medium-sized watermelon'],
-        [5,  '🍳 a cast iron skillet'],
-        [6,  '🐈 a house cat'],
-        [7,  '👶 a newborn baby'],
-        [8,  '🔥 a bag of charcoal'],
-        [9,  '🥛 a gallon of milk'],
-        [10, '🎳 a bowling ball'],
-        [12, '🦃 a Thanksgiving turkey'],
-        [15, '🎒 a fully loaded backpack'],
-        [20, '🍉 a large watermelon'],
-        [22, '🛞 a car tire'],
-        [25, '🐕 a large dog'],
-        [30, '🛒 a metal hand cart'],
-        [36, '🧒 a 4-year-old child'],
-        [47, '💧 a water cooler jug'],
-        [50, '🐾 a bag of dog food'],
+        [1,'🍞 a loaf of bread'],[2,'🔨 a hammer'],[3,'🍷 a box of wine'],
+        [4,'🍉 a medium-sized watermelon'],[5,'🍳 a cast iron skillet'],[6,'🐈 a house cat'],
+        [7,'👶 a newborn baby'],[8,'🔥 a bag of charcoal'],[9,'🥛 a gallon of milk'],
+        [10,'🎳 a bowling ball'],[12,'🦃 a Thanksgiving turkey'],[15,'🎒 a fully loaded backpack'],
+        [20,'🍉 a large watermelon'],[22,'🛞 a car tire'],[25,'🐕 a large dog'],
+        [30,'🛒 a metal hand cart'],[36,'🧒 a 4-year-old child'],[47,'💧 a water cooler jug'],[50,'🐾 a bag of dog food'],
       ];
       let match = facts[0];
       for (const f of facts) { if (lost >= f[0]) match = f; else break; }
       funFactEl.textContent = `🎉 Down ${lost} lbs — that's the weight of ${match[1]}!`;
+      funFactEl.style.color = '#16A34A';
       funFactEl.style.display = 'block';
     } else if (userGoals.weightStart && latestScan.weight > userGoals.weightStart) {
-      const gained = Math.round((latestScan.weight - userGoals.weightStart) * 10) / 10;
-      funFactEl.textContent = `📈 Up ${gained} lbs from start`;
+      funFactEl.textContent = `📈 Up ${Math.round((latestScan.weight - userGoals.weightStart) * 10) / 10} lbs from start`;
       funFactEl.style.color = '#F97316';
       funFactEl.style.display = 'block';
     } else {
@@ -3880,16 +3834,8 @@ function renderWeightChart() {
   empty.style.display = 'none'; canvas.style.display = 'block';
 
   const fmtDate = d => new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  // Always use latestScan as anchor even if not in filtered range
-  const anchorScan = latestScan || filtered[filtered.length - 1];
   const labels = filtered.map(s => fmtDate(s.date));
   const data = filtered.map(s => s.weight);
-
-  // If filtered has no points in range but we have a latest, show just that point
-  if (!labels.length && anchorScan) {
-    labels.push(fmtDate(anchorScan.date));
-    data.push(anchorScan.weight);
-  }
 
   const datasets = [{
     label: 'Weight',
@@ -3906,129 +3852,56 @@ function renderWeightChart() {
   // Update goal display with projection date
   const weightToGoEl = document.getElementById('disp-weight-to-go');
 
+  const anchorScan = latestScan || filtered[filtered.length - 1];
   if (userGoals.weightGoal && anchorScan) {
     const lbsLeft = Math.abs(anchorScan.weight - userGoals.weightGoal).toFixed(1);
     const dir = userGoals.weightGoal < anchorScan.weight ? 'to lose' : 'to gain';
-
-    // Get calorie-based projection, fall back to 6 months from now
     let goalDate = projectGoalDate(anchorScan.weight, userGoals.weightGoal, anchorScan.date);
-    let projectionNote = '';
+    let projNote = '';
     if (!goalDate) {
-      // Fallback: estimate based on 1 lb/week pace
-      const lbsToGo = Math.abs(anchorScan.weight - userGoals.weightGoal);
-      const weeks = Math.max(lbsToGo, 1); // at least 1 lb/week
+      const weeks = Math.max(Math.abs(anchorScan.weight - userGoals.weightGoal), 1);
       goalDate = new Date(anchorScan.date + 'T12:00:00');
       goalDate.setDate(goalDate.getDate() + Math.round(weeks * 7));
-      projectionNote = ' (est. 1 lb/wk)';
+      projNote = ' (est. 1 lb/wk)';
     }
-
     const goalDateLabel = goalDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     const daysLeft = Math.round((goalDate - new Date()) / 86400000);
-    if (weightToGoEl) weightToGoEl.textContent = `${lbsLeft} lbs ${dir} · Est. ${goalDateLabel} (${daysLeft} days)${projectionNote}`;
+    if (weightToGoEl) weightToGoEl.textContent = `${lbsLeft} lbs ${dir} · Est. ${goalDateLabel} (${daysLeft} days)${projNote}`;
 
-    // Build x-axis: existing dates + intermediate monthly markers + goal date
     const anchorDateObj = new Date(anchorScan.date + 'T12:00:00');
-    const monthlyLabels = [];
-    const monthlyProjData = [];
-    const monthlyActualData = [];
-
-    // Add monthly markers between now and goal date
+    const monthlyLabels = [], monthlyProjData = [];
     const cursor = new Date(anchorDateObj);
     cursor.setMonth(cursor.getMonth() + 1);
     while (cursor <= goalDate) {
       monthlyLabels.push(fmtDate(cursor.toISOString().split('T')[0]));
-      // Linear interpolation of weight
-      const fraction = (cursor - anchorDateObj) / (goalDate - anchorDateObj);
-      const projW = Math.round((anchorScan.weight + fraction * (userGoals.weightGoal - anchorScan.weight)) * 10) / 10;
-      monthlyProjData.push(projW);
-      monthlyActualData.push(null);
+      const frac = (cursor - anchorDateObj) / (goalDate - anchorDateObj);
+      monthlyProjData.push(Math.round((anchorScan.weight + frac * (userGoals.weightGoal - anchorScan.weight)) * 10) / 10);
       cursor.setMonth(cursor.getMonth() + 1);
     }
-
     const projLabel = fmtDate(goalDate.toISOString().split('T')[0]);
     const allLabels = [...labels, ...monthlyLabels, projLabel];
-
-    // Actual data: real points + nulls for future months + null for goal endpoint
-    const actualDataExtended = [...data, ...monthlyLabels.map(() => null), null];
-
-    // Projection data: nulls for past real points (except last = anchor), monthly interp, goal
     const nReal = data.length;
-    const projDataExtended = [
-      ...Array(Math.max(nReal - 1, 0)).fill(null),  // nulls before anchor
-      anchorScan.weight,                              // anchor at last real point
-      ...monthlyProjData,                             // monthly interpolated
-      userGoals.weightGoal                            // goal endpoint
-    ];
-
-    // Horizontal goal line across all labels
-    const goalLineData = allLabels.map(() => userGoals.weightGoal);
-
-    datasets[0].data = actualDataExtended;
-
-    datasets.push({
-      label: 'Projection',
-      data: projDataExtended,
-      borderColor: '#16A34A',
-      borderWidth: 2,
-      borderDash: [6, 4],
-      pointRadius: projDataExtended.map((v, i) => i === projDataExtended.length - 1 ? 6 : 0),
-      pointBackgroundColor: '#16A34A',
-      pointBorderColor: 'white',
-      pointBorderWidth: 2,
-      tension: 0,
-      fill: false,
-      spanGaps: true
-    });
-
-    datasets.push({
-      label: 'Goal line',
-      data: goalLineData,
-      borderColor: 'rgba(22,163,74,0.3)',
-      borderWidth: 1.5,
-      borderDash: [3, 3],
-      pointRadius: 0,
-      fill: false
-    });
-
-    weightChartObj = new Chart(canvas, {
-      type: 'line',
-      data: { labels: allLabels, datasets },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            filter: item => item.dataset.label !== 'Goal line',
-            callbacks: {
-              label: ctx => {
-                if (ctx.dataset.label === 'Projection') return ctx.raw != null ? `Projected: ${ctx.raw} lbs` : null;
-                return ctx.raw != null ? `${ctx.raw} lbs` : null;
-              }
-            }
-          }
-        },
-        scales: {
-          y: { grid: { color: '#F5F5F5' }, ticks: { font: { size: 11 }, callback: v => (Math.round(v * 10) / 10) + ' lbs' } },
-          x: { grid: { display: false }, ticks: { font: { size: 11 }, maxTicksLimit: 8 } }
-        }
-      }
-    });
+    const projDataExtended = [...Array(Math.max(nReal-1,0)).fill(null), anchorScan.weight, ...monthlyProjData, userGoals.weightGoal];
+    datasets[0].data = [...data, ...monthlyLabels.map(()=>null), null];
+    datasets.push({ label:'Projection', data:projDataExtended, borderColor:'#16A34A', borderWidth:2, borderDash:[6,4],
+      pointRadius:projDataExtended.map((_,i)=>i===projDataExtended.length-1?6:0), pointBackgroundColor:'#16A34A',
+      pointBorderColor:'white', pointBorderWidth:2, tension:0, fill:false, spanGaps:true });
+    datasets.push({ label:'Goal line', data:allLabels.map(()=>userGoals.weightGoal),
+      borderColor:'rgba(22,163,74,0.3)', borderWidth:1.5, borderDash:[3,3], pointRadius:0, fill:false });
+    weightChartObj = new Chart(canvas, { type:'line', data:{labels:allLabels, datasets},
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:{ filter:i=>i.dataset.label!=='Goal line',
+          callbacks:{label:ctx=>ctx.raw!=null?(ctx.dataset.label==='Projection'?`Projected: ${ctx.raw} lbs`:`${ctx.raw} lbs`):null}}},
+        scales:{ y:{grid:{color:'#F5F5F5'},ticks:{font:{size:11},callback:v=>(Math.round(v*10)/10)+' lbs'}},
+          x:{grid:{display:false},ticks:{font:{size:11},maxTicksLimit:8}}}}});
     renderBMI(); return;
   }
 
-  // No goal — simple chart
-  weightChartObj = new Chart(canvas, {
-    type: 'line',
-    data: { labels, datasets },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.raw} lbs` } } },
-      scales: {
-        y: { grid: { color: '#F5F5F5' }, ticks: { font: { size: 11 }, callback: v => (Math.round(v * 10) / 10) + ' lbs' } },
-        x: { grid: { display: false }, ticks: { font: { size: 11 }, maxTicksLimit: 6 } }
-      }
-    }
-  });
+  weightChartObj = new Chart(canvas, { type:'line', data:{labels, datasets},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw} lbs`}}},
+      scales:{ y:{grid:{color:'#F5F5F5'},ticks:{font:{size:11},callback:v=>(Math.round(v*10)/10)+' lbs'}},
+        x:{grid:{display:false},ticks:{font:{size:11},maxTicksLimit:6}}}}});
   renderBMI();
 }
 
@@ -4067,116 +3940,62 @@ function renderBfChart() {
     fill: true
   }];
 
-  const anchorBf = bfScans.length ? bfScans[bfScans.length - 1] : null;
-  const fmtDateBf = d => new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
+  const anchorBf = bfScans.length ? bfScans[bfScans.length-1] : null;
+  const fmtDateBf = d => new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
   if (userGoals.bfGoal && anchorBf) {
-    // Project using calorie deficit math
-    const latestWeightScan = allScans.filter(s => s.weight).slice(-1)[0];
-    const currentWeightLbs = latestWeightScan ? latestWeightScan.weight : 180;
-    const tdee_bf = calcTDEE(currentWeightLbs);
+    const latestWeightScan = allScans.filter(s=>s.weight).slice(-1)[0];
+    const curW = latestWeightScan ? latestWeightScan.weight : 180;
+    const tdee_bf = calcTDEE(curW);
     const deficit_bf = tdee_bf - userTargets.calories;
-    const currentFatLbs = currentWeightLbs * (anchorBf.body_fat / 100);
-    const goalFatLbs = currentWeightLbs * (userGoals.bfGoal / 100); // approx goal fat at current weight
-
+    const curFat = curW * (anchorBf.body_fat/100);
+    const goalFat = curW * (userGoals.bfGoal/100);
     let goalDate;
     if (Math.abs(deficit_bf) >= 50) {
-      const fatLossPerDay = (deficit_bf / 3500) * 0.8; // 80% of deficit from fat
-      const fatToLose = currentFatLbs - goalFatLbs;
+      const fatLossPerDay = (deficit_bf/3500)*0.8;
+      const fatToLose = curFat - goalFat;
       if (fatLossPerDay > 0 && fatToLose > 0) {
-        const days = Math.min(fatToLose / fatLossPerDay, 730);
-        goalDate = new Date(anchorBf.date + 'T12:00:00');
-        goalDate.setDate(goalDate.getDate() + Math.round(days));
+        const days = Math.min(fatToLose/fatLossPerDay, 730);
+        goalDate = new Date(anchorBf.date+'T12:00:00');
+        goalDate.setDate(goalDate.getDate()+Math.round(days));
       }
     }
     if (!goalDate) {
-      // Fallback: 0.5% per month
-      const pctToGo = Math.abs(anchorBf.body_fat - userGoals.bfGoal);
-      const months = Math.max(pctToGo / 0.5, 1);
-      goalDate = new Date(anchorBf.date + 'T12:00:00');
-      goalDate.setMonth(goalDate.getMonth() + Math.round(months));
+      const months = Math.max(Math.abs(anchorBf.body_fat-userGoals.bfGoal)/0.5,1);
+      goalDate = new Date(anchorBf.date+'T12:00:00');
+      goalDate.setMonth(goalDate.getMonth()+Math.round(months));
     }
-
-    const anchorDateObj = new Date(anchorBf.date + 'T12:00:00');
-    const monthlyLabels = [];
-    const monthlyProjData = [];
-    const cursor = new Date(anchorDateObj);
-    cursor.setMonth(cursor.getMonth() + 1);
-    while (cursor <= goalDate) {
-      monthlyLabels.push(fmtDateBf(cursor.toISOString().split('T')[0]));
-      const fraction = (cursor - anchorDateObj) / (goalDate - anchorDateObj);
-      monthlyProjData.push(Math.round((anchorBf.body_fat + fraction * (userGoals.bfGoal - anchorBf.body_fat)) * 10) / 10);
-      cursor.setMonth(cursor.getMonth() + 1);
+    const anchorBfDate = new Date(anchorBf.date+'T12:00:00');
+    const mlBf=[], mpBf=[];
+    const cur2 = new Date(anchorBfDate);
+    cur2.setMonth(cur2.getMonth()+1);
+    while(cur2<=goalDate){
+      mlBf.push(fmtDateBf(cur2.toISOString().split('T')[0]));
+      const frac=(cur2-anchorBfDate)/(goalDate-anchorBfDate);
+      mpBf.push(Math.round((anchorBf.body_fat+frac*(userGoals.bfGoal-anchorBf.body_fat))*10)/10);
+      cur2.setMonth(cur2.getMonth()+1);
     }
-
-    const projLabel = fmtDateBf(goalDate.toISOString().split('T')[0]);
-    const allLabels = [...labels, ...monthlyLabels, projLabel];
-    const nReal = data.length;
-    const projDataExtended = [
-      ...Array(Math.max(nReal - 1, 0)).fill(null),
-      anchorBf.body_fat,
-      ...monthlyProjData,
-      userGoals.bfGoal
-    ];
-    datasets[0].data = [...data, ...monthlyLabels.map(() => null), null];
-
-    datasets.push({
-      label: 'Projection',
-      data: projDataExtended,
-      borderColor: '#16A34A',
-      borderWidth: 2,
-      borderDash: [6, 4],
-      pointRadius: projDataExtended.map((_, i) => i === projDataExtended.length - 1 ? 6 : 0),
-      pointBackgroundColor: '#16A34A',
-      pointBorderColor: 'white',
-      pointBorderWidth: 2,
-      tension: 0,
-      fill: false,
-      spanGaps: true
-    });
-    datasets.push({
-      label: 'Goal line',
-      data: allLabels.map(() => userGoals.bfGoal),
-      borderColor: 'rgba(22,163,74,0.25)',
-      borderWidth: 1.5,
-      borderDash: [3, 3],
-      pointRadius: 0,
-      fill: false
-    });
-
-    bfChartObj = new Chart(canvas, {
-      type: 'line',
-      data: { labels: allLabels, datasets },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: { filter: item => item.dataset.label !== 'Goal line', callbacks: { label: ctx => ctx.raw != null ? `${ctx.raw}%` : null } }
-        },
-        scales: {
-          y: { grid: { color: '#F5F5F5' }, ticks: { font: { size: 11 }, callback: v => (Math.round(v * 10) / 10) + '%' } },
-          x: { grid: { display: false }, ticks: { font: { size: 11 }, maxTicksLimit: 8 } }
-        }
-      }
-    });
+    const allLabelsBf=[...labels,...mlBf,fmtDateBf(goalDate.toISOString().split('T')[0])];
+    const nRealBf=data.length;
+    const projBf=[...Array(Math.max(nRealBf-1,0)).fill(null),anchorBf.body_fat,...mpBf,userGoals.bfGoal];
+    datasets[0].data=[...data,...mlBf.map(()=>null),null];
+    datasets.push({label:'Projection',data:projBf,borderColor:'#16A34A',borderWidth:2,borderDash:[6,4],
+      pointRadius:projBf.map((_,i)=>i===projBf.length-1?6:0),pointBackgroundColor:'#16A34A',
+      pointBorderColor:'white',pointBorderWidth:2,tension:0,fill:false,spanGaps:true});
+    datasets.push({label:'Goal line',data:allLabelsBf.map(()=>userGoals.bfGoal),
+      borderColor:'rgba(22,163,74,0.25)',borderWidth:1.5,borderDash:[3,3],pointRadius:0,fill:false});
+    bfChartObj=new Chart(canvas,{type:'line',data:{labels:allLabelsBf,datasets},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{filter:i=>i.dataset.label!=='Goal line',
+          callbacks:{label:ctx=>ctx.raw!=null?`${ctx.raw}%`:null}}},
+        scales:{y:{grid:{color:'#F5F5F5'},ticks:{font:{size:11},callback:v=>(Math.round(v*10)/10)+'%'}},
+          x:{grid:{display:false},ticks:{font:{size:11},maxTicksLimit:8}}}}});
     return;
   }
-
-  bfChartObj = new Chart(canvas, {
-    type: 'line',
-    data: { labels, datasets },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: ctx => `${ctx.raw}%` } }
-      },
-      scales: {
-        y: { grid: { color: '#F5F5F5' }, ticks: { font: { size: 11 }, callback: v => (Math.round(v * 10) / 10) + '%' } },
-        x: { grid: { display: false }, ticks: { font: { size: 11 }, maxTicksLimit: 6 } }
-      }
-    }
-  });
+  bfChartObj=new Chart(canvas,{type:'line',data:{labels,datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw}%`}}},
+      scales:{y:{grid:{color:'#F5F5F5'},ticks:{font:{size:11},callback:v=>(Math.round(v*10)/10)+'%'}},
+        x:{grid:{display:false},ticks:{font:{size:11},maxTicksLimit:6}}}}});
 }
 
 // Log modal with numpad
@@ -4282,115 +4101,55 @@ function renderMuscleChart() {
     fill: true
   }];
 
-  const anchorMuscle = muscleScans.length ? muscleScans[muscleScans.length - 1] : null;
-  const fmtDateM = d => new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
-  if (userGoals.muscleGoal && anchorMuscle) {
-    // Project muscle gain using protein target and calorie balance
-    const latestWeightScanM = allScans.filter(s => s.weight).slice(-1)[0];
-    const currentWeightM = latestWeightScanM ? latestWeightScanM.weight : 180;
-    const tdee_m = calcTDEE(currentWeightM);
+  const anchorM = muscleScans.length ? muscleScans[muscleScans.length-1] : null;
+  const fmtDateM = d => new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  if (userGoals.muscleGoal && anchorM) {
+    const latestWM = allScans.filter(s=>s.weight).slice(-1)[0];
+    const curWM = latestWM ? latestWM.weight : 180;
+    const tdee_m = calcTDEE(curWM);
     const deficit_m = tdee_m - userTargets.calories;
-    const proteinTarget = userTargets.protein || 160;
-    const proteinRatio = Math.min(proteinTarget / (currentWeightM * 0.8), 1); // 0.8g/lb = full pace
-
-    // At deficit: can only preserve/very slowly gain muscle (~0.1-0.2 lb/month)
-    // At surplus: can gain up to ~1 lb/month with good protein
+    const protRatio = Math.min((userTargets.protein||160)/(curWM*0.8),1);
     let monthlyGain;
-    if (deficit_m > 200) {
-      monthlyGain = 0.15 * proteinRatio; // deficit — muscle preservation
-    } else if (deficit_m > -200) {
-      monthlyGain = 0.5 * proteinRatio; // maintenance — slow gain
-    } else {
-      monthlyGain = Math.min(1.0 * proteinRatio, 1.0); // surplus — faster gain
+    if (deficit_m>200) monthlyGain=0.15*protRatio;
+    else if (deficit_m>-200) monthlyGain=0.5*protRatio;
+    else monthlyGain=Math.min(1.0*protRatio,1.0);
+    monthlyGain=Math.max(monthlyGain,0.1);
+    const lbsToGoM=Math.abs(anchorM.muscle_mass-userGoals.muscleGoal);
+    const months=Math.max(lbsToGoM/monthlyGain,1);
+    const goalDateM=new Date(anchorM.date+'T12:00:00');
+    goalDateM.setMonth(goalDateM.getMonth()+Math.round(months));
+    const anchorMDate=new Date(anchorM.date+'T12:00:00');
+    const mlM=[],mpM=[];
+    const cur3=new Date(anchorMDate);
+    cur3.setMonth(cur3.getMonth()+1);
+    while(cur3<=goalDateM){
+      mlM.push(fmtDateM(cur3.toISOString().split('T')[0]));
+      const frac=(cur3-anchorMDate)/(goalDateM-anchorMDate);
+      mpM.push(Math.round((anchorM.muscle_mass+frac*(userGoals.muscleGoal-anchorM.muscle_mass))*10)/10);
+      cur3.setMonth(cur3.getMonth()+1);
     }
-    monthlyGain = Math.max(monthlyGain, 0.1); // min pace
-
-    const lbsToGo = Math.abs(anchorMuscle.muscle_mass - userGoals.muscleGoal);
-    const months = Math.max(lbsToGo / monthlyGain, 1);
-    const goalDate = new Date(anchorMuscle.date + 'T12:00:00');
-    goalDate.setMonth(goalDate.getMonth() + Math.round(months));
-
-    const anchorDateObj = new Date(anchorMuscle.date + 'T12:00:00');
-    const monthlyLabels = [];
-    const monthlyProjData = [];
-    const cursor = new Date(anchorDateObj);
-    cursor.setMonth(cursor.getMonth() + 1);
-    while (cursor <= goalDate) {
-      monthlyLabels.push(fmtDateM(cursor.toISOString().split('T')[0]));
-      const fraction = (cursor - anchorDateObj) / (goalDate - anchorDateObj);
-      monthlyProjData.push(Math.round((anchorMuscle.muscle_mass + fraction * (userGoals.muscleGoal - anchorMuscle.muscle_mass)) * 10) / 10);
-      cursor.setMonth(cursor.getMonth() + 1);
-    }
-
-    const projLabel = fmtDateM(goalDate.toISOString().split('T')[0]);
-    const allLabels = [...labels, ...monthlyLabels, projLabel];
-    const nReal = data.length;
-    const projDataExtended = [
-      ...Array(Math.max(nReal - 1, 0)).fill(null),
-      anchorMuscle.muscle_mass,
-      ...monthlyProjData,
-      userGoals.muscleGoal
-    ];
-    datasets[0].data = [...data, ...monthlyLabels.map(() => null), null];
-
-    datasets.push({
-      label: 'Projection',
-      data: projDataExtended,
-      borderColor: '#F97316',
-      borderWidth: 2,
-      borderDash: [6, 4],
-      pointRadius: projDataExtended.map((_, i) => i === projDataExtended.length - 1 ? 6 : 0),
-      pointBackgroundColor: '#F97316',
-      pointBorderColor: 'white',
-      pointBorderWidth: 2,
-      tension: 0,
-      fill: false,
-      spanGaps: true
-    });
-    datasets.push({
-      label: 'Goal line',
-      data: allLabels.map(() => userGoals.muscleGoal),
-      borderColor: 'rgba(249,115,22,0.25)',
-      borderWidth: 1.5,
-      borderDash: [3, 3],
-      pointRadius: 0,
-      fill: false
-    });
-
-    muscleChartObj = new Chart(canvas, {
-      type: 'line',
-      data: { labels: allLabels, datasets },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: { filter: item => item.dataset.label !== 'Goal line', callbacks: { label: ctx => ctx.raw != null ? `${ctx.raw} lbs` : null } }
-        },
-        scales: {
-          y: { grid: { color: '#F5F5F5' }, ticks: { font: { size: 11 }, callback: v => (Math.round(v * 10) / 10) + ' lbs' } },
-          x: { grid: { display: false }, ticks: { font: { size: 11 }, maxTicksLimit: 8 } }
-        }
-      }
-    });
+    const allLabelsM=[...labels,...mlM,fmtDateM(goalDateM.toISOString().split('T')[0])];
+    const nRealM=data.length;
+    const projM=[...Array(Math.max(nRealM-1,0)).fill(null),anchorM.muscle_mass,...mpM,userGoals.muscleGoal];
+    datasets[0].data=[...data,...mlM.map(()=>null),null];
+    datasets.push({label:'Projection',data:projM,borderColor:'#F97316',borderWidth:2,borderDash:[6,4],
+      pointRadius:projM.map((_,i)=>i===projM.length-1?6:0),pointBackgroundColor:'#F97316',
+      pointBorderColor:'white',pointBorderWidth:2,tension:0,fill:false,spanGaps:true});
+    datasets.push({label:'Goal line',data:allLabelsM.map(()=>userGoals.muscleGoal),
+      borderColor:'rgba(249,115,22,0.25)',borderWidth:1.5,borderDash:[3,3],pointRadius:0,fill:false});
+    muscleChartObj=new Chart(canvas,{type:'line',data:{labels:allLabelsM,datasets},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{filter:i=>i.dataset.label!=='Goal line',
+          callbacks:{label:ctx=>ctx.raw!=null?`${ctx.raw} lbs`:null}}},
+        scales:{y:{grid:{color:'#F5F5F5'},ticks:{font:{size:11},callback:v=>(Math.round(v*10)/10)+' lbs'}},
+          x:{grid:{display:false},ticks:{font:{size:11},maxTicksLimit:8}}}}});
     return;
   }
-
-  muscleChartObj = new Chart(canvas, {
-    type: 'line',
-    data: { labels, datasets },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: ctx => `${ctx.raw} lbs` } }
-      },
-      scales: {
-        y: { grid: { color: '#F5F5F5' }, ticks: { font: { size: 11 }, callback: v => (Math.round(v * 10) / 10) + ' lbs' } },
-        x: { grid: { display: false }, ticks: { font: { size: 11 }, maxTicksLimit: 6 } }
-      }
-    }
-  });
+  muscleChartObj=new Chart(canvas,{type:'line',data:{labels,datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw} lbs`}}},
+      scales:{y:{grid:{color:'#F5F5F5'},ticks:{font:{size:11},callback:v=>(Math.round(v*10)/10)+' lbs'}},
+        x:{grid:{display:false},ticks:{font:{size:11},maxTicksLimit:6}}}}});
 }
 
 async function saveMuscleGoal() {
@@ -4399,7 +4158,7 @@ async function saveMuscleGoal() {
   if (!current || !goal) { toast('Enter both current and goal muscle mass'); return; }
   userGoals.muscleCurrent = current;
   userGoals.muscleGoal = goal;
-  await saveSetting('goals', userGoals);
+  saveSetting('goals', userGoals);
   toggleGoalEdit('muscle');
   updateGoalsDisplay();
   renderMuscleChart();
@@ -4444,12 +4203,15 @@ async function editScan(id, date, weight, bodyFat, muscle) {
   else if (bodyFat !== null) entry.body_fat = val;
   else entry.muscle_mass = val;
   try {
-    await dbPatch('scans', id, entry);
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/scans?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify(entry)
+    });
+    if (!res.ok) throw new Error(await res.text());
     await loadScans();
     toast('Updated ✓');
-  } catch(e) {
-    toast('Error: ' + (e.message || 'Update failed'));
-  }
+  } catch(e) { toast('Error: ' + (e.message || 'Update failed')); }
 }
 
 function toggleEditTargets() {
@@ -4526,13 +4288,13 @@ async function saveProfile() {
 
 async function toggleMuscleTracking() {
   userGoals.muscleTrackingOn = userGoals.muscleTrackingOn === false ? true : false;
-  await saveSetting('goals', userGoals);
+  saveSetting('goals', userGoals);
   updateGoalsDisplay();
 }
 
 async function toggleBfTracking() {
   userGoals.bfTrackingOn = userGoals.bfTrackingOn === false ? true : false;
-  await saveSetting('goals', userGoals);
+  saveSetting('goals', userGoals);
   updateGoalsDisplay();
 }
 
@@ -4621,7 +4383,7 @@ function hideCalcResult() {
   document.getElementById('calc-use-btn').style.display = 'none';
 }
 
-async function useBfEstimate() {
+function useBfEstimate() {
   if (!_bfCalcResult) return;
   closeBfCalculator();
   // Pre-fill the Edit Goal form with this estimate as current BF
@@ -4631,7 +4393,7 @@ async function useBfEstimate() {
   el.style.display = 'block';
   // Also update userGoals.bfCurrent
   userGoals.bfCurrent = _bfCalcResult;
-  await saveSetting('goals', userGoals);
+  saveSetting('goals', userGoals);
   updateGoalsDisplay();
   toast(`Body fat set to ${_bfCalcResult}% — now set your goal below`);
 }
