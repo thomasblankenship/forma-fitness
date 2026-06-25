@@ -4019,31 +4019,67 @@ function renderBfChart() {
     fill: true
   }];
 
-  if (userGoals.bfGoal) {
-    const projData = [...data.map(() => null)];
-    projData[projData.length - 1] = data[data.length - 1];
-    projData.push(userGoals.bfGoal);
-    datasets.push({
-      label: 'Goal',
-      data: projData,
-      borderColor: '#16A34A',
-      borderWidth: 1.5,
-      borderDash: [6, 4],
-      pointRadius: [0,0,0,0,0,5],
-      pointBackgroundColor: '#16A34A',
-      tension: 0,
-      fill: false,
-      spanGaps: true
-    });
-    datasets.push({
-      label: 'Goal line',
-      data: Array(labels.length).fill(userGoals.bfGoal),
-      borderColor: 'rgba(22,163,74,0.2)',
-      borderWidth: 1,
-      borderDash: [4, 4],
-      pointRadius: 0,
-      fill: false
-    });
+  const anchorBf = bfScans.length ? bfScans[bfScans.length-1] : null;
+  const fmtDateBf = d => new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  if (userGoals.bfGoal && anchorBf) {
+    const latestWeightScan = allScans.filter(s=>s.weight).slice(-1)[0];
+    const curW = latestWeightScan ? latestWeightScan.weight : 180;
+    const tdee_bf = calcTDEE(curW);
+    const deficit_bf = tdee_bf - userTargets.calories;
+    const curFat = curW * (anchorBf.body_fat/100);
+    const goalFat = curW * (userGoals.bfGoal/100);
+    let goalDate;
+    if (Math.abs(deficit_bf) >= 50) {
+      const fatLossPerDay = (deficit_bf/3500)*0.8;
+      const fatToLose = curFat - goalFat;
+      if (fatLossPerDay > 0 && fatToLose > 0) {
+        const days = Math.min(fatToLose/fatLossPerDay, 730);
+        goalDate = new Date(anchorBf.date+'T12:00:00');
+        goalDate.setDate(goalDate.getDate()+Math.round(days));
+      }
+    }
+    if (!goalDate) {
+      const months = Math.max(Math.abs(anchorBf.body_fat-userGoals.bfGoal)/0.5,1);
+      goalDate = new Date(anchorBf.date+'T12:00:00');
+      goalDate.setMonth(goalDate.getMonth()+Math.round(months));
+    }
+
+    // Update to-go text with date
+    const bfToGoEl = document.getElementById('disp-bf-to-go');
+    if (bfToGoEl) {
+      const bfLeft = Math.abs(anchorBf.body_fat - userGoals.bfGoal).toFixed(1);
+      const bfDir = userGoals.bfGoal < anchorBf.body_fat ? 'to lose' : 'to gain';
+      const bfDateLabel = goalDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const bfDaysLeft = Math.round((goalDate - new Date()) / 86400000);
+      bfToGoEl.textContent = `${bfLeft}% body fat ${bfDir} · Est. ${bfDateLabel} (${bfDaysLeft} days)`;
+    }
+
+    const anchorBfDate = new Date(anchorBf.date+'T12:00:00');
+    const mlBf=[], mpBf=[];
+    const cur2 = new Date(anchorBfDate);
+    cur2.setMonth(cur2.getMonth()+1);
+    while(cur2<=goalDate){
+      mlBf.push(fmtDateBf(cur2.toISOString().split('T')[0]));
+      const frac=(cur2-anchorBfDate)/(goalDate-anchorBfDate);
+      mpBf.push(Math.round((anchorBf.body_fat+frac*(userGoals.bfGoal-anchorBf.body_fat))*10)/10);
+      cur2.setMonth(cur2.getMonth()+1);
+    }
+    const allLabelsBf=[...labels,...mlBf,fmtDateBf(goalDate.toISOString().split('T')[0])];
+    const nRealBf=data.length;
+    const projBf=[...Array(Math.max(nRealBf-1,0)).fill(null),anchorBf.body_fat,...mpBf,userGoals.bfGoal];
+    datasets[0].data=[...data,...mlBf.map(()=>null),null];
+    datasets.push({label:'Projection',data:projBf,borderColor:'#16A34A',borderWidth:2,borderDash:[6,4],
+      pointRadius:projBf.map((_,i)=>i===projBf.length-1?6:0),pointBackgroundColor:'#16A34A',
+      pointBorderColor:'white',pointBorderWidth:2,tension:0,fill:false,spanGaps:true});
+    datasets.push({label:'Goal line',data:allLabelsBf.map(()=>userGoals.bfGoal),
+      borderColor:'rgba(22,163,74,0.25)',borderWidth:1.5,borderDash:[3,3],pointRadius:0,fill:false});
+    bfChartObj=new Chart(canvas,{type:'line',data:{labels:allLabelsBf,datasets},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{filter:i=>i.dataset.label!=='Goal line',
+          callbacks:{label:ctx=>ctx.raw!=null?`${ctx.raw}%`:null}}},
+        scales:{y:{grid:{color:'#F5F5F5'},ticks:{font:{size:11},callback:v=>(Math.round(v*10)/10)+'%'}},
+          x:{grid:{display:false},ticks:{font:{size:11},maxTicksLimit:8}}}}});
+    return;
   }
 
   bfChartObj = new Chart(canvas, {
@@ -4053,7 +4089,7 @@ function renderBfChart() {
       responsive: true, maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: { label: ctx => ctx.dataset.label === 'Goal line' ? null : `${ctx.raw}%` }, filter: item => item.dataset.label !== 'Goal line' }
+        tooltip: { callbacks: { label: ctx => `${ctx.raw}%` } }
       },
       scales: {
         y: { grid: { color: '#F5F5F5' }, ticks: { font: { size: 11 }, callback: v => (Math.round(v * 10) / 10) + '%' } },
@@ -4167,31 +4203,60 @@ function renderMuscleChart() {
     fill: true
   }];
 
-  if (userGoals.muscleGoal) {
-    const projData = [...data.map(() => null)];
-    projData[projData.length - 1] = data[data.length - 1];
-    projData.push(userGoals.muscleGoal);
-    datasets.push({
-      label: 'Goal',
-      data: projData,
-      borderColor: '#F97316',
-      borderWidth: 1.5,
-      borderDash: [6, 4],
-      pointRadius: [0,0,0,0,0,5],
-      pointBackgroundColor: '#F97316',
-      tension: 0,
-      fill: false,
-      spanGaps: true
-    });
-    datasets.push({
-      label: 'Goal line',
-      data: Array(labels.length).fill(userGoals.muscleGoal),
-      borderColor: 'rgba(249,115,22,0.2)',
-      borderWidth: 1,
-      borderDash: [4, 4],
-      pointRadius: 0,
-      fill: false
-    });
+  const anchorM = muscleScans.length ? muscleScans[muscleScans.length-1] : null;
+  const fmtDateM = d => new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  if (userGoals.muscleGoal && anchorM) {
+    const latestWM = allScans.filter(s=>s.weight).slice(-1)[0];
+    const curWM = latestWM ? latestWM.weight : 180;
+    const tdee_m = calcTDEE(curWM);
+    const deficit_m = tdee_m - userTargets.calories;
+    const protRatio = Math.min((userTargets.protein||160)/(curWM*0.8),1);
+    let monthlyGain;
+    if (deficit_m>200) monthlyGain=0.15*protRatio;
+    else if (deficit_m>-200) monthlyGain=0.5*protRatio;
+    else monthlyGain=Math.min(1.0*protRatio,1.0);
+    monthlyGain=Math.max(monthlyGain,0.1);
+    const lbsToGoM=Math.abs(anchorM.muscle_mass-userGoals.muscleGoal);
+    const months=Math.max(lbsToGoM/monthlyGain,1);
+    const goalDateM=new Date(anchorM.date+'T12:00:00');
+    goalDateM.setMonth(goalDateM.getMonth()+Math.round(months));
+
+    // Update to-go text with date
+    const muscleToGoEl = document.getElementById('disp-muscle-to-go');
+    if (muscleToGoEl) {
+      const mLeft = Math.abs(anchorM.muscle_mass - userGoals.muscleGoal).toFixed(1);
+      const mDir = userGoals.muscleGoal > anchorM.muscle_mass ? 'to gain' : 'to maintain';
+      const mDateLabel = goalDateM.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const mDaysLeft = Math.round((goalDateM - new Date()) / 86400000);
+      muscleToGoEl.textContent = `${mLeft} lbs muscle ${mDir} · Est. ${mDateLabel} (${mDaysLeft} days)`;
+    }
+
+    const anchorMDate=new Date(anchorM.date+'T12:00:00');
+    const mlM=[],mpM=[];
+    const cur3=new Date(anchorMDate);
+    cur3.setMonth(cur3.getMonth()+1);
+    while(cur3<=goalDateM){
+      mlM.push(fmtDateM(cur3.toISOString().split('T')[0]));
+      const frac=(cur3-anchorMDate)/(goalDateM-anchorMDate);
+      mpM.push(Math.round((anchorM.muscle_mass+frac*(userGoals.muscleGoal-anchorM.muscle_mass))*10)/10);
+      cur3.setMonth(cur3.getMonth()+1);
+    }
+    const allLabelsM=[...labels,...mlM,fmtDateM(goalDateM.toISOString().split('T')[0])];
+    const nRealM=data.length;
+    const projM=[...Array(Math.max(nRealM-1,0)).fill(null),anchorM.muscle_mass,...mpM,userGoals.muscleGoal];
+    datasets[0].data=[...data,...mlM.map(()=>null),null];
+    datasets.push({label:'Projection',data:projM,borderColor:'#F97316',borderWidth:2,borderDash:[6,4],
+      pointRadius:projM.map((_,i)=>i===projM.length-1?6:0),pointBackgroundColor:'#F97316',
+      pointBorderColor:'white',pointBorderWidth:2,tension:0,fill:false,spanGaps:true});
+    datasets.push({label:'Goal line',data:allLabelsM.map(()=>userGoals.muscleGoal),
+      borderColor:'rgba(249,115,22,0.25)',borderWidth:1.5,borderDash:[3,3],pointRadius:0,fill:false});
+    muscleChartObj=new Chart(canvas,{type:'line',data:{labels:allLabelsM,datasets},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{filter:i=>i.dataset.label!=='Goal line',
+          callbacks:{label:ctx=>ctx.raw!=null?`${ctx.raw} lbs`:null}}},
+        scales:{y:{grid:{color:'#F5F5F5'},ticks:{font:{size:11},callback:v=>(Math.round(v*10)/10)+' lbs'}},
+          x:{grid:{display:false},ticks:{font:{size:11},maxTicksLimit:8}}}}});
+    return;
   }
 
   muscleChartObj = new Chart(canvas, {
@@ -4201,7 +4266,7 @@ function renderMuscleChart() {
       responsive: true, maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: { label: ctx => ctx.dataset.label === 'Goal line' ? null : `${ctx.raw} lbs` }, filter: item => item.dataset.label !== 'Goal line' }
+        tooltip: { callbacks: { label: ctx => `${ctx.raw} lbs` } }
       },
       scales: {
         y: { grid: { color: '#F5F5F5' }, ticks: { font: { size: 11 }, callback: v => (Math.round(v * 10) / 10) + ' lbs' } },
