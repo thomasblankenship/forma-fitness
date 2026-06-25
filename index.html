@@ -1562,7 +1562,7 @@ function switchTab(tab) {
     btn.classList.toggle('active', ['today','history','meals','progress','photos'][i] === tab);
   });
   if (tab === 'meals') loadMealsTab();
-  if (tab === 'progress') { loadScans(); updateGoalsDisplay(); }
+  if (tab === 'progress') { loadGoals().then(() => { loadScans(); updateGoalsDisplay(); }); }
 }
 
 function selectAngle(angle, btn) {
@@ -2117,7 +2117,7 @@ function calcTotals(meals) {
 
 function updateMacroBars(t) {
   const pct = (v, target) => Math.min((v / target) * 100, 100).toFixed(1);
-  document.getElementById('pro-val').textContent = `${t.protein} / ${TARGETS.protein}g`;
+  document.getElementById('pro-val').textContent = `${Math.round(t.protein * 10) / 10} / ${TARGETS.protein}g`;
   document.getElementById('carb-val').textContent = `${t.carbs} / ${TARGETS.carbs}g`;
   document.getElementById('fat-val').textContent = `${t.fat} / ${TARGETS.fat}g`;
   const fiberVal = t.fiber || 0;
@@ -2665,7 +2665,7 @@ function renderHistoryList() {
     return `<div class="day-row" onclick="showHistoryDetail('${d}')">
       <div>
         <div class="day-date">${dateLabel}</div>
-        <div class="day-meta">${t.calories} cal · ${t.protein}g protein</div>
+        <div class="day-meta">${t.calories} cal · ${Math.round(t.protein * 10) / 10}g protein</div>
       </div>
       <div class="day-right">
         ${s ? `<span class="score-badge ${s[1]}">${s[0]}</span>` : ''}
@@ -4244,6 +4244,9 @@ function updateMuscleMethodUI() {
     if (inner) inner.style.display = 'none';
     if (toggle) toggle.style.display = 'none';
     if (editGoalBtn) editGoalBtn.style.display = 'none';
+    // Hide goal display card too
+    const goalCard = document.getElementById('muscle-goal-display');
+    if (goalCard) goalCard.style.display = 'none';
     return;
   }
   if (prompt) prompt.style.display = 'none';
@@ -4261,6 +4264,16 @@ function updateMuscleMethodUI() {
     if (recordBtn) recordBtn.style.display = 'none';
     if (editGoalBtn) editGoalBtn.style.display = 'block';
     if (estimateNotice) estimateNotice.style.display = 'block';
+  }
+  // Show change method link
+  let changeLink = document.getElementById('muscle-change-method');
+  if (!changeLink) {
+    changeLink = document.createElement('button');
+    changeLink.id = 'muscle-change-method';
+    changeLink.style.cssText = 'background:none;border:none;font-size:11px;color:#ADADAD;cursor:pointer;padding:4px 0;text-decoration:underline;';
+    changeLink.textContent = 'Change tracking method';
+    changeLink.onclick = () => { userGoals.muscleMethod = null; saveSetting('goals', userGoals); updateMuscleMethodUI(); };
+    if (inner) inner.appendChild(changeLink);
   }
 }
 
