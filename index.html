@@ -221,7 +221,12 @@
           <div class="brand-sub" id="today-date"></div>
         </div>
       </div>
-      <div id="score-badge"></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div id="score-badge"></div>
+        <button onclick="showSettings()" style="background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:#F4F4F4">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
     </div>
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('today')">Dashboard</button>
@@ -1058,12 +1063,31 @@
 </div>
 
 <!-- LOG WEIGHT / BODY FAT MODAL -->
-<div id="account-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:800;align-items:flex-end;justify-content:center">
-  <div style="background:white;border-radius:20px 20px 0 0;padding:24px 20px 40px;width:100%;max-width:480px">
-    <div style="font-size:18px;font-weight:700;margin-bottom:4px">Account</div>
-    <div id="account-email" style="font-size:13px;color:#ADADAD;margin-bottom:24px"></div>
-    <button onclick="handleSignOut()" style="width:100%;padding:14px;border:1px solid #FEE2E2;border-radius:12px;background:#FEF2F2;color:#EF4444;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px">Sign Out</button>
-    <button onclick="document.getElementById('account-modal').style.display='none'" style="width:100%;padding:14px;border:1px solid #E8E8E8;border-radius:12px;background:white;color:#0F0F0F;font-size:15px;font-weight:600;cursor:pointer">Cancel</button>
+<div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:800;align-items:flex-end;justify-content:center">
+  <div style="background:white;border-radius:20px 20px 0 0;padding:24px 20px 48px;width:100%;max-width:480px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div style="font-size:18px;font-weight:700">Settings</div>
+      <button onclick="document.getElementById('settings-modal').style.display='none'" style="background:none;border:none;font-size:22px;color:#ADADAD;cursor:pointer">×</button>
+    </div>
+
+    <!-- Account section -->
+    <div style="font-size:11px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Account</div>
+    <div style="background:#F9F9F9;border-radius:12px;padding:14px 16px;margin-bottom:4px">
+      <div style="font-size:12px;color:#ADADAD;margin-bottom:2px">Signed in as</div>
+      <div id="settings-email" style="font-size:14px;font-weight:600;color:#0F0F0F"></div>
+    </div>
+
+    <!-- Password reset -->
+    <div id="settings-reset-wrap" style="margin-bottom:16px">
+      <button onclick="handleSettingsReset()" id="settings-reset-btn" style="width:100%;padding:13px 16px;border:1px solid #E8E8E8;border-radius:12px;background:white;font-size:14px;font-weight:600;color:#0F0F0F;cursor:pointer;text-align:left;margin-top:4px">🔑 Reset Password</button>
+      <div id="settings-reset-msg" style="font-size:12px;color:#16A34A;padding:6px 4px;display:none"></div>
+    </div>
+
+    <!-- Divider -->
+    <div style="border-top:1px solid #F4F4F4;margin-bottom:16px"></div>
+
+    <!-- Sign out -->
+    <button onclick="handleSignOut()" style="width:100%;padding:14px;border:none;border-radius:12px;background:#FEF2F2;color:#EF4444;font-size:15px;font-weight:700;cursor:pointer">Sign Out</button>
   </div>
 </div>
 
@@ -4493,13 +4517,36 @@ function renderMuscleChart() {
   });
 }
 
-function showAccountModal() {
-  document.getElementById('account-email').textContent = _currentUser?.email || '';
-  document.getElementById('account-modal').style.display = 'flex';
+function showSettings() {
+  document.getElementById('settings-email').textContent = _currentUser?.email || '';
+  document.getElementById('settings-reset-msg').style.display = 'none';
+  document.getElementById('settings-reset-btn').textContent = '🔑 Reset Password';
+  document.getElementById('settings-reset-btn').disabled = false;
+  document.getElementById('settings-modal').style.display = 'flex';
+}
+
+async function handleSettingsReset() {
+  const email = _currentUser?.email;
+  if (!email) return;
+  const btn = document.getElementById('settings-reset-btn');
+  const msg = document.getElementById('settings-reset-msg');
+  btn.textContent = 'Sending...'; btn.disabled = true;
+  try {
+    await resetPassword(email);
+    msg.textContent = '✓ Reset link sent to ' + email;
+    msg.style.display = 'block';
+    btn.textContent = '✓ Email sent';
+  } catch(e) {
+    msg.style.color = '#EF4444';
+    msg.textContent = e.message;
+    msg.style.display = 'block';
+    btn.textContent = '🔑 Reset Password';
+    btn.disabled = false;
+  }
 }
 
 async function handleSignOut() {
-  document.getElementById('account-modal').style.display = 'none';
+  document.getElementById('settings-modal').style.display = 'none';
   await signOut();
 }
 
