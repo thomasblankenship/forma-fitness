@@ -2875,7 +2875,7 @@ function openFoodModal(id) {
   activeFoodForModal._servingUnit = servingUnit;
   document.getElementById('food-modal-name').textContent = activeFoodForModal.name;
   document.getElementById('food-modal-per').textContent = `${calsPerUnit} kcal per ${storedUnit}`;
-  document.getElementById('food-modal-qty').value = servingQty;
+  document.getElementById('food-modal-qty').value = servingQtyRaw;
   // Use the food's stored unit (each, oz, g, etc.)
   _foodModalUnit = activeFoodForModal._servingUnit || 'g';
   document.getElementById('food-modal-serving-label').textContent = _foodModalUnit;
