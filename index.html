@@ -240,8 +240,14 @@
   <div class="content">
     <!-- TODAY -->
     <div id="tab-today">
-      <div style="padding:8px 0">
-        <button type="button" onclick="testWorker()" style="width:100%;background:#F97316;color:white;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:600;cursor:pointer">🔧 Tap Here to Test Worker Connection</button>
+
+      <!-- MOTIVATIONAL QUOTE -->
+      <div id="quote-card" style="background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:16px;padding:20px;margin-bottom:12px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:rgba(249,115,22,0.15);border-radius:50%"></div>
+        <div style="position:absolute;bottom:-30px;left:-10px;width:80px;height:80px;background:rgba(251,113,133,0.1);border-radius:50%"></div>
+        <div id="quote-emoji" style="font-size:24px;margin-bottom:10px">💪</div>
+        <div id="quote-text" style="font-size:15px;font-weight:600;color:white;line-height:1.5;margin-bottom:8px;position:relative"></div>
+        <div id="quote-author" style="font-size:11px;color:rgba(255,255,255,0.45);font-style:italic;position:relative"></div>
       </div>
 
       <!-- CALORIE RING HERO -->
@@ -2131,6 +2137,7 @@ async function handleResetPassword() {
 
 async function appInit() {
   logDate = today;
+  updateDailyQuote();
   await loadGoals();
   updateGoalsDisplay();
   updateLogDateDisplay();
@@ -2142,6 +2149,54 @@ async function appInit() {
   loadDayTotals();
   loadScans();
   loadPhotos();
+}
+
+// MOTIVATIONAL QUOTES
+const QUOTES = [
+  { text: "The only bad workout is the one that didn't happen.", author: "Unknown", emoji: "💪" },
+  { text: "Take care of your body. It's the only place you have to live.", author: "Jim Rohn", emoji: "🏠" },
+  { text: "Strength does not come from the body. It comes from the will.", author: "Unknown", emoji: "🔥" },
+  { text: "Your body can stand almost anything. It's your mind you have to convince.", author: "Unknown", emoji: "🧠" },
+  { text: "The groundwork of all happiness is health.", author: "Leigh Hunt", emoji: "✨" },
+  { text: "To keep the body in good health is a duty, otherwise we shall not be able to keep our mind strong.", author: "Buddha", emoji: "☮️" },
+  { text: "What you eat in private, you wear in public.", author: "Unknown", emoji: "🥗" },
+  { text: "It's not about being the best. It's about being better than you were yesterday.", author: "Unknown", emoji: "📈" },
+  { text: "The body achieves what the mind believes.", author: "Unknown", emoji: "🎯" },
+  { text: "Discipline is choosing between what you want now and what you want most.", author: "Abraham Lincoln", emoji: "⚖️" },
+  { text: "You don't have to be great to start, but you have to start to be great.", author: "Zig Ziglar", emoji: "🚀" },
+  { text: "Progress, not perfection.", author: "Unknown", emoji: "🌱" },
+  { text: "Every day is a chance to be better than the day before.", author: "Unknown", emoji: "🌅" },
+  { text: "Success is the sum of small efforts repeated day in and day out.", author: "Robert Collier", emoji: "🏆" },
+  { text: "Motivation gets you started. Habit keeps you going.", author: "Jim Ryun", emoji: "⚡" },
+  { text: "You are what you eat. Don't be fast, cheap, easy, or fake.", author: "Unknown", emoji: "🍎" },
+  { text: "Small steps every day lead to big changes.", author: "Unknown", emoji: "👣" },
+  { text: "Earn it.", author: "Unknown", emoji: "💎" },
+  { text: "The pain you feel today will be the strength you feel tomorrow.", author: "Unknown", emoji: "💫" },
+  { text: "Consistency is more important than perfection.", author: "Unknown", emoji: "🔄" },
+  { text: "Your future self is watching you right now through your memories.", author: "Unknown", emoji: "👁️" },
+  { text: "Fall in love with taking care of yourself.", author: "Unknown", emoji: "❤️" },
+  { text: "Energy and persistence conquer all things.", author: "Benjamin Franklin", emoji: "⚡" },
+  { text: "Sweat is just fat crying.", author: "Unknown", emoji: "😅" },
+  { text: "Don't limit your challenges. Challenge your limits.", author: "Unknown", emoji: "🏔️" },
+  { text: "Results happen over time, not overnight. Work hard, stay consistent.", author: "Unknown", emoji: "⏰" },
+  { text: "The secret to getting ahead is getting started.", author: "Mark Twain", emoji: "▶️" },
+  { text: "It never gets easier. You just get stronger.", author: "Unknown", emoji: "💪" },
+  { text: "Good things come to those who sweat.", author: "Unknown", emoji: "🌟" },
+  { text: "Be stronger than your excuses.", author: "Unknown", emoji: "🛡️" },
+];
+
+function updateDailyQuote() {
+  const el = document.getElementById('quote-text');
+  const authorEl = document.getElementById('quote-author');
+  const emojiEl = document.getElementById('quote-emoji');
+  if (!el) return;
+  // Pick quote based on day of year so it changes daily but is consistent
+  const now = new Date();
+  const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+  const quote = QUOTES[dayOfYear % QUOTES.length];
+  el.textContent = `"${quote.text}"`;
+  authorEl.textContent = quote.author !== 'Unknown' ? `— ${quote.author}` : '';
+  emojiEl.textContent = quote.emoji;
 }
 
 // TODAY
