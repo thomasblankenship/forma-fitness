@@ -38,10 +38,46 @@
 
     .numpad-btn { padding:16px;font-size:20px;font-weight:600;border:none;border-radius:12px;background:#F4F4F4;color:#0F0F0F;cursor:pointer;transition:background 0.1s;-webkit-tap-highlight-color:transparent; }
     .numpad-btn:active { background:#E8E8E8; }
-    .ob-step { width:8px;height:8px;border-radius:50%;background:#E8E8E8;transition:background 0.2s; }
-    .ob-step.active { background:#0F0F0F;width:24px;border-radius:4px; }
-    .ob-choice-btn { width:100%;border:1.5px solid #E8E8E8;border-radius:10px;background:white;cursor:pointer;font-size:14px;font-weight:600;color:#0F0F0F;padding:12px 14px;transition:all 0.15s; }
-    .ob-choice-btn.ob-active { border-color:#F97316;background:#FFF7ED;color:#F97316; }
+    /* FULL-SCREEN ONBOARDING */
+    #onboarding-modal { font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; }
+    .ob-screen { display:none;flex-direction:column;min-height:100vh;padding:0; }
+    .ob-screen.ob-active-screen { display:flex; }
+    .ob-progress-bar { display:flex;gap:4px;padding:16px 20px 0; }
+    .ob-seg { flex:1;height:4px;border-radius:2px;background:#E8E8E8;transition:background 0.3s; }
+    .ob-seg.done { background:#0F0F0F; }
+    .ob-body { flex:1;padding:28px 24px 16px;display:flex;flex-direction:column; }
+    .ob-label { font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px; }
+    .ob-heading { font-size:26px;font-weight:800;color:#0F0F0F;line-height:1.2;margin-bottom:8px;letter-spacing:-0.5px; }
+    .ob-subtext { font-size:14px;color:#666;line-height:1.5;margin-bottom:32px; }
+    .ob-footer { padding:16px 24px 32px;display:flex;gap:10px; }
+    .ob-btn-next { flex:1;background:#0F0F0F;color:white;border:none;border-radius:14px;height:54px;font-size:16px;font-weight:700;cursor:pointer;transition:opacity 0.15s;-webkit-tap-highlight-color:transparent; }
+    .ob-btn-back { width:54px;height:54px;background:#F4F4F4;border:none;border-radius:14px;font-size:20px;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent; }
+    .ob-choice { width:100%;border:1.5px solid #E8E8E8;border-radius:14px;background:white;cursor:pointer;padding:16px 18px;text-align:left;margin-bottom:10px;transition:all 0.15s;-webkit-tap-highlight-color:transparent; }
+    .ob-choice .ob-choice-title { font-size:15px;font-weight:700;color:#0F0F0F; }
+    .ob-choice .ob-choice-sub { font-size:12px;color:#888;margin-top:3px; }
+    .ob-choice.ob-sel { border-color:#0F0F0F;background:#F4F4F4; }
+    .ob-choice.ob-sel .ob-choice-title { color:#0F0F0F; }
+    .ob-field { width:100%;padding:16px 18px;border:1.5px solid #E8E8E8;border-radius:14px;font-size:16px;color:#0F0F0F;background:white;outline:none;box-sizing:border-box;margin-bottom:14px;-webkit-appearance:none;appearance:none; }
+    .ob-field:focus { border-color:#0F0F0F; }
+    .ob-field.ob-error { border-color:#DC2626; }
+    .ob-field-row { display:grid;gap:10px;margin-bottom:14px; }
+    .ob-field-wrap { position:relative; }
+    .ob-field-wrap .ob-field { margin-bottom:0; }
+    .ob-field-unit { position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:600;color:#888;pointer-events:none; }
+    .ob-sex-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px; }
+    .ob-sex-btn { padding:20px 10px;border:1.5px solid #E8E8E8;border-radius:14px;background:white;font-size:15px;font-weight:700;color:#0F0F0F;cursor:pointer;text-align:center;transition:all 0.15s;-webkit-tap-highlight-color:transparent; }
+    .ob-sex-btn.ob-sel { border-color:#0F0F0F;background:#0F0F0F;color:white; }
+    .ob-splash { flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 32px; }
+    .ob-splash-icon { width:72px;height:72px;background:#0F0F0F;border-radius:20px;display:flex;align-items:center;justify-content:center;margin-bottom:24px; }
+    .ob-error-msg { font-size:13px;color:#DC2626;margin-bottom:12px;display:none; }
+    .ob-suggest-box { background:#F4F4F4;border-radius:14px;padding:18px;margin-bottom:16px; }
+    .ob-suggest-row { display:grid;grid-template-columns:repeat(4,1fr);text-align:center;gap:8px; }
+    .ob-suggest-val { font-size:20px;font-weight:800;color:#0F0F0F; }
+    .ob-suggest-lbl { font-size:10px;color:#888;margin-top:2px; }
+    .ob-suggest-note { font-size:12px;color:#666;margin-top:12px;line-height:1.4; }
+    /* Keep old classes for any stray references */
+    .ob-step { display:none; }
+    .ob-choice-btn { display:none; }
 
     .range-pill { padding:4px 12px; font-size:12px; font-weight:600; border:none; border-radius:20px; background:#F4F4F4; color:#888; cursor:pointer; white-space:nowrap; transition:all 0.15s; }
     .range-pill.active-pill { background:#0F0F0F; color:white; }
@@ -1400,133 +1436,196 @@
   </div>
 </div>
 
-<!-- ONBOARDING MODAL -->
-<div id="onboarding-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:900;align-items:center;justify-content:center;padding:20px">
-  <div style="background:white;border-radius:20px;padding:28px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto">
-    <!-- Logo -->
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-      <div style="width:36px;height:36px;background:#0F0F0F;border-radius:10px;display:flex;align-items:center;justify-content:center">
-        <svg width="20" height="20" fill="white" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
-      </div>
-      <div>
-        <div style="font-size:18px;font-weight:700;letter-spacing:-0.5px">Ratio Fitness</div>
-        <div style="font-size:11px;color:#ADADAD">Body Recomp & Macro Tracker</div>
-      </div>
-    </div>
-    <div style="font-size:22px;font-weight:700;margin-bottom:4px;margin-top:16px">Welcome 👋</div>
-    <div style="font-size:13px;color:#666;margin-bottom:24px;line-height:1.5">Let's set up your profile so Ratio can calculate your calorie targets, BMI, and projected goal dates accurately.</div>
+<!-- ONBOARDING MODAL — full-screen flow -->
+<div id="onboarding-modal" style="display:none;position:fixed;inset:0;background:white;z-index:900;overflow-y:auto;max-width:520px;margin:0 auto;">
 
-    <!-- Step indicator -->
-    <div style="display:flex;gap:6px;margin-bottom:24px">
-      <div class="ob-step active" id="ob-dot-1"></div>
-      <div class="ob-step" id="ob-dot-2"></div>
-      <div class="ob-step" id="ob-dot-3"></div>
-    </div>
-
-    <!-- Step 1: Basic info -->
-    <div id="ob-step-1">
-      <div style="font-size:14px;font-weight:700;color:#0F0F0F;margin-bottom:16px">About You</div>
-      <div class="form-group">
-        <div style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Sex</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <button onclick="obSelectSex('male',this)" class="ob-choice-btn ob-active" id="ob-male">Male</button>
-          <button onclick="obSelectSex('female',this)" class="ob-choice-btn" id="ob-female">Female</button>
-        </div>
+  <!-- SCREEN 0: Welcome splash -->
+  <div class="ob-screen ob-active-screen" id="obs-0">
+    <div class="ob-splash">
+      <div class="ob-splash-icon">
+        <svg width="36" height="36" fill="white" viewBox="0 0 24 24"><path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/></svg>
       </div>
-      <div class="form-group">
-        <div style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Age</div>
-        <input type="number" id="ob-age" placeholder="e.g. 35" min="13" max="99" inputmode="numeric"
-          style="width:100%;padding:12px 14px;border:1px solid #E8E8E8;border-radius:10px;font-size:16px;outline:none;box-sizing:border-box" />
-      </div>
-      <div class="form-group">
-        <div style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Height</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div style="position:relative">
-            <input type="number" id="ob-height-ft" placeholder="5" min="3" max="7" inputmode="numeric"
-              style="width:100%;padding:12px 36px 12px 14px;border:1px solid #E8E8E8;border-radius:10px;font-size:16px;outline:none;box-sizing:border-box" />
-            <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:13px;color:#888">ft</span>
-          </div>
-          <div style="position:relative">
-            <input type="number" id="ob-height-in" placeholder="9" min="0" max="11" inputmode="numeric"
-              style="width:100%;padding:12px 36px 12px 14px;border:1px solid #E8E8E8;border-radius:10px;font-size:16px;outline:none;box-sizing:border-box" />
-            <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:13px;color:#888">in</span>
-          </div>
-        </div>
-      </div>
-      <button class="btn" onclick="obNext(1)" style="margin-top:8px">Continue →</button>
-    </div>
-
-    <!-- Step 2: Activity & weight -->
-    <div id="ob-step-2" style="display:none">
-      <div style="font-size:14px;font-weight:700;color:#0F0F0F;margin-bottom:16px">Activity & Weight</div>
-      <div class="form-group">
-        <div style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Activity Level</div>
-        <div style="display:flex;flex-direction:column;gap:6px" id="ob-activity-group">
-          <button onclick="obSelectActivity('sedentary',this)" class="ob-choice-btn ob-activity" style="text-align:left;padding:10px 14px">
-            <div style="font-weight:600;font-size:13px">Sedentary</div>
-            <div style="font-size:11px;color:#888;margin-top:1px">Desk job, little or no exercise</div>
-          </button>
-          <button onclick="obSelectActivity('light',this)" class="ob-choice-btn ob-activity" style="text-align:left;padding:10px 14px">
-            <div style="font-weight:600;font-size:13px">Lightly Active</div>
-            <div style="font-size:11px;color:#888;margin-top:1px">Exercise 1–2x per week</div>
-          </button>
-          <button onclick="obSelectActivity('moderate',this)" class="ob-choice-btn ob-activity" style="text-align:left;padding:10px 14px">
-            <div style="font-weight:600;font-size:13px">Moderately Active</div>
-            <div style="font-size:11px;color:#888;margin-top:1px">Exercise 3–4x per week</div>
-          </button>
-          <button onclick="obSelectActivity('active',this)" class="ob-choice-btn ob-active ob-activity" style="text-align:left;padding:10px 14px">
-            <div style="font-weight:600;font-size:13px">Very Active</div>
-            <div style="font-size:11px;color:#888;margin-top:1px">Exercise 5+ days per week</div>
-          </button>
-          <button onclick="obSelectActivity('athlete',this)" class="ob-choice-btn ob-activity" style="text-align:left;padding:10px 14px">
-            <div style="font-weight:600;font-size:13px">Athlete</div>
-            <div style="font-size:11px;color:#888;margin-top:1px">2x/day training or physical job</div>
-          </button>
-        </div>
-      </div>
-      <div class="form-group" style="margin-top:16px">
-        <div style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Current Weight (lbs)</div>
-        <input type="number" id="ob-weight" placeholder="e.g. 185" min="80" max="500" step="0.1" inputmode="decimal"
-          style="width:100%;padding:12px 14px;border:1px solid #E8E8E8;border-radius:10px;font-size:16px;outline:none;box-sizing:border-box" />
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
-        <button class="btn" onclick="obBack(2)" style="background:#F4F4F4;color:#0F0F0F">← Back</button>
-        <button class="btn" onclick="obNext(2)">Continue →</button>
-      </div>
-    </div>
-
-    <!-- Step 3: Goals & targets -->
-    <div id="ob-step-3" style="display:none">
-      <div style="font-size:14px;font-weight:700;color:#0F0F0F;margin-bottom:4px">Your Goals</div>
-      <div style="font-size:12px;color:#888;margin-bottom:16px">We'll calculate suggested targets — you can always adjust these later.</div>
-      <div class="form-group">
-        <div style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Goal Weight (lbs) — optional</div>
-        <input type="number" id="ob-goal-weight" placeholder="e.g. 170" min="80" max="500" step="0.1" inputmode="decimal"
-          style="width:100%;padding:12px 14px;border:1px solid #E8E8E8;border-radius:10px;font-size:16px;outline:none;box-sizing:border-box"
-          oninput="obCalcSuggested()" />
-      </div>
-      <div class="form-group">
-        <div style="font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Goal Body Fat % — optional</div>
-        <input type="number" id="ob-goal-bf" placeholder="e.g. 15" min="5" max="50" step="0.1" inputmode="decimal"
-          style="width:100%;padding:12px 14px;border:1px solid #E8E8E8;border-radius:10px;font-size:16px;outline:none;box-sizing:border-box" />
-      </div>
-      <!-- Suggested targets -->
-      <div id="ob-suggested" style="display:none;background:#FFF7ED;border-radius:12px;padding:14px;margin-bottom:16px">
-        <div style="font-size:11px;font-weight:700;color:#F97316;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">💡 Suggested Daily Targets</div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);text-align:center;gap:6px">
-          <div><div style="font-size:16px;font-weight:700;color:#0F0F0F" id="ob-sug-cals">—</div><div style="font-size:10px;color:#888">calories</div></div>
-          <div><div style="font-size:16px;font-weight:700;color:#F97316" id="ob-sug-protein">—</div><div style="font-size:10px;color:#888">protein</div></div>
-          <div><div style="font-size:16px;font-weight:700;color:#FB7185" id="ob-sug-carbs">—</div><div style="font-size:10px;color:#888">carbs</div></div>
-          <div><div style="font-size:16px;font-weight:700;color:#FBBF24" id="ob-sug-fat">—</div><div style="font-size:10px;color:#888">fat</div></div>
-        </div>
-        <div style="font-size:11px;color:#888;margin-top:8px;line-height:1.4" id="ob-sug-note"></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <button class="btn" onclick="obBack(3)" style="background:#F4F4F4;color:#0F0F0F">← Back</button>
-        <button class="btn" onclick="obFinish()" style="background:#0F0F0F">Let's go 🚀</button>
-      </div>
+      <div style="font-size:32px;font-weight:800;color:#0F0F0F;letter-spacing:-1px;margin-bottom:12px">Ratio Fitness</div>
+      <div style="font-size:16px;color:#666;line-height:1.5;margin-bottom:40px">Let's personalize your experience.<br>It only takes a minute.</div>
+      <button class="ob-btn-next" style="width:100%;max-width:320px" onclick="obGoTo(1)">Get Started</button>
     </div>
   </div>
+
+  <!-- SCREEN 1: Sex -->
+  <div class="ob-screen" id="obs-1">
+    <div class="ob-progress-bar" id="ob-prog-1"></div>
+    <div class="ob-body">
+      <div class="ob-label">About You</div>
+      <div class="ob-heading">What's your biological sex?</div>
+      <div class="ob-subtext">Used to calculate your calorie needs accurately.</div>
+      <div class="ob-sex-grid">
+        <button class="ob-sex-btn ob-sel" id="ob-sex-male" onclick="obPickSex('male')">Male</button>
+        <button class="ob-sex-btn" id="ob-sex-female" onclick="obPickSex('female')">Female</button>
+      </div>
+    </div>
+    <div class="ob-footer">
+      <button class="ob-btn-back" onclick="obGoTo(0)">&#8592;</button>
+      <button class="ob-btn-next" onclick="obGoTo(2)">Next</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: Age -->
+  <div class="ob-screen" id="obs-2">
+    <div class="ob-progress-bar" id="ob-prog-2"></div>
+    <div class="ob-body">
+      <div class="ob-label">About You</div>
+      <div class="ob-heading">How old are you?</div>
+      <div class="ob-subtext">Your age helps us fine-tune your metabolic rate.</div>
+      <input class="ob-field" id="ob-age" type="number" inputmode="numeric" placeholder="e.g. 35" min="13" max="99" />
+      <div class="ob-error-msg" id="ob-err-2">Please enter a valid age (13-99).</div>
+    </div>
+    <div class="ob-footer">
+      <button class="ob-btn-back" onclick="obGoTo(1)">&#8592;</button>
+      <button class="ob-btn-next" onclick="obValidate(2)">Next</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: Height -->
+  <div class="ob-screen" id="obs-3">
+    <div class="ob-progress-bar" id="ob-prog-3"></div>
+    <div class="ob-body">
+      <div class="ob-label">About You</div>
+      <div class="ob-heading">How tall are you?</div>
+      <div class="ob-subtext">We use this to calculate your BMI and calorie targets.</div>
+      <div class="ob-field-row" style="grid-template-columns:1fr 1fr">
+        <div class="ob-field-wrap">
+          <input class="ob-field" id="ob-height-ft" type="number" inputmode="numeric" placeholder="5" min="3" max="7" style="padding-right:42px" />
+          <span class="ob-field-unit">ft</span>
+        </div>
+        <div class="ob-field-wrap">
+          <input class="ob-field" id="ob-height-in" type="number" inputmode="numeric" placeholder="9" min="0" max="11" style="padding-right:42px" />
+          <span class="ob-field-unit">in</span>
+        </div>
+      </div>
+      <div class="ob-error-msg" id="ob-err-3">Please enter your height (feet required).</div>
+    </div>
+    <div class="ob-footer">
+      <button class="ob-btn-back" onclick="obGoTo(2)">&#8592;</button>
+      <button class="ob-btn-next" onclick="obValidate(3)">Next</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: Current Weight -->
+  <div class="ob-screen" id="obs-4">
+    <div class="ob-progress-bar" id="ob-prog-4"></div>
+    <div class="ob-body">
+      <div class="ob-label">Your Stats</div>
+      <div class="ob-heading">What do you currently weigh?</div>
+      <div class="ob-subtext">You can always update this later - an estimate is fine.</div>
+      <div class="ob-field-wrap">
+        <input class="ob-field" id="ob-weight" type="number" inputmode="decimal" placeholder="e.g. 185" min="80" max="500" step="0.1" style="padding-right:42px" />
+        <span class="ob-field-unit">lbs</span>
+      </div>
+      <div class="ob-error-msg" id="ob-err-4">Please enter your current weight.</div>
+    </div>
+    <div class="ob-footer">
+      <button class="ob-btn-back" onclick="obGoTo(3)">&#8592;</button>
+      <button class="ob-btn-next" onclick="obValidate(4)">Next</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 5: Goal Weight -->
+  <div class="ob-screen" id="obs-5">
+    <div class="ob-progress-bar" id="ob-prog-5"></div>
+    <div class="ob-body">
+      <div class="ob-label">Your Goals</div>
+      <div class="ob-heading">What's your goal weight?</div>
+      <div class="ob-subtext">Helps us calculate your timeline. You can change it anytime.</div>
+      <div class="ob-field-wrap">
+        <input class="ob-field" id="ob-goal-weight" type="number" inputmode="decimal" placeholder="e.g. 170" min="80" max="500" step="0.1" style="padding-right:42px" oninput="obCalcSuggested()" />
+        <span class="ob-field-unit">lbs</span>
+      </div>
+      <div class="ob-error-msg" id="ob-err-5">Please enter a goal weight.</div>
+    </div>
+    <div class="ob-footer">
+      <button class="ob-btn-back" onclick="obGoTo(4)">&#8592;</button>
+      <button class="ob-btn-next" onclick="obValidate(5)">Next</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 6: Activity -->
+  <div class="ob-screen" id="obs-6">
+    <div class="ob-progress-bar" id="ob-prog-6"></div>
+    <div class="ob-body" style="overflow-y:auto">
+      <div class="ob-label">Your Lifestyle</div>
+      <div class="ob-heading">What's your activity level?</div>
+      <div class="ob-subtext">Not counting workouts - we track those separately.</div>
+      <div id="ob-activity-list">
+        <button class="ob-choice" onclick="obPickActivity('sedentary',this)">
+          <div class="ob-choice-title">Sedentary</div>
+          <div class="ob-choice-sub">Desk job, little movement during the day</div>
+        </button>
+        <button class="ob-choice" onclick="obPickActivity('light',this)">
+          <div class="ob-choice-title">Lightly Active</div>
+          <div class="ob-choice-sub">On your feet part of the day (teacher, retail)</div>
+        </button>
+        <button class="ob-choice" onclick="obPickActivity('moderate',this)">
+          <div class="ob-choice-title">Moderately Active</div>
+          <div class="ob-choice-sub">Active job or regular movement throughout day</div>
+        </button>
+        <button class="ob-choice" onclick="obPickActivity('active',this)">
+          <div class="ob-choice-title">Very Active</div>
+          <div class="ob-choice-sub">Heavy physical work, on feet all day</div>
+        </button>
+        <button class="ob-choice" onclick="obPickActivity('athlete',this)">
+          <div class="ob-choice-title">Athlete</div>
+          <div class="ob-choice-sub">2x/day training or extremely demanding job</div>
+        </button>
+      </div>
+      <div class="ob-error-msg" id="ob-err-6">Please select your activity level.</div>
+    </div>
+    <div class="ob-footer">
+      <button class="ob-btn-back" onclick="obGoTo(5)">&#8592;</button>
+      <button class="ob-btn-next" onclick="obValidate(6)">Next</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 7: Goal BF% -->
+  <div class="ob-screen" id="obs-7">
+    <div class="ob-progress-bar" id="ob-prog-7"></div>
+    <div class="ob-body">
+      <div class="ob-label">Your Goals</div>
+      <div class="ob-heading">Target body fat %?</div>
+      <div class="ob-subtext">Optional - skip if you're not sure. Ratio tracks this over time to show your body recomp progress.</div>
+      <div class="ob-field-wrap">
+        <input class="ob-field" id="ob-goal-bf" type="number" inputmode="decimal" placeholder="e.g. 15" min="5" max="50" step="0.1" style="padding-right:42px" />
+        <span class="ob-field-unit">%</span>
+      </div>
+    </div>
+    <div class="ob-footer">
+      <button class="ob-btn-back" onclick="obGoTo(6)">&#8592;</button>
+      <button class="ob-btn-next" onclick="obGoTo(8)">Next</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 8: Plan summary -->
+  <div class="ob-screen" id="obs-8">
+    <div class="ob-progress-bar" id="ob-prog-8"></div>
+    <div class="ob-body">
+      <div class="ob-label">Your Plan</div>
+      <div class="ob-heading">Here's what we calculated for you.</div>
+      <div class="ob-subtext">Based on your stats and goals. Fine-tune these in Settings anytime.</div>
+      <div class="ob-suggest-box">
+        <div class="ob-suggest-row">
+          <div><div class="ob-suggest-val" id="ob-sug-cals">--</div><div class="ob-suggest-lbl">calories</div></div>
+          <div><div class="ob-suggest-val" style="color:#F97316" id="ob-sug-protein">--</div><div class="ob-suggest-lbl">protein</div></div>
+          <div><div class="ob-suggest-val" style="color:#FB7185" id="ob-sug-carbs">--</div><div class="ob-suggest-lbl">carbs</div></div>
+          <div><div class="ob-suggest-val" style="color:#FBBF24" id="ob-sug-fat">--</div><div class="ob-suggest-lbl">fat</div></div>
+        </div>
+        <div class="ob-suggest-note" id="ob-sug-note"></div>
+      </div>
+    </div>
+    <div class="ob-footer">
+      <button class="ob-btn-back" onclick="obGoTo(7)">&#8592;</button>
+      <button class="ob-btn-next" onclick="obFinish()">Let's go &#x1F680;</button>
+    </div>
+  </div>
+
 </div>
 
 <!-- LIGHTBOX -->
@@ -1815,58 +1914,79 @@ function dayScore(cals, protein) {
   return null;
 }
 
-// ONBOARDING
+// ONBOARDING — full-screen per-step flow
 let _obSex = 'male';
-let _obActivity = 'active';
+let _obActivity = null;
+const OB_TOTAL = 8; // total screens after splash
 
-function obSelectSex(sex, btn) {
-  _obSex = sex;
-  document.getElementById('ob-male').classList.toggle('ob-active', sex === 'male');
-  document.getElementById('ob-female').classList.toggle('ob-active', sex === 'female');
-}
-
-function obSelectActivity(activity, btn) {
-  _obActivity = activity;
-  document.querySelectorAll('.ob-activity').forEach(b => b.classList.remove('ob-active'));
-  btn.classList.add('ob-active');
-}
-
-function obSetDot(step) {
-  [1,2,3].forEach(i => {
-    const dot = document.getElementById('ob-dot-' + i);
-    dot.classList.toggle('active', i === step);
-  });
-}
-
-function obNext(fromStep) {
-  if (fromStep === 1) {
-    const age = +document.getElementById('ob-age').value;
-    const ft = +document.getElementById('ob-height-ft').value;
-    const inn = document.getElementById('ob-height-in').value;
-    if (!age || age < 13 || age > 99) { toast('Enter a valid age'); return; }
-    if (!ft) { toast('Enter your height'); return; }
-    document.getElementById('ob-step-1').style.display = 'none';
-    document.getElementById('ob-step-2').style.display = 'block';
-    obSetDot(2);
-  } else if (fromStep === 2) {
-    const weight = +document.getElementById('ob-weight').value;
-    if (!weight || weight < 50) { toast('Enter your current weight'); return; }
-    document.getElementById('ob-step-2').style.display = 'none';
-    document.getElementById('ob-step-3').style.display = 'block';
-    obSetDot(3);
-    obCalcSuggested();
+function obBuildProgress(screenNum) {
+  if (screenNum === 0) return;
+  const bar = document.getElementById('ob-prog-' + screenNum);
+  if (!bar) return;
+  bar.innerHTML = '';
+  for (let i = 1; i <= OB_TOTAL; i++) {
+    const seg = document.createElement('div');
+    seg.className = 'ob-seg' + (i <= screenNum ? ' done' : '');
+    bar.appendChild(seg);
   }
 }
 
-function obBack(fromStep) {
-  if (fromStep === 2) {
-    document.getElementById('ob-step-2').style.display = 'none';
-    document.getElementById('ob-step-1').style.display = 'block';
-    obSetDot(1);
-  } else if (fromStep === 3) {
-    document.getElementById('ob-step-3').style.display = 'none';
-    document.getElementById('ob-step-2').style.display = 'block';
-    obSetDot(2);
+function obGoTo(n) {
+  document.querySelectorAll('.ob-screen').forEach(s => s.classList.remove('ob-active-screen'));
+  const screen = document.getElementById('obs-' + n);
+  if (screen) {
+    screen.classList.add('ob-active-screen');
+    obBuildProgress(n);
+    screen.scrollTop = 0;
+    document.getElementById('onboarding-modal').scrollTop = 0;
+  }
+  // Auto-calc when hitting summary
+  if (n === 8) obCalcSuggested();
+}
+
+function obPickSex(sex) {
+  _obSex = sex;
+  document.getElementById('ob-sex-male').classList.toggle('ob-sel', sex === 'male');
+  document.getElementById('ob-sex-female').classList.toggle('ob-sel', sex === 'female');
+}
+
+function obPickActivity(activity, btn) {
+  _obActivity = activity;
+  document.querySelectorAll('#ob-activity-list .ob-choice').forEach(b => b.classList.remove('ob-sel'));
+  btn.classList.add('ob-sel');
+  document.getElementById('ob-err-6').style.display = 'none';
+}
+
+function obShowErr(n, msg) {
+  const el = document.getElementById('ob-err-' + n);
+  if (el) { el.textContent = msg || el.textContent; el.style.display = 'block'; }
+}
+function obHideErr(n) {
+  const el = document.getElementById('ob-err-' + n);
+  if (el) el.style.display = 'none';
+}
+
+function obValidate(screen) {
+  obHideErr(screen);
+  if (screen === 2) {
+    const age = +document.getElementById('ob-age').value;
+    if (!age || age < 13 || age > 99) { obShowErr(2); return; }
+    obGoTo(3);
+  } else if (screen === 3) {
+    const ft = +document.getElementById('ob-height-ft').value;
+    if (!ft || ft < 3 || ft > 7) { obShowErr(3); return; }
+    obGoTo(4);
+  } else if (screen === 4) {
+    const w = +document.getElementById('ob-weight').value;
+    if (!w || w < 50 || w > 700) { obShowErr(4); return; }
+    obGoTo(5);
+  } else if (screen === 5) {
+    const gw = +document.getElementById('ob-goal-weight').value;
+    if (!gw || gw < 50 || gw > 700) { obShowErr(5); return; }
+    obGoTo(6);
+  } else if (screen === 6) {
+    if (!_obActivity) { obShowErr(6, 'Please select your activity level.'); return; }
+    obGoTo(7);
   }
 }
 
@@ -1885,81 +2005,41 @@ function obCalcSuggested() {
     ? 10 * weightKg + 6.25 * heightCm - 5 * age + 5
     : 10 * weightKg + 6.25 * heightCm - 5 * age - 161;
   const multipliers = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, athlete: 1.9 };
-  const tdee = Math.round(bmr * (multipliers[_obActivity] || 1.55));
+  const tdee = Math.round(bmr * (multipliers[_obActivity || 'moderate'] || 1.55));
 
-  // Deficit based on goal
-  let deficit = 500; // default moderate deficit
-  let note = 'Moderate deficit for steady fat loss (~0.5–1 lb/week).';
+  let deficit = 500;
+  let note = 'Moderate deficit for steady fat loss (~0.5-1 lb/week).';
   if (goalWeight && goalWeight < weight) {
     const lbsToLose = weight - goalWeight;
-    if (lbsToLose <= 10) { deficit = 350; note = 'Small deficit — close to goal weight. Slow and steady.'; }
-    else if (lbsToLose <= 25) { deficit = 500; note = 'Moderate deficit for steady fat loss (~0.5–1 lb/week).'; }
+    if (lbsToLose <= 10) { deficit = 350; note = 'Small deficit - close to goal weight. Slow and steady wins.'; }
+    else if (lbsToLose <= 25) { deficit = 500; note = 'Moderate deficit for steady fat loss (~0.5-1 lb/week).'; }
     else { deficit = 750; note = 'Larger deficit for faster progress. Prioritize protein to protect muscle.'; }
-  } else if (!goalWeight) {
-    deficit = 500;
-    note = 'Moderate deficit. Set a goal weight for a more tailored target.';
+  } else if (goalWeight && goalWeight >= weight) {
+    deficit = 0; note = 'Maintenance or recomp calories. Focus on protein and training.';
   }
 
-  const cals = tdee - deficit;
-  const leanMass = weight * 0.83; // rough estimate ~17% bf
-  const protein = Math.round(leanMass * 1.1);
+  const cals = Math.max(1200, tdee - deficit);
+  const leanMass = weight * 0.83;
+  const protein = Math.round(Math.max(leanMass * 1.0, cals * 0.30 / 4));
   const fat = Math.round(cals * 0.25 / 9);
-  const carbs = Math.round((cals - protein * 4 - fat * 9) / 4);
+  const carbs = Math.max(0, Math.round((cals - protein * 4 - fat * 9) / 4));
 
   document.getElementById('ob-sug-cals').textContent = cals.toLocaleString();
   document.getElementById('ob-sug-protein').textContent = protein + 'g';
-  document.getElementById('ob-sug-carbs').textContent = Math.max(0, carbs) + 'g';
+  document.getElementById('ob-sug-carbs').textContent = carbs + 'g';
   document.getElementById('ob-sug-fat').textContent = fat + 'g';
   document.getElementById('ob-sug-note').textContent = note;
-  document.getElementById('ob-suggested').style.display = 'block';
 
-  // Store for finish
-  window._obSuggestedTargets = { calories: cals, protein, carbs: Math.max(0, carbs), fat };
+  window._obSuggestedTargets = { calories: cals, protein, carbs, fat };
 }
 
-async function obFinish() {
-  const age = +document.getElementById('ob-age').value;
-  const ft = +document.getElementById('ob-height-ft').value;
-  const inn = +(document.getElementById('ob-height-in').value || 0);
-  const weight = +document.getElementById('ob-weight').value;
-  const goalWeight = +document.getElementById('ob-goal-weight').value || null;
-  const goalBf = +document.getElementById('ob-goal-bf').value || null;
+// Keep legacy stubs so any residual onclick refs don't throw
+function obSelectSex(sex, btn) { obPickSex(sex); }
+function obSelectActivity(activity, btn) { obPickActivity(activity, btn); }
+function obSetDot(step) {}
+function obNext(fromStep) { obGoTo(fromStep + 1); }
+function obBack(fromStep) { obGoTo(fromStep - 1); }
 
-  // Save profile
-  const profile = { heightIn: ft * 12 + inn, age, gender: _obSex, activity: _obActivity };
-  userProfile = profile;
-  localStorage.setItem('ff_profile', JSON.stringify(profile));
-
-  // Save targets (use suggested or defaults)
-  const t = window._obSuggestedTargets || { calories: 2000, protein: 150, carbs: 150, fat: 65 };
-  userTargets = t;
-  TARGETS.calories = t.calories; TARGETS.protein = t.protein; TARGETS.carbs = t.carbs; TARGETS.fat = t.fat;
-  await saveSetting('targets', t);
-
-  // Save goals
-  userGoals = {
-    weightStart: weight, weightGoal: goalWeight,
-    bfCurrent: null, bfGoal: goalBf,
-    bfTrackingOn: true,
-    muscleCurrent: null, muscleGoal: null, muscleMethod: null
-  };
-  await saveSetting('goals', userGoals);
-
-  // Log starting weight as first scan entry
-  if (weight) {
-    try { await dbPost('scans', { date: today, weight }); } catch(e) {}
-  }
-
-  // Mark onboarding complete
-  localStorage.setItem('ff_onboarded', '1');
-  await Promise.all([saveSetting('goals', userGoals), saveSetting('targets', userTargets), saveSetting('profile', userProfile)]);
-  localStorage.setItem('ff_onboarded', '1');
-  document.getElementById('onboarding-modal').style.display = 'none';
-
-  // Now fully init the app
-  logDate = today;
-  await appInit();
-}
 
 // INIT
 async function init() {
@@ -2237,7 +2317,7 @@ async function appInit() {
   const hasProfile = await loadSetting('profile');
   const hasGoals = await loadSetting('goals');
   if (!hasProfile && !hasGoals) {
-    document.getElementById('onboarding-modal').style.display = 'flex';
+    document.getElementById('onboarding-modal').style.display = 'block';
     return; // obFinish() will call appInit() again after onboarding
   }
 
