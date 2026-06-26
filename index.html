@@ -1953,9 +1953,11 @@ async function obFinish() {
   // Mark onboarding complete
   localStorage.setItem('ff_onboarded', '1');
   await Promise.all([saveSetting('goals', userGoals), saveSetting('targets', userTargets), saveSetting('profile', userProfile)]);
+  localStorage.setItem('ff_onboarded', '1');
   document.getElementById('onboarding-modal').style.display = 'none';
 
   // Now fully init the app
+  logDate = today;
   await appInit();
 }
 
@@ -2230,6 +2232,15 @@ async function appInit() {
   logDate = today;
   updateDailyQuote();
   await loadGoals();
+
+  // Check if new user needs onboarding (no goals saved in Supabase yet)
+  const hasProfile = await loadSetting('profile');
+  const hasGoals = await loadSetting('goals');
+  if (!hasProfile && !hasGoals) {
+    document.getElementById('onboarding-modal').style.display = 'flex';
+    return; // obFinish() will call appInit() again after onboarding
+  }
+
   updateGoalsDisplay();
   updateLogDateDisplay();
   const todayDateEl = document.getElementById('today-date');
@@ -2619,7 +2630,8 @@ async function addWorkout() {
   await dbPost('workouts', w);
   ['workout-name','workout-duration','workout-cals'].forEach(id => document.getElementById(id).value = ''); document.getElementById('workout-form').style.display='none'; document.getElementById('add-workout-btn').style.display='block';
   await loadTodayWorkouts();
-  toast('Workout added ✓');
+  const _wm = ["💪 Beast mode! Keep crushing it!","🔥 That's what I'm talking about!","⚡ You just earned those macros!","🏆 Another one in the books!","💥 Stronger than yesterday!","🎯 Consistency is the game — you're winning!","🚀 That's how it's done!","😤 No days off. Let's go!","🏋️ The work is done. Now recover!","⚡ Every rep counts!"];
+  toast(_wm[Math.floor(Math.random() * _wm.length)]);
 }
 
 // HISTORY - handled by loadDayTotals() and renderCalendar()
@@ -2792,7 +2804,8 @@ async function addWorkoutToHistoryDay() {
   });
   ['hist-workout-name','hist-workout-duration','hist-workout-cals'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('hist-add-workout-form').style.display = 'none'; document.getElementById('hist-add-workout-btn').style.display = 'block';
-  toast('Workout added ✓');
+  const _wm3 = ["💪 Beast mode! Keep crushing it!","🔥 That's what I'm talking about!","⚡ You just earned those macros!","🏆 Another one in the books!","💥 Stronger than yesterday!","🎯 Consistency is the game — you're winning!","🚀 That's how it's done!","😤 No days off. Let's go!","🏋️ The work is done. Now recover!","⚡ Every rep counts!"];
+  toast(_wm3[Math.floor(Math.random() * _wm3.length)]);
   showHistoryDetail(window._historyDate);
 }
 
