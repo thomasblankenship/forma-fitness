@@ -1999,6 +1999,8 @@ async function init() {
   if (session) {
     _authToken = session.access_token;
     _currentUser = session.user;
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app-shell').style.display = 'block';
     await appInit();
   } else {
     showAuthScreen();
