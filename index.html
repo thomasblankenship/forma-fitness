@@ -181,6 +181,10 @@
       </div>
       <div style="font-size:24px;font-weight:800;color:#0F0F0F;letter-spacing:-0.5px">Ratio Fitness</div>
       <div style="font-size:13px;color:#ADADAD;margin-top:4px">Track your nutrition & body composition</div>
+      <div style="margin-top:20px;padding:0 8px">
+        <div id="login-quote-text" style="font-size:14px;font-weight:700;font-style:italic;color:#F97316;line-height:1.5;margin-bottom:4px"></div>
+        <div id="login-quote-author" style="font-size:11px;font-weight:600;color:#ADADAD"></div>
+      </div>
     </div>
     <div style="display:flex;gap:0;border-bottom:2px solid #F4F4F4;margin-bottom:24px">
       <button id="auth-tab-login" onclick="showAuthTab('login')" style="flex:1;padding:10px;background:none;border:none;font-size:15px;font-weight:700;color:#0F0F0F;cursor:pointer;border-bottom:2px solid var(--accent);margin-bottom:-2px">Sign In</button>
@@ -242,12 +246,9 @@
     <div id="tab-today">
 
       <!-- MOTIVATIONAL QUOTE -->
-      <div id="quote-card" style="background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:16px;padding:20px;margin-bottom:12px;position:relative;overflow:hidden">
-        <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:rgba(249,115,22,0.15);border-radius:50%"></div>
-        <div style="position:absolute;bottom:-30px;left:-10px;width:80px;height:80px;background:rgba(251,113,133,0.1);border-radius:50%"></div>
-        <div id="quote-emoji" style="font-size:24px;margin-bottom:10px">💪</div>
-        <div id="quote-text" style="font-size:15px;font-weight:600;color:white;line-height:1.5;margin-bottom:8px;position:relative"></div>
-        <div id="quote-author" style="font-size:11px;color:rgba(255,255,255,0.45);font-style:italic;position:relative"></div>
+      <div id="quote-card" style="padding:16px 4px;margin-bottom:4px">
+        <div id="quote-text" style="font-size:16px;font-weight:700;font-style:italic;color:#F97316;line-height:1.5;margin-bottom:6px"></div>
+        <div id="quote-author" style="font-size:12px;font-weight:600;color:#ADADAD"></div>
       </div>
 
       <!-- CALORIE RING HERO -->
@@ -1959,6 +1960,7 @@ async function obFinish() {
 
 // INIT
 async function init() {
+  updateDailyQuote();
   // Parse URL hash for Supabase auth redirects
   const hash = window.location.hash;
   if (hash) {
@@ -2264,15 +2266,19 @@ const QUOTES = [
 function updateDailyQuote() {
   const el = document.getElementById('quote-text');
   const authorEl = document.getElementById('quote-author');
-  const emojiEl = document.getElementById('quote-emoji');
   if (!el) return;
-  // Pick quote based on day of year so it changes daily but is consistent
+  // Pick quote based on day of year — consistent all day, changes daily
   const now = new Date();
   const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
   const quote = QUOTES[dayOfYear % QUOTES.length];
   el.textContent = `"${quote.text}"`;
   authorEl.textContent = quote.author !== 'Unknown' ? `— ${quote.author}` : '';
-  emojiEl.textContent = quote.emoji;
+  // Login screen gets a different quote (offset by half the list)
+  const loginQuote = QUOTES[(dayOfYear + Math.floor(QUOTES.length / 2)) % QUOTES.length];
+  const loginEl = document.getElementById('login-quote-text');
+  const loginAuthorEl = document.getElementById('login-quote-author');
+  if (loginEl) loginEl.textContent = `"${loginQuote.text}"`;
+  if (loginAuthorEl) loginAuthorEl.textContent = loginQuote.author !== 'Unknown' ? `— ${loginQuote.author}` : '';
 }
 
 // TODAY
