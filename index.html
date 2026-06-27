@@ -1439,10 +1439,8 @@
 </div>
 
 <!-- ONBOARDING MODAL -->
-<div id="onboarding-modal" style="display:none;position:fixed;inset:0;z-index:900;background:white">
-
-  <!-- Step 1: Welcome + Goal Type -->
-  <div class="ob-screen" id="ob-step-1" style="position:fixed;inset:0;background:white;display:flex;flex-direction:column;padding:0;z-index:901">
+<!-- ONBOARDING SCREENS (no wrapper - direct body children to avoid stacking context) -->
+<div class="ob-screen" id="ob-step-1" style="position:fixed;inset:0;background:white;display:flex;flex-direction:column;padding:0;z-index:901">
     <div style="padding:24px 24px 0;flex:1;display:flex;flex-direction:column">
       <!-- Progress bar -->
       <div style="display:flex;gap:4px;margin-bottom:32px">
@@ -1777,7 +1775,6 @@
       <button onclick="dismissCheckin()" style="width:100%;padding:12px;background:none;border:none;font-size:14px;color:#ADADAD;cursor:pointer">Maybe later</button>
     </div>
   </div>
-</div>
 
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
@@ -2061,11 +2058,7 @@ const OB_ACTIVITY_MULTIPLIERS = {
 };
 
 function obShowStep(n) {
-  const modal = document.getElementById('onboarding-modal');
-  if (modal) {
-    modal.style.display = 'flex';
-    modal.querySelectorAll('.ob-screen').forEach(el => { el.style.display = 'none'; });
-  }
+  document.querySelectorAll('.ob-screen').forEach(el => { el.style.display = 'none'; });
   const el = document.getElementById('ob-step-' + n);
   if (el) { el.style.display = 'flex'; el.style.flexDirection = 'column'; }
   _obCurrentStep = n;
@@ -2441,18 +2434,13 @@ function showAuthTab(tab) {
 function startSignup() {
   console.log('[Ratio] startSignup called');
   document.getElementById('auth-screen').style.display = 'none';
-  const modal = document.getElementById('onboarding-modal');
-  modal.style.display = 'flex';
-  modal.style.flexDirection = 'column';
-  // Hide all steps first, then show step 1
-  modal.querySelectorAll('.ob-screen').forEach(el => { el.style.display = 'none'; });
+  // Hide all onboarding screens, then show step 1
+  document.querySelectorAll('.ob-screen').forEach(el => { el.style.display = 'none'; });
   const step1 = document.getElementById('ob-step-1');
-  if (step1) { 
-    step1.style.display = 'flex'; 
+  if (step1) {
+    step1.style.display = 'flex';
     step1.style.flexDirection = 'column';
-    console.log('[Ratio] step1 display set to flex, computed visible:', step1.offsetHeight > 0);
-  } else {
-    console.error('[Ratio] ob-step-1 NOT FOUND');
+    console.log('[Ratio] step1 visible:', step1.offsetHeight > 0);
   }
   _obCurrentStep = 1;
 }
@@ -2501,11 +2489,11 @@ async function handleSignUp() {
       // Auto-confirmed (email confirmation disabled)
       _authToken = data.access_token;
       _currentUser = data.user;
-      document.getElementById('onboarding-modal').style.display = 'none';
+      document.querySelectorAll('.ob-screen').forEach(el => { el.style.display = 'none'; });
       await obSaveAndWelcome();
     } else {
       // Email confirmation required
-      document.getElementById('onboarding-modal').style.display = 'none';
+      document.querySelectorAll('.ob-screen').forEach(el => { el.style.display = 'none'; });
       document.getElementById('auth-screen').style.display = 'flex';
       document.getElementById('auth-landing').style.display = 'none';
       document.getElementById('auth-signin-panel').style.display = 'none';
@@ -2637,7 +2625,7 @@ async function obSaveAndWelcome() {
 
 async function obFinish() {
   // Called from step 8 "Let's Start Tracking" button - go to welcome screen
-  document.getElementById('onboarding-modal').style.display = 'none';
+  document.querySelectorAll('.ob-screen').forEach(el => { el.style.display = 'none'; });
   await showWelcomeScreen();
 }
 
@@ -2689,7 +2677,7 @@ async function appInit() {
   const hasProfile = await loadSetting('profile');
   const hasGoals = await loadSetting('goals');
   if (!hasProfile && !hasGoals) {
-    document.getElementById('onboarding-modal').style.display = 'flex';
+    startSignup();
     return; // obFinish() will call appInit() again after onboarding
   }
 
