@@ -2204,6 +2204,218 @@ function obBack(step) {
 }
 
 
+// AUTH FUNCTIONS
+async function getSession() {
+  try {
+    const stored = localStorage.getItem('sb_session');
+    if (!stored) return null;
+    const session = JSON.parse(stored);
+    if (!session?.access_token) return null;
+    if (session.expires_at && Date.now() / 1000 > session.expires_at - 300) {
+      if (!session.refresh_token) { localStorage.removeItem('sb_session'); return null; }
+      const refreshed = await refreshSession(session.refresh_token);
+      if (refreshed) return refreshed;
+      localStorage.removeItem('sb_session');
+      return null;
+    }
+    return session;
+  } catch(e) { return null; }
+}
+
+async function refreshSession(refreshToken) {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refreshToken })
+    });
+    if (!res.ok) return null;
+    const session = await res.json();
+    if (session.expires_in && !session.expires_at) session.expires_at = Math.floor(Date.now() / 1000) + session.expires_in;
+    localStorage.setItem('sb_session', JSON.stringify(session));
+    _authToken = session.access_token;
+    _currentUser = session.user;
+    return session;
+  } catch(e) { return null; }
+}
+
+async function signIn(email, password) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error_description || data.msg || 'Login failed');
+  if (data.expires_in && !data.expires_at) data.expires_at = Math.floor(Date.now() / 1000) + data.expires_in;
+  localStorage.setItem('sb_session', JSON.stringify(data));
+  _authToken = data.access_token;
+  _currentUser = data.user;
+  return data;
+}
+
+async function signUp(email, password) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error_description || data.msg || 'Sign up failed');
+  if (data.access_token) {
+    if (data.expires_in && !data.expires_at) data.expires_at = Math.floor(Date.now() / 1000) + data.expires_in;
+    localStorage.setItem('sb_session', JSON.stringify(data));
+    _authToken = data.access_token;
+    _currentUser = data.user;
+  }
+  return data;
+}
+
+async function resetPassword(email) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+  if (!res.ok) { const d = await res.json(); throw new Error(d.error_description || 'Reset failed'); }
+}
+
+async function signOut() {
+  try {
+    await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${_authToken}` }
+    });
+  } catch(e) {}
+  localStorage.removeItem('sb_session');
+  _authToken = null;
+  _currentUser = null;
+  showAuthScreen();
+}
+
+function showAuthScreen() {
+  document.getElementById('app-shell').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  const emailEl = document.getElementById('auth-email');
+  const passEl = document.getElementById('auth-password');
+  if (emailEl) emailEl.value = '';
+  if (passEl) passEl.value = '';
+  document.getElementById('auth-error').textContent = '';
+  showAuthTab('login');
+}
+
+function showAuthTab(tab) {
+  document.getElementById('auth-login-form').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('auth-signup-form').style.display = tab === 'signup' ? 'block' : 'none';
+  document.getElementById('auth-reset-form').style.display = tab === 'reset' ? 'block' : 'none';
+  document.getElementById('auth-tab-login').style.fontWeight = tab === 'login' ? '700' : '400';
+  document.getElementById('auth-tab-login').style.color = tab === 'login' ? '#0F0F0F' : '#ADADAD';
+  document.getElementById('auth-tab-signup').style.fontWeight = tab === 'signup' ? '700' : '400';
+  document.getElementById('auth-tab-signup').style.color = tab === 'signup' ? '#0F0F0F' : '#ADADAD';
+  document.getElementById('auth-error').textContent = '';
+}
+
+async function handleLogin() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const btn = document.getElementById('auth-login-btn');
+  const errEl = document.getElementById('auth-error');
+  if (!email || !password) { errEl.textContent = 'Enter email and password'; return; }
+  btn.textContent = 'Signing in...'; btn.disabled = true;
+  try {
+    await signIn(email, password);
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app-shell').style.display = 'block';
+    await appInit();
+  } catch(e) {
+    errEl.textContent = e.message;
+  } finally {
+    btn.textContent = 'Sign In'; btn.disabled = false;
+  }
+}
+
+async function handleSignUp() {
+  const email = document.getElementById('auth-signup-email').value.trim();
+  const password = document.getElementById('auth-signup-password').value;
+  const confirm = document.getElementById('auth-signup-confirm').value;
+  const btn = document.getElementById('auth-signup-btn');
+  const errEl = document.getElementById('auth-error');
+  if (!email || !password) { errEl.textContent = 'Enter email and password'; return; }
+  if (password !== confirm) { errEl.textContent = 'Passwords do not match'; return; }
+  if (password.length < 6) { errEl.textContent = 'Password must be at least 6 characters'; return; }
+  btn.textContent = 'Creating account...'; btn.disabled = true;
+  try {
+    const data = await signUp(email, password);
+    if (data.access_token) {
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('app-shell').style.display = 'block';
+      await appInit();
+    } else {
+      errEl.style.color = '#16A34A';
+      errEl.textContent = 'Check your email to confirm your account, then sign in.';
+      showAuthTab('login');
+    }
+  } catch(e) {
+    errEl.style.color = '#EF4444';
+    errEl.textContent = e.message;
+  } finally {
+    btn.textContent = 'Create Account'; btn.disabled = false;
+  }
+}
+
+async function handleResetPassword() {
+  const email = document.getElementById('auth-reset-email').value.trim();
+  const btn = document.getElementById('auth-reset-btn');
+  const errEl = document.getElementById('auth-error');
+  if (!email) { errEl.textContent = 'Enter your email'; return; }
+  btn.textContent = 'Sending...'; btn.disabled = true;
+  try {
+    await resetPassword(email);
+    errEl.style.color = '#16A34A';
+    errEl.textContent = 'Password reset email sent — check your inbox.';
+  } catch(e) {
+    errEl.style.color = '#EF4444';
+    errEl.textContent = e.message;
+  } finally {
+    btn.textContent = 'Send Reset Email'; btn.disabled = false;
+  }
+}
+
+function showChangePasswordForm(token) {
+  document.getElementById('auth-login-form').innerHTML = `
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:16px;font-weight:700;margin-bottom:4px">Set New Password</div>
+      <div style="font-size:13px;color:#ADADAD">Enter your new password below</div>
+    </div>
+    <div style="margin-bottom:12px"><input id="new-password" type="password" placeholder="New password (min 6 chars)" style="width:100%;padding:14px 16px;border:1px solid #E8E8E8;border-radius:12px;font-size:15px;outline:none;box-sizing:border-box" /></div>
+    <div style="margin-bottom:16px"><input id="new-password-confirm" type="password" placeholder="Confirm new password" style="width:100%;padding:14px 16px;border:1px solid #E8E8E8;border-radius:12px;font-size:15px;outline:none;box-sizing:border-box" /></div>
+    <button onclick="handleChangePassword('${token}')" style="width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer">Update Password</button>
+  `;
+}
+
+async function handleChangePassword(token) {
+  const pw = document.getElementById('new-password').value;
+  const confirm = document.getElementById('new-password-confirm').value;
+  const errEl = document.getElementById('auth-error');
+  if (!pw || pw.length < 6) { errEl.textContent = 'Password must be at least 6 characters'; return; }
+  if (pw !== confirm) { errEl.textContent = 'Passwords do not match'; return; }
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      method: 'PUT',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    });
+    if (!res.ok) { const d = await res.json(); throw new Error(d.msg || 'Update failed'); }
+    errEl.style.color = '#16A34A';
+    errEl.textContent = 'Password updated! Please sign in.';
+    setTimeout(() => { showAuthTab('login'); }, 2000);
+  } catch(e) {
+    errEl.style.color = '#EF4444';
+    errEl.textContent = e.message;
+  }
+}
+
+
 // INIT
 async function init() {
   updateDailyQuote();
