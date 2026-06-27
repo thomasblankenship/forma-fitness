@@ -174,43 +174,69 @@
   </style>
 </head>
 <body>
-<div id="auth-screen" style="display:none;position:fixed;inset:0;background:white;z-index:1000;flex-direction:column;align-items:center;justify-content:center;padding:24px">
-  <div style="width:100%;max-width:380px">
-    <div style="text-align:center;margin-bottom:32px">
-      <div style="width:56px;height:56px;background:var(--accent);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="5" height="18" rx="1" fill="white"/><rect x="10" y="8" width="5" height="13" rx="1" fill="white" opacity="0.8"/><rect x="17" y="13" width="4" height="8" rx="1" fill="white" opacity="0.6"/></svg>
+<div id="auth-screen" style="display:none;position:fixed;inset:0;background:white;z-index:1000;flex-direction:column;overflow:hidden">
+
+  <!-- LANDING PAGE -->
+  <div id="auth-landing" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:60px 28px 48px">
+    <div style="text-align:center">
+      <div style="width:72px;height:72px;background:var(--accent);border-radius:20px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 8px 24px rgba(249,115,22,0.3)">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="5" height="18" rx="1" fill="white"/><rect x="10" y="8" width="5" height="13" rx="1" fill="white" opacity="0.8"/><rect x="17" y="13" width="4" height="8" rx="1" fill="white" opacity="0.6"/></svg>
       </div>
-      <div style="font-size:24px;font-weight:800;color:#0F0F0F;letter-spacing:-0.5px">Ratio Fitness</div>
-      <div style="font-size:13px;color:#ADADAD;margin-top:4px">Track your nutrition & body composition</div>
-      <div style="margin-top:20px;padding:0 8px">
-        <div id="login-quote-text" style="font-size:14px;font-weight:700;font-style:italic;color:#F97316;line-height:1.5;margin-bottom:4px"></div>
-        <div id="login-quote-author" style="font-size:11px;font-weight:600;color:#ADADAD"></div>
+      <div style="font-size:32px;font-weight:800;color:#0F0F0F;letter-spacing:-1px;margin-bottom:8px">Ratio Fitness</div>
+      <div style="font-size:15px;color:#ADADAD;line-height:1.5;max-width:260px;margin:0 auto">Track your nutrition & body composition</div>
+      <div style="margin-top:28px;padding:0 8px">
+        <div id="login-quote-text" style="font-size:15px;font-weight:700;font-style:italic;color:#F97316;line-height:1.6;margin-bottom:4px"></div>
+        <div id="login-quote-author" style="font-size:12px;font-weight:600;color:#ADADAD"></div>
       </div>
     </div>
-    <div style="display:flex;gap:0;border-bottom:2px solid #F4F4F4;margin-bottom:24px">
-      <button id="auth-tab-login" onclick="showAuthTab('login')" style="flex:1;padding:10px;background:none;border:none;font-size:15px;font-weight:700;color:#0F0F0F;cursor:pointer;border-bottom:2px solid var(--accent);margin-bottom:-2px">Sign In</button>
-      <button id="auth-tab-signup" onclick="showAuthTab('signup')" style="flex:1;padding:10px;background:none;border:none;font-size:15px;font-weight:400;color:#ADADAD;cursor:pointer">Create Account</button>
-    </div>
-    <div id="auth-error" style="font-size:13px;color:#EF4444;margin-bottom:12px;text-align:center;min-height:20px"></div>
-    <div id="auth-login-form">
-      <div style="margin-bottom:12px"><input id="auth-email" type="email" placeholder="Email" autocomplete="email" style="width:100%;padding:14px 16px;border:1px solid #E8E8E8;border-radius:12px;font-size:15px;outline:none;box-sizing:border-box" /></div>
-      <div style="margin-bottom:16px"><input id="auth-password" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;padding:14px 16px;border:1px solid #E8E8E8;border-radius:12px;font-size:15px;outline:none;box-sizing:border-box" onkeydown="if(event.key==='Enter')handleLogin()" /></div>
-      <button id="auth-login-btn" onclick="handleLogin()" style="width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:12px">Sign In</button>
-      <button onclick="showAuthTab('reset')" style="width:100%;padding:10px;background:none;border:none;font-size:13px;color:#ADADAD;cursor:pointer">Forgot password?</button>
-    </div>
-    <div id="auth-signup-form" style="display:none">
-      <div style="margin-bottom:12px"><input id="auth-signup-email" type="email" placeholder="Email" autocomplete="email" style="width:100%;padding:14px 16px;border:1px solid #E8E8E8;border-radius:12px;font-size:15px;outline:none;box-sizing:border-box" /></div>
-      <div style="margin-bottom:12px"><input id="auth-signup-password" type="password" placeholder="Password (min 6 characters)" style="width:100%;padding:14px 16px;border:1px solid #E8E8E8;border-radius:12px;font-size:15px;outline:none;box-sizing:border-box" /></div>
-      <div style="margin-bottom:16px"><input id="auth-signup-confirm" type="password" placeholder="Confirm password" style="width:100%;padding:14px 16px;border:1px solid #E8E8E8;border-radius:12px;font-size:15px;outline:none;box-sizing:border-box" onkeydown="if(event.key==='Enter')handleSignUp()" /></div>
-      <button id="auth-signup-btn" onclick="handleSignUp()" style="width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer">Create Account</button>
-    </div>
-    <div id="auth-reset-form" style="display:none">
-      <div style="text-align:center;margin-bottom:16px;font-size:13px;color:#666">Enter your email and we'll send you a reset link.</div>
-      <div style="margin-bottom:16px"><input id="auth-reset-email" type="email" placeholder="Email" style="width:100%;padding:14px 16px;border:1px solid #E8E8E8;border-radius:12px;font-size:15px;outline:none;box-sizing:border-box" /></div>
-      <button id="auth-reset-btn" onclick="handleResetPassword()" style="width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:12px">Send Reset Email</button>
-      <button onclick="showAuthTab('login')" style="width:100%;padding:10px;background:none;border:none;font-size:13px;color:#ADADAD;cursor:pointer">← Back to Sign In</button>
+    <div style="width:100%;max-width:380px">
+      <button onclick="startSignup()" style="width:100%;padding:18px;background:#F97316;color:white;border:none;border-radius:14px;font-size:17px;font-weight:800;cursor:pointer;margin-bottom:12px;box-shadow:0 4px 16px rgba(249,115,22,0.3)">Get Started</button>
+      <button onclick="showSignIn()" style="width:100%;padding:14px;background:none;border:none;font-size:15px;color:#666;cursor:pointer;font-weight:500">Already have an account? <span style="color:#F97316;font-weight:700">Sign In</span></button>
     </div>
   </div>
+
+  <!-- SIGN IN FORM -->
+  <div id="auth-signin-panel" style="display:none;flex:1;flex-direction:column;padding:48px 28px 40px">
+    <div style="max-width:380px;width:100%;margin:0 auto;display:flex;flex-direction:column;height:100%">
+      <button onclick="showLanding()" style="background:none;border:none;font-size:24px;color:#ADADAD;cursor:pointer;text-align:left;margin-bottom:24px;padding:0">←</button>
+      <div style="font-size:28px;font-weight:800;color:#0F0F0F;letter-spacing:-0.5px;margin-bottom:4px">Welcome back</div>
+      <div style="font-size:14px;color:#ADADAD;margin-bottom:32px">Sign in to your account</div>
+      <div id="auth-error" style="font-size:13px;color:#EF4444;margin-bottom:12px;min-height:20px;text-align:center"></div>
+      <div id="auth-login-form">
+        <div style="margin-bottom:12px"><input id="auth-email" type="email" placeholder="Email" autocomplete="email" style="width:100%;padding:14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:15px;outline:none;box-sizing:border-box" /></div>
+        <div style="margin-bottom:20px"><input id="auth-password" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;padding:14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:15px;outline:none;box-sizing:border-box" onkeydown="if(event.key==='Enter')handleLogin()" /></div>
+        <button id="auth-login-btn" onclick="handleLogin()" style="width:100%;padding:16px;background:#F97316;color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:12px">Sign In</button>
+        <button onclick="showResetForm()" style="width:100%;padding:10px;background:none;border:none;font-size:13px;color:#ADADAD;cursor:pointer">Forgot password?</button>
+      </div>
+      <div id="auth-reset-form" style="display:none">
+        <div style="font-size:14px;color:#666;margin-bottom:20px;line-height:1.5">Enter your email and we'll send you a link to reset your password.</div>
+        <div style="margin-bottom:16px"><input id="auth-reset-email" type="email" placeholder="Email" style="width:100%;padding:14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:15px;outline:none;box-sizing:border-box" /></div>
+        <button id="auth-reset-btn" onclick="handleResetPassword()" style="width:100%;padding:16px;background:#F97316;color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:12px">Send Reset Link</button>
+        <button onclick="showSignIn()" style="width:100%;padding:10px;background:none;border:none;font-size:13px;color:#ADADAD;cursor:pointer">← Back to Sign In</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VERIFY EMAIL SCREEN -->
+  <div id="auth-verify-panel" style="display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;text-align:center">
+    <div style="font-size:56px;margin-bottom:20px">📧</div>
+    <div style="font-size:24px;font-weight:800;color:#0F0F0F;margin-bottom:8px">Check your email</div>
+    <div id="auth-verify-email-text" style="font-size:15px;color:#666;line-height:1.6;margin-bottom:32px">We sent a verification link to your email. Click it to activate your account, then sign in below.</div>
+    <button onclick="showSignIn()" style="width:100%;max-width:380px;padding:16px;background:#F97316;color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer">Go to Sign In</button>
+  </div>
+
+</div>
+
+<!-- WELCOME SCREEN (shown first time after signup) -->
+<div id="welcome-screen" style="display:none;position:fixed;inset:0;background:linear-gradient(160deg,#FFF7ED,#fff);z-index:800;flex-direction:column;align-items:center;justify-content:center;padding:36px 28px;text-align:center">
+  <div style="font-size:52px;margin-bottom:20px">🎉</div>
+  <div style="font-size:13px;font-weight:700;color:#F97316;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Your plan is ready</div>
+  <div id="welcome-name" style="font-size:30px;font-weight:800;color:#0F0F0F;letter-spacing:-0.5px;margin-bottom:20px"></div>
+  <div id="welcome-message" style="font-size:16px;color:#666;line-height:1.7;margin-bottom:32px"></div>
+  <div style="background:white;border-radius:16px;padding:20px;width:100%;max-width:380px;box-shadow:0 2px 12px rgba(0,0,0,0.06);margin-bottom:32px">
+    <div id="welcome-stats" style="display:flex;flex-direction:column;gap:12px"></div>
+  </div>
+  <button onclick="dismissWelcome()" style="width:100%;max-width:380px;padding:18px;background:#F97316;color:white;border:none;border-radius:14px;font-size:17px;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(249,115,22,0.3)">Let's Start Tracking →</button>
 </div>
 
 <div id="app-shell" style="display:none">
@@ -1638,8 +1664,53 @@
     </div>
   </div>
 
-  <!-- Step 7: Your Plan is Ready -->
-  <div class="ob-step" id="ob-step-7" style="position:absolute;inset:0;background:#0F0F0F;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center">
+  <!-- Step 7: Create Your Account -->
+  <div class="ob-step" id="ob-step-7" style="position:absolute;inset:0;background:white;display:none;flex-direction:column">
+    <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
+      <div style="display:flex;gap:4px;margin-bottom:32px">
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Almost there</div>
+      <div style="font-size:26px;font-weight:800;color:#0F0F0F;letter-spacing:-0.5px;margin-bottom:6px">Create your account</div>
+      <div style="font-size:14px;color:#ADADAD;margin-bottom:24px">Your plan is ready — just need a few details to save it.</div>
+
+      <div style="margin-bottom:12px">
+        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:6px">What should we call you?</div>
+        <input id="ob-signup-name" type="text" placeholder="First name" autocomplete="given-name"
+          style="width:100%;padding:14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:6px">Email</div>
+        <input id="ob-signup-email" type="email" placeholder="you@example.com" autocomplete="email"
+          style="width:100%;padding:14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:6px">Password</div>
+        <input id="ob-signup-password" type="password" placeholder="Min 6 characters"
+          style="width:100%;padding:14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
+      </div>
+      <div style="margin-bottom:16px">
+        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:6px">Confirm password</div>
+        <input id="ob-signup-confirm" type="password" placeholder="Re-enter password"
+          style="width:100%;padding:14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
+      </div>
+      <div id="ob-signup-error" style="font-size:13px;color:#EF4444;margin-bottom:8px;display:none"></div>
+      <div style="font-size:11px;color:#ADADAD;text-align:center;line-height:1.5">By creating an account you agree to our Terms of Service. We'll send a verification email to confirm your address.</div>
+    </div>
+    <div style="padding:20px 24px 40px;display:flex;gap:10px">
+      <button onclick="obBack(7)" style="padding:16px 20px;border:1px solid #E8E8E8;border-radius:14px;background:white;font-size:20px;cursor:pointer">←</button>
+      <button id="ob-signup-btn" onclick="handleSignUp()" style="flex:1;padding:16px;background:#F97316;color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer">Create Account</button>
+    </div>
+  </div>
+
+  <!-- Step 8: Your Plan is Ready -->
+  <div class="ob-step" id="ob-step-8" style="position:absolute;inset:0;background:#0F0F0F;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center">
     <div style="font-size:32px;font-weight:800;color:white;letter-spacing:-0.5px;margin-bottom:8px">Your plan is ready! 🎉</div>
     <div id="ob-plan-name" style="font-size:16px;color:rgba(255,255,255,0.6);margin-bottom:32px"></div>
     <div style="background:white;border-radius:20px;padding:24px;width:100%;margin-bottom:24px">
@@ -1658,7 +1729,7 @@
         </div>
       </div>
     </div>
-    <button onclick="obFinish()" style="width:100%;padding:18px;background:#F97316;color:white;border:none;border-radius:14px;font-size:17px;font-weight:800;cursor:pointer;letter-spacing:-0.3px">Let's go 🚀</button>
+    <button onclick="obFinish()" style="width:100%;padding:18px;background:#F97316;color:white;border:none;border-radius:14px;font-size:17px;font-weight:800;cursor:pointer;letter-spacing:-0.3px">Let's Start Tracking 🚀</button>
   </div>
 
 </div>
@@ -2189,8 +2260,12 @@ function obNext(step) {
 
   if (step === 6) {
     if (!_obPace) { if (errEl) { errEl.textContent = 'Please select your weekly goal.'; errEl.style.display = 'block'; } return; }
-    obShowPlan();
     obShowStep(7);
+    return;
+  }
+
+  if (step === 7) {
+    // Handled by handleSignUp()
     return;
   }
 }
@@ -2201,6 +2276,7 @@ function obBack(step) {
   if (step === 5) { obShowStep(4); return; }
   if (step === 6) { obShowStep(5); return; }
   if (step === 7) { obShowStep(6); return; }
+  if (step === 8) { obShowStep(7); return; }
 }
 
 
@@ -2295,24 +2371,45 @@ async function signOut() {
 
 function showAuthScreen() {
   document.getElementById('app-shell').style.display = 'none';
+  document.getElementById('welcome-screen').style.display = 'none';
   document.getElementById('auth-screen').style.display = 'flex';
-  const emailEl = document.getElementById('auth-email');
-  const passEl = document.getElementById('auth-password');
-  if (emailEl) emailEl.value = '';
-  if (passEl) passEl.value = '';
-  document.getElementById('auth-error').textContent = '';
-  showAuthTab('login');
+  showLanding();
 }
 
+function showLanding() {
+  document.getElementById('auth-landing').style.display = 'flex';
+  document.getElementById('auth-signin-panel').style.display = 'none';
+  document.getElementById('auth-verify-panel').style.display = 'none';
+}
+
+function showSignIn() {
+  document.getElementById('auth-landing').style.display = 'none';
+  document.getElementById('auth-signin-panel').style.display = 'flex';
+  document.getElementById('auth-verify-panel').style.display = 'none';
+  document.getElementById('auth-login-form').style.display = 'block';
+  document.getElementById('auth-reset-form').style.display = 'none';
+  const errEl = document.getElementById('auth-error');
+  if (errEl) errEl.textContent = '';
+}
+
+function showResetForm() {
+  document.getElementById('auth-login-form').style.display = 'none';
+  document.getElementById('auth-reset-form').style.display = 'block';
+  const errEl = document.getElementById('auth-error');
+  if (errEl) errEl.textContent = '';
+}
+
+// Legacy shim for old code that calls showAuthTab
 function showAuthTab(tab) {
-  document.getElementById('auth-login-form').style.display = tab === 'login' ? 'block' : 'none';
-  document.getElementById('auth-signup-form').style.display = tab === 'signup' ? 'block' : 'none';
-  document.getElementById('auth-reset-form').style.display = tab === 'reset' ? 'block' : 'none';
-  document.getElementById('auth-tab-login').style.fontWeight = tab === 'login' ? '700' : '400';
-  document.getElementById('auth-tab-login').style.color = tab === 'login' ? '#0F0F0F' : '#ADADAD';
-  document.getElementById('auth-tab-signup').style.fontWeight = tab === 'signup' ? '700' : '400';
-  document.getElementById('auth-tab-signup').style.color = tab === 'signup' ? '#0F0F0F' : '#ADADAD';
-  document.getElementById('auth-error').textContent = '';
+  if (tab === 'login') showSignIn();
+  else if (tab === 'reset') { showSignIn(); showResetForm(); }
+}
+
+function startSignup() {
+  // Start onboarding BEFORE account creation
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('onboarding-modal').style.display = 'flex';
+  obShowStep(1);
 }
 
 async function handleLogin() {
@@ -2325,8 +2422,25 @@ async function handleLogin() {
   try {
     await signIn(email, password);
     document.getElementById('auth-screen').style.display = 'none';
-    document.getElementById('app-shell').style.display = 'block';
-    await appInit();
+    // Check if first-time login (no profile yet)
+    const profile = await loadSetting('profile');
+    if (!profile) {
+      // New user who just verified email - they already went through onboarding
+      // but haven't saved yet. Show app normally.
+      document.getElementById('app-shell').style.display = 'block';
+      await appInit();
+    } else if (profile && !localStorage.getItem('ff_welcomed_' + _currentUser?.id)) {
+      // Show welcome screen for first login after verification
+      localStorage.setItem('ff_welcomed_' + _currentUser?.id, '1');
+      await loadGoals();
+      window._obGoalType = profile.primaryGoal;
+      window._obName = profile.name;
+      window._obActivity = profile.activity;
+      await showWelcomeScreen();
+    } else {
+      document.getElementById('app-shell').style.display = 'block';
+      await appInit();
+    }
   } catch(e) {
     errEl.textContent = e.message;
   } finally {
@@ -2335,31 +2449,42 @@ async function handleLogin() {
 }
 
 async function handleSignUp() {
-  const email = document.getElementById('auth-signup-email').value.trim();
-  const password = document.getElementById('auth-signup-password').value;
-  const confirm = document.getElementById('auth-signup-confirm').value;
-  const btn = document.getElementById('auth-signup-btn');
-  const errEl = document.getElementById('auth-error');
-  if (!email || !password) { errEl.textContent = 'Enter email and password'; return; }
-  if (password !== confirm) { errEl.textContent = 'Passwords do not match'; return; }
-  if (password.length < 6) { errEl.textContent = 'Password must be at least 6 characters'; return; }
-  btn.textContent = 'Creating account...'; btn.disabled = true;
+  const name = document.getElementById('ob-signup-name')?.value.trim();
+  const email = document.getElementById('ob-signup-email')?.value.trim();
+  const password = document.getElementById('ob-signup-password')?.value;
+  const confirm = document.getElementById('ob-signup-confirm')?.value;
+  const btn = document.getElementById('ob-signup-btn');
+  const errEl = document.getElementById('ob-signup-error');
+
+  if (!name) { if (errEl) errEl.textContent = 'Please enter your name'; return; }
+  if (!email) { if (errEl) errEl.textContent = 'Please enter your email'; return; }
+  if (!password || password.length < 6) { if (errEl) errEl.textContent = 'Password must be at least 6 characters'; return; }
+  if (password !== confirm) { if (errEl) errEl.textContent = 'Passwords do not match'; return; }
+
+  if (btn) { btn.textContent = 'Creating account...'; btn.disabled = true; }
   try {
     const data = await signUp(email, password);
+    // Store name in ob flow
+    window._obName = name;
     if (data.access_token) {
-      document.getElementById('auth-screen').style.display = 'none';
-      document.getElementById('app-shell').style.display = 'block';
-      await appInit();
+      // Auto-confirmed (email confirmation disabled)
+      _authToken = data.access_token;
+      _currentUser = data.user;
+      document.getElementById('onboarding-modal').style.display = 'none';
+      await obSaveAndWelcome();
     } else {
-      errEl.style.color = '#16A34A';
-      errEl.textContent = 'Check your email to confirm your account, then sign in.';
-      showAuthTab('login');
+      // Email confirmation required
+      document.getElementById('onboarding-modal').style.display = 'none';
+      document.getElementById('auth-screen').style.display = 'flex';
+      document.getElementById('auth-landing').style.display = 'none';
+      document.getElementById('auth-signin-panel').style.display = 'none';
+      document.getElementById('auth-verify-panel').style.display = 'flex';
+      document.getElementById('auth-verify-email-text').textContent = `We sent a verification link to ${email}. Click it to activate your account, then sign in.`;
     }
   } catch(e) {
-    errEl.style.color = '#EF4444';
-    errEl.textContent = e.message;
+    if (errEl) { errEl.style.color = '#EF4444'; errEl.textContent = e.message; }
   } finally {
-    btn.textContent = 'Create Account'; btn.disabled = false;
+    if (btn) { btn.textContent = 'Create Account'; btn.disabled = false; }
   }
 }
 
@@ -2456,52 +2581,73 @@ async function init() {
   }
 }
 
-async function obFinish() {
+async function obSaveAndWelcome() {
+  // Save plan to Supabase
   const plan = obCalcPlan();
   const ft = parseInt(document.getElementById('ob-height-ft').value) || 5;
   const inn = parseInt(document.getElementById('ob-height-in').value) || 9;
   const age = parseInt(document.getElementById('ob-age').value) || 30;
   const weight = parseFloat(document.getElementById('ob-weight').value) || 180;
   const goalWeight = parseFloat(document.getElementById('ob-goal-weight')?.value) || weight;
+  const name = window._obName || '';
 
-  // Build profile
-  userProfile = { heightIn: ft * 12 + inn, age, gender: _obGender || 'male', activity: _obActivity || 'active' };
+  userProfile = { heightIn: ft * 12 + inn, age, gender: _obGender || 'male', activity: _obActivity || 'active', name, primaryGoal: _obGoalType, weeklyPace: _obPace };
+  userTargets = { calories: plan.calories, protein: plan.protein, carbs: Math.round((plan.calories * 0.35) / 4), fat: Math.round((plan.calories * 0.25) / 9) };
+  userGoals = { weightStart: weight, weightGoal: goalWeight, bfCurrent: null, bfGoal: null, bfTrackingOn: true, muscleCurrent: null, muscleGoal: null, muscleTrackingOn: true, muscleMethod: null, primaryGoal: _obGoalType };
 
-  // Build targets
-  userTargets = {
-    calories: plan.calories,
-    protein: plan.protein,
-    carbs: Math.round((plan.calories * 0.35) / 4),
-    fat: Math.round((plan.calories * 0.25) / 9),
-  };
-
-  // Build goals
-  userGoals = {
-    weightStart: weight,
-    weightGoal: goalWeight,
-    bfCurrent: null, bfGoal: null, bfTrackingOn: true,
-    muscleCurrent: null, muscleGoal: null, muscleTrackingOn: true,
-    muscleMethod: null,
-    primaryGoal: _obGoalType,
-    weeklyPace: _obPace
-  };
-
-  // Save to Supabase
-  await Promise.all([
-    saveSetting('goals', userGoals),
-    saveSetting('targets', userTargets),
-    saveSetting('profile', userProfile)
-  ]);
+  await Promise.all([saveSetting('goals', userGoals), saveSetting('targets', userTargets), saveSetting('profile', userProfile)]);
   localStorage.setItem('ff_onboarded', '1');
+  if (weight) { try { await dbPost('scans', { date: today, weight }); } catch(e) {} }
 
-  // Log starting weight as first scan
-  if (weight) {
-    try { await dbPost('scans', { date: today, weight }); } catch(e) {}
-  }
+  // Show plan summary before account creation (step 8)
+  obShowPlan();
+  obShowStep(8);
+}
 
+async function obFinish() {
+  // Called from step 8 "Let's Start Tracking" button - go to welcome screen
   document.getElementById('onboarding-modal').style.display = 'none';
+  await showWelcomeScreen();
+}
+
+async function showWelcomeScreen() {
+  const name = window._obName || userProfile?.name || '';
+  const plan = obCalcPlan();
+  const goalLabels = { fat_loss: 'body fat reduction', weight_loss: 'weight loss', muscle_gain: 'muscle building', maintain: 'performance' };
+  const goalLabel = goalLabels[_obGoalType || userProfile?.primaryGoal] || 'goal';
+  const ws = document.getElementById('welcome-screen');
+  const nameEl = document.getElementById('welcome-name');
+  const msgEl = document.getElementById('welcome-message');
+  const statsEl = document.getElementById('welcome-stats');
+
+  if (nameEl) nameEl.textContent = name ? `${name}, your plan is ready.` : 'Your plan is ready.';
+  if (msgEl) msgEl.textContent = `Based on your ${goalLabel} goal, here's what we calculated for you:`;
+  if (statsEl) statsEl.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F4F4F4">
+      <span style="font-size:14px;color:#666">Daily Calories</span>
+      <span style="font-size:16px;font-weight:700;color:#F97316">${plan.calories.toLocaleString()} cal</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F4F4F4">
+      <span style="font-size:14px;color:#666">Daily Protein</span>
+      <span style="font-size:16px;font-weight:700;color:#F97316">${plan.protein}g</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
+      <span style="font-size:14px;color:#666">Estimated Goal Date</span>
+      <span style="font-size:14px;font-weight:700;color:#16A34A">${plan.goalDateStr}</span>
+    </div>
+  `;
+  ws.style.display = 'flex';
+  document.getElementById('app-shell').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'none';
+}
+
+async function dismissWelcome() {
+  document.getElementById('welcome-screen').style.display = 'none';
+  document.getElementById('app-shell').style.display = 'block';
   await appInit();
 }
+
+
 
 async function appInit() {
   logDate = today;
