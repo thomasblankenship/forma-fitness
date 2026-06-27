@@ -2032,9 +2032,13 @@ const OB_ACTIVITY_MULTIPLIERS = {
 };
 
 function obShowStep(n) {
-  document.querySelectorAll('.ob-step').forEach(el => el.style.display = 'none');
+  const modal = document.getElementById('onboarding-modal');
+  if (modal) {
+    modal.style.display = 'flex';
+    modal.querySelectorAll('.ob-step').forEach(el => { el.style.display = 'none'; });
+  }
   const el = document.getElementById('ob-step-' + n);
-  if (el) el.style.display = 'flex';
+  if (el) { el.style.display = 'flex'; el.style.flexDirection = 'column'; }
   _obCurrentStep = n;
 }
 
@@ -2406,10 +2410,15 @@ function showAuthTab(tab) {
 }
 
 function startSignup() {
-  // Start onboarding BEFORE account creation
   document.getElementById('auth-screen').style.display = 'none';
-  document.getElementById('onboarding-modal').style.display = 'flex';
-  obShowStep(1);
+  const modal = document.getElementById('onboarding-modal');
+  modal.style.display = 'flex';
+  modal.style.flexDirection = 'column';
+  // Hide all steps first, then show step 1
+  modal.querySelectorAll('.ob-step').forEach(el => { el.style.display = 'none'; });
+  const step1 = document.getElementById('ob-step-1');
+  if (step1) { step1.style.display = 'flex'; step1.style.flexDirection = 'column'; }
+  _obCurrentStep = 1;
 }
 
 async function handleLogin() {
