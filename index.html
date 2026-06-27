@@ -1439,7 +1439,7 @@
 <div id="onboarding-modal" style="display:none;position:fixed;inset:0;z-index:900;overflow:hidden">
 
   <!-- Step 1: Welcome + Goal Type -->
-  <div class="ob-step" id="ob-step-1" style="position:absolute;inset:0;background:white;display:flex;flex-direction:column;padding:0">
+  <div class="ob-screen" id="ob-step-1" style="position:absolute;inset:0;background:white;display:flex;flex-direction:column;padding:0">
     <div style="padding:24px 24px 0;flex:1;display:flex;flex-direction:column">
       <!-- Progress bar -->
       <div style="display:flex;gap:4px;margin-bottom:32px">
@@ -1479,7 +1479,7 @@
   </div>
 
   <!-- Step 2: Motivational transition -->
-  <div class="ob-step" id="ob-step-2" style="position:absolute;inset:0;background:#F97316;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center">
+  <div class="ob-screen" id="ob-step-2" style="position:absolute;inset:0;background:#F97316;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center">
     <div style="display:flex;gap:4px;margin-bottom:40px;width:100%">
       <div style="flex:1;height:4px;background:rgba(255,255,255,0.9);border-radius:2px"></div>
       <div style="flex:1;height:4px;background:rgba(255,255,255,0.9);border-radius:2px"></div>
@@ -1497,7 +1497,7 @@
   </div>
 
   <!-- Step 3: About You -->
-  <div class="ob-step" id="ob-step-3" style="position:absolute;inset:0;background:white;display:none;flex-direction:column">
+  <div class="ob-screen" id="ob-step-3" style="position:absolute;inset:0;background:white;display:none;flex-direction:column">
     <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
       <div style="display:flex;gap:4px;margin-bottom:32px">
         <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
@@ -1553,7 +1553,7 @@
   </div>
 
   <!-- Step 4: Current Stats -->
-  <div class="ob-step" id="ob-step-4" style="position:absolute;inset:0;background:white;display:none;flex-direction:column">
+  <div class="ob-screen" id="ob-step-4" style="position:absolute;inset:0;background:white;display:none;flex-direction:column">
     <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
       <div style="display:flex;gap:4px;margin-bottom:32px">
         <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
@@ -1597,7 +1597,7 @@
   </div>
 
   <!-- Step 5: Activity Level -->
-  <div class="ob-step" id="ob-step-5" style="position:absolute;inset:0;background:white;display:none;flex-direction:column">
+  <div class="ob-screen" id="ob-step-5" style="position:absolute;inset:0;background:white;display:none;flex-direction:column">
     <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
       <div style="display:flex;gap:4px;margin-bottom:32px">
         <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
@@ -1642,7 +1642,7 @@
   </div>
 
   <!-- Step 6: Weekly Pace -->
-  <div class="ob-step" id="ob-step-6" style="position:absolute;inset:0;background:white;display:none;flex-direction:column">
+  <div class="ob-screen" id="ob-step-6" style="position:absolute;inset:0;background:white;display:none;flex-direction:column">
     <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
       <div style="display:flex;gap:4px;margin-bottom:32px">
         <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
@@ -1665,7 +1665,7 @@
   </div>
 
   <!-- Step 7: Create Your Account -->
-  <div class="ob-step" id="ob-step-7" style="position:absolute;inset:0;background:white;display:none;flex-direction:column">
+  <div class="ob-screen" id="ob-step-7" style="position:absolute;inset:0;background:white;display:none;flex-direction:column">
     <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
       <div style="display:flex;gap:4px;margin-bottom:32px">
         <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
@@ -1710,7 +1710,7 @@
   </div>
 
   <!-- Step 8: Your Plan is Ready -->
-  <div class="ob-step" id="ob-step-8" style="position:absolute;inset:0;background:#0F0F0F;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center">
+  <div class="ob-screen" id="ob-step-8" style="position:absolute;inset:0;background:#0F0F0F;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center">
     <div style="font-size:32px;font-weight:800;color:white;letter-spacing:-0.5px;margin-bottom:8px">Your plan is ready! 🎉</div>
     <div id="ob-plan-name" style="font-size:16px;color:rgba(255,255,255,0.6);margin-bottom:32px"></div>
     <div style="background:white;border-radius:20px;padding:24px;width:100%;margin-bottom:24px">
@@ -2035,7 +2035,7 @@ function obShowStep(n) {
   const modal = document.getElementById('onboarding-modal');
   if (modal) {
     modal.style.display = 'flex';
-    modal.querySelectorAll('.ob-step').forEach(el => { el.style.display = 'none'; });
+    modal.querySelectorAll('.ob-screen').forEach(el => { el.style.display = 'none'; });
   }
   const el = document.getElementById('ob-step-' + n);
   if (el) { el.style.display = 'flex'; el.style.flexDirection = 'column'; }
@@ -2415,7 +2415,7 @@ function startSignup() {
   modal.style.display = 'flex';
   modal.style.flexDirection = 'column';
   // Hide all steps first, then show step 1
-  modal.querySelectorAll('.ob-step').forEach(el => { el.style.display = 'none'; });
+  modal.querySelectorAll('.ob-screen').forEach(el => { el.style.display = 'none'; });
   const step1 = document.getElementById('ob-step-1');
   if (step1) { step1.style.display = 'flex'; step1.style.flexDirection = 'column'; }
   _obCurrentStep = 1;
