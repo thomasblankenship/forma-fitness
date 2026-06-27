@@ -2204,6 +2204,46 @@ function obBack(step) {
 }
 
 
+// INIT
+async function init() {
+  updateDailyQuote();
+  // Parse URL hash for Supabase auth redirects
+  const hash = window.location.hash;
+  if (hash) {
+    const params = new URLSearchParams(hash.replace('#', ''));
+    const errorCode = params.get('error_code');
+    const accessToken = params.get('access_token');
+    const type = params.get('type');
+    history.replaceState(null, '', window.location.pathname);
+    if (errorCode) {
+      showAuthScreen();
+      if (errorCode === 'otp_expired') {
+        document.getElementById('auth-error').textContent = 'Reset link expired — request a new one below.';
+        showAuthTab('reset');
+      } else {
+        document.getElementById('auth-error').textContent = 'Link invalid or expired. Please sign in.';
+      }
+      return;
+    }
+    if (accessToken && type === 'recovery') {
+      _authToken = accessToken;
+      showAuthScreen();
+      showChangePasswordForm(accessToken);
+      return;
+    }
+  }
+  const session = await getSession();
+  if (session) {
+    _authToken = session.access_token;
+    _currentUser = session.user;
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app-shell').style.display = 'block';
+    await appInit();
+  } else {
+    showAuthScreen();
+  }
+}
+
 async function obFinish() {
   const plan = obCalcPlan();
   const ft = parseInt(document.getElementById('ob-height-ft').value) || 5;
