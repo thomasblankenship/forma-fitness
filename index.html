@@ -4,6 +4,9 @@
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
   <script>eruda.init();</script>
   <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ratio</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -1436,10 +1439,10 @@
 </div>
 
 <!-- ONBOARDING MODAL -->
-<div id="onboarding-modal" style="display:none;position:fixed;inset:0;z-index:900;overflow:hidden">
+<div id="onboarding-modal" style="display:none;position:fixed;inset:0;z-index:900;background:white">
 
   <!-- Step 1: Welcome + Goal Type -->
-  <div class="ob-screen" id="ob-step-1" style="position:absolute;inset:0;background:white;display:flex;flex-direction:column;padding:0">
+  <div class="ob-screen" id="ob-step-1" style="position:fixed;inset:0;background:white;display:flex;flex-direction:column;padding:0;z-index:901">
     <div style="padding:24px 24px 0;flex:1;display:flex;flex-direction:column">
       <!-- Progress bar -->
       <div style="display:flex;gap:4px;margin-bottom:32px">
@@ -1479,7 +1482,7 @@
   </div>
 
   <!-- Step 2: Motivational transition -->
-  <div class="ob-screen" id="ob-step-2" style="position:absolute;inset:0;background:#F97316;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center">
+  <div class="ob-screen" id="ob-step-2" style="position:fixed;inset:0;background:#F97316;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;z-index:901">
     <div style="display:flex;gap:4px;margin-bottom:40px;width:100%">
       <div style="flex:1;height:4px;background:rgba(255,255,255,0.9);border-radius:2px"></div>
       <div style="flex:1;height:4px;background:rgba(255,255,255,0.9);border-radius:2px"></div>
@@ -1497,7 +1500,7 @@
   </div>
 
   <!-- Step 3: About You -->
-  <div class="ob-screen" id="ob-step-3" style="position:absolute;inset:0;background:white;display:none;flex-direction:column">
+  <div class="ob-screen" id="ob-step-3" style="position:fixed;inset:0;background:white;display:none;flex-direction:column;z-index:901">
     <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
       <div style="display:flex;gap:4px;margin-bottom:32px">
         <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
@@ -1553,7 +1556,7 @@
   </div>
 
   <!-- Step 4: Current Stats -->
-  <div class="ob-screen" id="ob-step-4" style="position:absolute;inset:0;background:white;display:none;flex-direction:column">
+  <div class="ob-screen" id="ob-step-4" style="position:fixed;inset:0;background:white;display:none;flex-direction:column;z-index:901">
     <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
       <div style="display:flex;gap:4px;margin-bottom:32px">
         <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
@@ -1597,7 +1600,7 @@
   </div>
 
   <!-- Step 5: Activity Level -->
-  <div class="ob-screen" id="ob-step-5" style="position:absolute;inset:0;background:white;display:none;flex-direction:column">
+  <div class="ob-screen" id="ob-step-5" style="position:fixed;inset:0;background:white;display:none;flex-direction:column;z-index:901">
     <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
       <div style="display:flex;gap:4px;margin-bottom:32px">
         <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
@@ -1642,7 +1645,7 @@
   </div>
 
   <!-- Step 6: Weekly Pace -->
-  <div class="ob-screen" id="ob-step-6" style="position:absolute;inset:0;background:white;display:none;flex-direction:column">
+  <div class="ob-screen" id="ob-step-6" style="position:fixed;inset:0;background:white;display:none;flex-direction:column;z-index:901">
     <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
       <div style="display:flex;gap:4px;margin-bottom:32px">
         <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
@@ -1665,7 +1668,7 @@
   </div>
 
   <!-- Step 7: Create Your Account -->
-  <div class="ob-screen" id="ob-step-7" style="position:absolute;inset:0;background:white;display:none;flex-direction:column">
+  <div class="ob-screen" id="ob-step-7" style="position:fixed;inset:0;background:white;display:none;flex-direction:column;z-index:901">
     <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
       <div style="display:flex;gap:4px;margin-bottom:32px">
         <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
@@ -1710,7 +1713,7 @@
   </div>
 
   <!-- Step 8: Your Plan is Ready -->
-  <div class="ob-screen" id="ob-step-8" style="position:absolute;inset:0;background:#0F0F0F;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center">
+  <div class="ob-screen" id="ob-step-8" style="position:fixed;inset:0;background:#0F0F0F;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;z-index:901">
     <div style="font-size:32px;font-weight:800;color:white;letter-spacing:-0.5px;margin-bottom:8px">Your plan is ready! 🎉</div>
     <div id="ob-plan-name" style="font-size:16px;color:rgba(255,255,255,0.6);margin-bottom:32px"></div>
     <div style="background:white;border-radius:20px;padding:24px;width:100%;margin-bottom:24px">
@@ -1848,23 +1851,7 @@ function toggleWorkoutForm() {
   }
 }
 
-function toggleHistoryAddForm(type) {
-  const formId = type === 'meal' ? 'hist-add-meal-form' : 'hist-add-workout-form';
-  const btnId = type === 'meal' ? 'hist-add-meal-btn' : 'hist-add-workout-btn';
-  const form = document.getElementById(formId);
-  const btn = document.getElementById(btnId);
-  const isOpen = form.style.display !== 'none';
-  // Close both forms and show both buttons first
-  document.getElementById('hist-add-meal-form').style.display = 'none'; document.getElementById('hist-add-meal-btn').style.display = 'block';
-  document.getElementById('hist-add-workout-form').style.display = 'none'; document.getElementById('hist-add-workout-btn').style.display = 'block';
-  document.getElementById('hist-add-meal-btn').style.display = 'block';
-  document.getElementById('hist-add-workout-btn').style.display = 'block';
-  // Open requested one if it was closed, hide its button
-  if (!isOpen) {
-    form.style.display = 'block';
-    btn.style.display = 'none';
-  }
-}
+
 
 function changeLogDate(dir) {
   const d = new Date(logDate + 'T12:00:00');
@@ -2452,6 +2439,7 @@ function showAuthTab(tab) {
 }
 
 function startSignup() {
+  console.log('[Ratio] startSignup called');
   document.getElementById('auth-screen').style.display = 'none';
   const modal = document.getElementById('onboarding-modal');
   modal.style.display = 'flex';
@@ -2459,7 +2447,13 @@ function startSignup() {
   // Hide all steps first, then show step 1
   modal.querySelectorAll('.ob-screen').forEach(el => { el.style.display = 'none'; });
   const step1 = document.getElementById('ob-step-1');
-  if (step1) { step1.style.display = 'flex'; step1.style.flexDirection = 'column'; }
+  if (step1) { 
+    step1.style.display = 'flex'; 
+    step1.style.flexDirection = 'column';
+    console.log('[Ratio] step1 display set to flex, computed visible:', step1.offsetHeight > 0);
+  } else {
+    console.error('[Ratio] ob-step-1 NOT FOUND');
+  }
   _obCurrentStep = 1;
 }
 
