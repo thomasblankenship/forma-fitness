@@ -1438,344 +1438,6 @@
   </div>
 </div>
 
-<!-- ONBOARDING MODAL -->
-<!-- ONBOARDING SCREENS (no wrapper - direct body children to avoid stacking context) -->
-<div class="ob-screen" id="ob-step-1" style="position:fixed;top:0;left:0;right:0;bottom:0;background:white;display:none;flex-direction:column;z-index:9999;overflow-y:auto;padding:0">
-    <div style="padding:24px 24px 0;flex:1;display:flex;flex-direction:column">
-      <!-- Progress bar -->
-      <div style="display:flex;gap:4px;margin-bottom:32px">
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
-      </div>
-      <div style="font-size:13px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Goals</div>
-      <div style="font-size:26px;font-weight:800;color:#0F0F0F;letter-spacing:-0.5px;margin-bottom:6px">What's your primary goal?</div>
-      <div style="font-size:14px;color:#ADADAD;margin-bottom:24px">This shapes your entire plan.</div>
-      <div style="display:flex;flex-direction:column;gap:10px;flex:1">
-        <button onclick="obSelectGoal('fat_loss')" id="ob-goal-fat_loss" style="padding:16px;border:2px solid #E8E8E8;border-radius:14px;background:white;text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px">
-          <span style="font-size:28px">🔥</span>
-          <div><div style="font-size:15px;font-weight:700;color:#0F0F0F">Lose Body Fat</div><div style="font-size:12px;color:#ADADAD;margin-top:2px">Reduce BF%, preserve muscle</div></div>
-        </button>
-        <button onclick="obSelectGoal('weight_loss')" id="ob-goal-weight_loss" style="padding:16px;border:2px solid #E8E8E8;border-radius:14px;background:white;text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px">
-          <span style="font-size:28px">⚖️</span>
-          <div><div style="font-size:15px;font-weight:700;color:#0F0F0F">Lose Weight</div><div style="font-size:12px;color:#ADADAD;margin-top:2px">Scale number down</div></div>
-        </button>
-        <button onclick="obSelectGoal('muscle_gain')" id="ob-goal-muscle_gain" style="padding:16px;border:2px solid #E8E8E8;border-radius:14px;background:white;text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px">
-          <span style="font-size:28px">💪</span>
-          <div><div style="font-size:15px;font-weight:700;color:#0F0F0F">Gain Muscle</div><div style="font-size:12px;color:#ADADAD;margin-top:2px">Build strength and mass</div></div>
-        </button>
-        <button onclick="obSelectGoal('maintain')" id="ob-goal-maintain" style="padding:16px;border:2px solid #E8E8E8;border-radius:14px;background:white;text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px">
-          <span style="font-size:28px">⚡</span>
-          <div><div style="font-size:15px;font-weight:700;color:#0F0F0F">Maintain & Perform</div><div style="font-size:12px;color:#ADADAD;margin-top:2px">Optimize nutrition at current weight</div></div>
-        </button>
-      </div>
-    </div>
-    <div style="padding:20px 24px 40px">
-      <button onclick="obNext(1)" style="width:100%;padding:16px;background:#F97316;color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer">Next</button>
-    </div>
-  </div>
-
-  <!-- Step 2: Motivational transition -->
-  <div class="ob-screen" id="ob-step-2" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#F97316;display:none;flex-direction:column;z-index:9999;overflow-y:auto;align-items:center;justify-content:center;padding:32px;text-align:center">
-    <div style="display:flex;gap:4px;margin-bottom:40px;width:100%">
-      <div style="flex:1;height:4px;background:rgba(255,255,255,0.9);border-radius:2px"></div>
-      <div style="flex:1;height:4px;background:rgba(255,255,255,0.9);border-radius:2px"></div>
-      <div style="flex:1;height:4px;background:rgba(255,255,255,0.4);border-radius:2px"></div>
-      <div style="flex:1;height:4px;background:rgba(255,255,255,0.4);border-radius:2px"></div>
-      <div style="flex:1;height:4px;background:rgba(255,255,255,0.4);border-radius:2px"></div>
-      <div style="flex:1;height:4px;background:rgba(255,255,255,0.4);border-radius:2px"></div>
-      <div style="flex:1;height:4px;background:rgba(255,255,255,0.4);border-radius:2px"></div>
-    </div>
-    <div style="font-size:15px;color:rgba(255,255,255,0.8);font-weight:600;margin-bottom:12px">OK, real talk:</div>
-    <div id="ob-motivation-title" style="font-size:32px;font-weight:800;color:white;letter-spacing:-0.5px;line-height:1.2;margin-bottom:16px"></div>
-    <div id="ob-motivation-body" style="font-size:16px;color:rgba(255,255,255,0.85);line-height:1.6;margin-bottom:48px"></div>
-    <div style="font-size:13px;color:rgba(255,255,255,0.7);font-style:italic;margin-bottom:48px">P.S. You've already done the hardest part: getting started 🤙</div>
-    <button onclick="obNext(2)" style="width:100%;padding:16px;background:white;color:#F97316;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer">Let's do this →</button>
-  </div>
-
-  <!-- Step 3: About You -->
-  <div class="ob-screen" id="ob-step-3" style="position:fixed;top:0;left:0;right:0;bottom:0;background:white;display:none;flex-direction:column;z-index:9999;overflow-y:auto">
-    <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
-      <div style="display:flex;gap:4px;margin-bottom:32px">
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
-      </div>
-      <div style="font-size:13px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">You</div>
-      <div style="font-size:26px;font-weight:800;color:#0F0F0F;letter-spacing:-0.5px;margin-bottom:24px">Tell us about yourself</div>
-
-      <!-- Gender -->
-      <div style="margin-bottom:20px">
-        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:8px">Biological sex (for calorie calculation)</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <button onclick="obSelectGender('male')" id="ob-gender-male" style="padding:14px;border:2px solid #E8E8E8;border-radius:12px;background:white;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:space-between">Male <span id="ob-gender-male-check" style="display:none;color:#F97316">✓</span></button>
-          <button onclick="obSelectGender('female')" id="ob-gender-female" style="padding:14px;border:2px solid #E8E8E8;border-radius:12px;background:white;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:space-between">Female <span id="ob-gender-female-check" style="display:none;color:#F97316">✓</span></button>
-        </div>
-      </div>
-
-      <!-- Age -->
-      <div style="margin-bottom:20px">
-        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:8px">How old are you?</div>
-        <input id="ob-age" type="number" min="13" max="100" placeholder="Enter your age" inputmode="numeric"
-          style="width:100%;padding:14px 16px;border:2px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
-      </div>
-
-      <!-- Height -->
-      <div style="margin-bottom:20px">
-        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:8px">How tall are you?</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div style="position:relative">
-            <input id="ob-height-ft" type="number" min="3" max="8" placeholder="5" inputmode="numeric"
-              style="width:100%;padding:14px 16px;border:2px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
-            <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:13px;color:#ADADAD;font-weight:600">ft</span>
-          </div>
-          <div style="position:relative">
-            <input id="ob-height-in" type="number" min="0" max="11" placeholder="9" inputmode="numeric"
-              style="width:100%;padding:14px 16px;border:2px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
-            <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:13px;color:#ADADAD;font-weight:600">in</span>
-          </div>
-        </div>
-      </div>
-
-      <div id="ob-step3-error" style="font-size:13px;color:#EF4444;margin-bottom:8px;display:none"></div>
-    </div>
-    <div style="padding:20px 24px 40px;display:flex;gap:10px">
-      <button onclick="obBack(3)" style="padding:16px 20px;border:1px solid #E8E8E8;border-radius:14px;background:white;font-size:20px;cursor:pointer">←</button>
-      <button onclick="obNext(3)" style="flex:1;padding:16px;background:#F97316;color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer">Next</button>
-    </div>
-  </div>
-
-  <!-- Step 4: Current Stats -->
-  <div class="ob-screen" id="ob-step-4" style="position:fixed;top:0;left:0;right:0;bottom:0;background:white;display:none;flex-direction:column;z-index:9999;overflow-y:auto">
-    <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
-      <div style="display:flex;gap:4px;margin-bottom:32px">
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
-      </div>
-      <div style="font-size:13px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">You</div>
-      <div style="font-size:26px;font-weight:800;color:#0F0F0F;letter-spacing:-0.5px;margin-bottom:24px">Just a few more questions</div>
-
-      <div style="margin-bottom:20px">
-        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:8px">How much do you weigh?</div>
-        <div style="position:relative">
-          <input id="ob-weight" type="number" min="50" max="500" placeholder="180" inputmode="decimal" step="0.1"
-            style="width:100%;padding:14px 48px 14px 16px;border:2px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
-          <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:13px;color:#ADADAD;font-weight:700">lbs</span>
-        </div>
-        <div style="font-size:12px;color:#ADADAD;margin-top:6px">It's ok to estimate — you can update this later.</div>
-      </div>
-
-      <div style="margin-bottom:20px" id="ob-goal-weight-section">
-        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:8px" id="ob-goal-weight-label">What is your goal weight?</div>
-        <div style="position:relative">
-          <input id="ob-goal-weight" type="number" min="50" max="500" placeholder="170" inputmode="decimal" step="0.1"
-            style="width:100%;padding:14px 48px 14px 16px;border:2px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
-          <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:13px;color:#ADADAD;font-weight:700">lbs</span>
-        </div>
-        <div id="ob-weight-warning" style="font-size:12px;color:#EF4444;margin-top:6px;display:none"></div>
-        <div style="font-size:12px;color:#ADADAD;margin-top:6px">Don't worry, this doesn't affect your daily calorie goal and you can always change it later.</div>
-      </div>
-
-      <div id="ob-step4-error" style="font-size:13px;color:#EF4444;margin-bottom:8px;display:none"></div>
-    </div>
-    <div style="padding:20px 24px 40px;display:flex;gap:10px">
-      <button onclick="obBack(4)" style="padding:16px 20px;border:1px solid #E8E8E8;border-radius:14px;background:white;font-size:20px;cursor:pointer">←</button>
-      <button onclick="obNext(4)" style="flex:1;padding:16px;background:#F97316;color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer">Next</button>
-    </div>
-  </div>
-
-  <!-- Step 5: Activity Level -->
-  <div class="ob-screen" id="ob-step-5" style="position:fixed;top:0;left:0;right:0;bottom:0;background:white;display:none;flex-direction:column;z-index:9999;overflow-y:auto">
-    <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
-      <div style="display:flex;gap:4px;margin-bottom:32px">
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
-      </div>
-      <div style="font-size:13px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Goals</div>
-      <div style="font-size:26px;font-weight:800;color:#0F0F0F;letter-spacing:-0.5px;margin-bottom:6px">What is your baseline activity level?</div>
-      <div style="font-size:13px;color:#ADADAD;margin-bottom:20px">Not including workouts — we count those separately.</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <button onclick="obSelectActivity('sedentary')" id="ob-act-sedentary" style="padding:14px 16px;border:2px solid #E8E8E8;border-radius:12px;background:white;text-align:left;cursor:pointer">
-          <div style="font-size:15px;font-weight:700;color:#0F0F0F">Sedentary</div>
-          <div style="font-size:12px;color:#ADADAD;margin-top:2px">Desk job, little movement outside of exercise</div>
-        </button>
-        <button onclick="obSelectActivity('light')" id="ob-act-light" style="padding:14px 16px;border:2px solid #E8E8E8;border-radius:12px;background:white;text-align:left;cursor:pointer">
-          <div style="font-size:15px;font-weight:700;color:#0F0F0F">Lightly Active</div>
-          <div style="font-size:12px;color:#ADADAD;margin-top:2px">On your feet part of the day (teacher, salesperson)</div>
-        </button>
-        <button onclick="obSelectActivity('moderate')" id="ob-act-moderate" style="padding:14px 16px;border:2px solid #E8E8E8;border-radius:12px;background:white;text-align:left;cursor:pointer">
-          <div style="font-size:15px;font-weight:700;color:#0F0F0F">Moderately Active</div>
-          <div style="font-size:12px;color:#ADADAD;margin-top:2px">Physical job or very active daily life</div>
-        </button>
-        <button onclick="obSelectActivity('active')" id="ob-act-active" style="padding:14px 16px;border:2px solid #E8E8E8;border-radius:12px;background:white;text-align:left;cursor:pointer">
-          <div style="font-size:15px;font-weight:700;color:#0F0F0F">Very Active</div>
-          <div style="font-size:12px;color:#ADADAD;margin-top:2px">Hard physical work or intense training 5+ days/week</div>
-        </button>
-        <button onclick="obSelectActivity('athlete')" id="ob-act-athlete" style="padding:14px 16px;border:2px solid #E8E8E8;border-radius:12px;background:white;text-align:left;cursor:pointer">
-          <div style="font-size:15px;font-weight:700;color:#0F0F0F">Athlete</div>
-          <div style="font-size:12px;color:#ADADAD;margin-top:2px">Training twice a day or professional athlete</div>
-        </button>
-      </div>
-      <div id="ob-step5-error" style="font-size:13px;color:#EF4444;margin-top:8px;display:none"></div>
-    </div>
-    <div style="padding:20px 24px 40px;display:flex;gap:10px">
-      <button onclick="obBack(5)" style="padding:16px 20px;border:1px solid #E8E8E8;border-radius:14px;background:white;font-size:20px;cursor:pointer">←</button>
-      <button onclick="obNext(5)" style="flex:1;padding:16px;background:#F97316;color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer">Next</button>
-    </div>
-  </div>
-
-  <!-- Step 6: Weekly Pace -->
-  <div class="ob-screen" id="ob-step-6" style="position:fixed;top:0;left:0;right:0;bottom:0;background:white;display:none;flex-direction:column;z-index:9999;overflow-y:auto">
-    <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
-      <div style="display:flex;gap:4px;margin-bottom:32px">
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
-      </div>
-      <div style="font-size:13px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Goal</div>
-      <div style="font-size:26px;font-weight:800;color:#0F0F0F;letter-spacing:-0.5px;margin-bottom:20px" id="ob-pace-title">What is your weekly goal?</div>
-      <div id="ob-pace-options" style="display:flex;flex-direction:column;gap:8px"></div>
-      <div id="ob-step6-warning" style="font-size:13px;color:#F97316;margin-top:12px;padding:10px 14px;background:#FFF7ED;border-radius:10px;display:none"></div>
-    </div>
-    <div style="padding:20px 24px 40px;display:flex;gap:10px">
-      <button onclick="obBack(6)" style="padding:16px 20px;border:1px solid #E8E8E8;border-radius:14px;background:white;font-size:20px;cursor:pointer">←</button>
-      <button onclick="obNext(6)" style="flex:1;padding:16px;background:#F97316;color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer">Next</button>
-    </div>
-  </div>
-
-  <!-- Step 7: Create Your Account -->
-  <div class="ob-screen" id="ob-step-7" style="position:fixed;top:0;left:0;right:0;bottom:0;background:white;display:none;flex-direction:column;z-index:9999;overflow-y:auto">
-    <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
-      <div style="display:flex;gap:4px;margin-bottom:32px">
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
-      </div>
-      <div style="font-size:13px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Almost there</div>
-      <div style="font-size:26px;font-weight:800;color:#0F0F0F;letter-spacing:-0.5px;margin-bottom:6px">Create your account</div>
-      <div style="font-size:14px;color:#ADADAD;margin-bottom:24px">Your plan is ready — just need a few details to save it.</div>
-
-      <div style="margin-bottom:12px">
-        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:6px">What should we call you?</div>
-        <input id="ob-signup-name" type="text" placeholder="First name" autocomplete="given-name"
-          style="width:100%;padding:14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
-      </div>
-      <div style="margin-bottom:12px">
-        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:6px">Email</div>
-        <input id="ob-signup-email" type="email" placeholder="you@example.com" autocomplete="email"
-          style="width:100%;padding:14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
-      </div>
-      <div style="margin-bottom:12px">
-        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:6px">Password</div>
-        <input id="ob-signup-password" type="password" placeholder="Min 6 characters"
-          style="width:100%;padding:14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
-      </div>
-      <div style="margin-bottom:16px">
-        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:6px">Confirm password</div>
-        <input id="ob-signup-confirm" type="password" placeholder="Re-enter password"
-          style="width:100%;padding:14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
-      </div>
-      <div id="ob-signup-error" style="font-size:13px;color:#EF4444;margin-bottom:8px;display:none"></div>
-      <div style="font-size:11px;color:#ADADAD;text-align:center;line-height:1.5">By creating an account you agree to our Terms of Service. We'll send a verification email to confirm your address.</div>
-    </div>
-    <div style="padding:20px 24px 40px;display:flex;gap:10px">
-      <button onclick="obBack(7)" style="padding:16px 20px;border:1px solid #E8E8E8;border-radius:14px;background:white;font-size:20px;cursor:pointer">←</button>
-      <button id="ob-signup-btn" onclick="handleSignUp()" style="flex:1;padding:16px;background:#F97316;color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer">Create Account</button>
-    </div>
-  </div>
-
-  <!-- Step 8: Your Plan is Ready -->
-  <div class="ob-screen" id="ob-step-8" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#0F0F0F;display:none;flex-direction:column;z-index:9999;overflow-y:auto;align-items:center;justify-content:center;padding:32px;text-align:center">
-    <div style="font-size:32px;font-weight:800;color:white;letter-spacing:-0.5px;margin-bottom:8px">Your plan is ready! 🎉</div>
-    <div id="ob-plan-name" style="font-size:16px;color:rgba(255,255,255,0.6);margin-bottom:32px"></div>
-    <div style="background:white;border-radius:20px;padding:24px;width:100%;margin-bottom:24px">
-      <div style="display:flex;flex-direction:column;gap:16px">
-        <div style="display:flex;align-items:center;gap:14px">
-          <div style="width:44px;height:44px;background:#FFF7ED;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px">🥩</div>
-          <div><div style="font-size:15px;font-weight:700;color:#0F0F0F" id="ob-plan-protein"></div><div style="font-size:12px;color:#ADADAD;margin-top:2px">Protein target daily</div></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:14px">
-          <div style="width:44px;height:44px;background:#FFF7ED;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px">🎯</div>
-          <div><div style="font-size:15px;font-weight:700;color:#0F0F0F" id="ob-plan-calories"></div><div style="font-size:12px;color:#ADADAD;margin-top:2px">Daily calorie target</div></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:14px">
-          <div style="width:44px;height:44px;background:#FFF7ED;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px">📅</div>
-          <div><div style="font-size:15px;font-weight:700;color:#0F0F0F" id="ob-plan-date"></div><div style="font-size:12px;color:#ADADAD;margin-top:2px">Estimated goal date</div></div>
-        </div>
-      </div>
-    </div>
-    <button onclick="obFinish()" style="width:100%;padding:18px;background:#F97316;color:white;border:none;border-radius:14px;font-size:17px;font-weight:800;cursor:pointer;letter-spacing:-0.3px">Let's Start Tracking 🚀</button>
-  </div>
-
-</div>
-
-
-<!-- DAILY CHECK-IN MODAL -->
-<div id="checkin-modal" style="display:none;position:fixed;inset:0;z-index:950;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px)">
-  <div style="background:white;border-radius:28px 28px 0 0;padding:32px 24px 48px;width:100%;max-width:520px;position:relative;max-height:85vh;overflow-y:auto">
-    <!-- Close button -->
-    <button onclick="dismissCheckin()" style="position:absolute;top:16px;right:16px;background:#F4F4F4;border:none;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#666">×</button>
-    <!-- Icon -->
-    <div style="text-align:center;margin-bottom:20px">
-      <div id="checkin-emoji" style="font-size:56px;line-height:1;margin-bottom:12px"></div>
-      <div id="checkin-badge" style="display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:4px 14px;border-radius:20px;margin-bottom:4px"></div>
-    </div>
-    <!-- Yesterday date -->
-    <div id="checkin-date" style="text-align:center;font-size:12px;font-weight:600;color:#ADADAD;margin-bottom:12px"></div>
-    <!-- Main message -->
-    <div id="checkin-message" style="font-size:18px;font-weight:700;color:#0F0F0F;line-height:1.45;text-align:center;margin-bottom:16px;letter-spacing:-0.3px"></div>
-    <!-- Stats row (only shown when data exists) -->
-    <div id="checkin-stats" style="display:none;background:#F9F9F9;border-radius:16px;padding:16px;margin-bottom:20px">
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
-        <div>
-          <div id="ci-cals-val" style="font-size:22px;font-weight:700;color:#0F0F0F;letter-spacing:-0.5px"></div>
-          <div style="font-size:10px;font-weight:600;color:#ADADAD;text-transform:uppercase;margin-top:2px">Calories</div>
-        </div>
-        <div>
-          <div id="ci-prot-val" style="font-size:22px;font-weight:700;color:#F97316;letter-spacing:-0.5px"></div>
-          <div style="font-size:10px;font-weight:600;color:#ADADAD;text-transform:uppercase;margin-top:2px">Protein</div>
-        </div>
-        <div>
-          <div id="ci-target-val" style="font-size:22px;font-weight:700;color:#ADADAD;letter-spacing:-0.5px"></div>
-          <div style="font-size:10px;font-weight:600;color:#ADADAD;text-transform:uppercase;margin-top:2px">Target</div>
-        </div>
-      </div>
-    </div>
-    <!-- Sub message -->
-    <div id="checkin-sub" style="font-size:14px;color:#666;line-height:1.6;text-align:center;margin-bottom:28px"></div>
-    <!-- Action buttons -->
-    <div id="checkin-actions" style="display:flex;flex-direction:column;gap:10px">
-      <button id="checkin-primary-btn" onclick="dismissCheckin()" style="width:100%;padding:16px;background:#F97316;color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer"></button>
-      <button onclick="dismissCheckin()" style="width:100%;padding:12px;background:none;border:none;font-size:14px;color:#ADADAD;cursor:pointer">Maybe later</button>
-    </div>
-  </div>
-
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <button class="lightbox-close">×</button>
@@ -2443,35 +2105,9 @@ function showAuthTab(tab) {
 }
 
 function startSignup() {
-  const authEl = document.getElementById('auth-screen');
-  authEl.style.display = 'none';
-
-  // Hide all onboarding screens first
-  document.querySelectorAll('.ob-screen').forEach(el => {
-    el.style.display = 'none';
-  });
-
-  showObStep1();
-  _obCurrentStep = 1;
-}
-
-function showObStep1() {
-  const step1 = document.getElementById('ob-step-1');
-  if (!step1) return;
-  // Set each property individually - Safari cssText with !important is broken
-  step1.style.display = 'flex';
-  step1.style.flexDirection = 'column';
-  step1.style.position = 'fixed';
-  step1.style.top = '0';
-  step1.style.left = '0';
-  step1.style.right = '0';
-  step1.style.bottom = '0';
-  step1.style.width = window.innerWidth + 'px';
-  step1.style.height = window.innerHeight + 'px';
-  step1.style.background = 'white';
-  step1.style.zIndex = '9999';
-  step1.style.padding = '0';
-  step1.style.overflowY = 'auto';
+  document.getElementById('auth-screen').style.display = 'none';
+  document.querySelectorAll('.ob-screen').forEach(el => { el.style.display = 'none'; });
+  obShowStep(1);
 }
 
 async function handleLogin() {
@@ -5769,6 +5405,347 @@ function dismissCheckin() {
 init();
 </script>
 </div><!-- end app-shell -->
+
+<!-- ONBOARDING SCREENS (outside app-shell so display:none does not affect them) -->
+<!-- ONBOARDING MODAL -->
+<!-- ONBOARDING SCREENS (no wrapper - direct body children to avoid stacking context) -->
+<div class="ob-screen" id="ob-step-1" style="position:fixed;top:0;left:0;right:0;bottom:0;background:white;display:none;flex-direction:column;z-index:9999;overflow-y:auto;padding:0">
+    <div style="padding:24px 24px 0;flex:1;display:flex;flex-direction:column">
+      <!-- Progress bar -->
+      <div style="display:flex;gap:4px;margin-bottom:32px">
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Goals</div>
+      <div style="font-size:26px;font-weight:800;color:#0F0F0F;letter-spacing:-0.5px;margin-bottom:6px">What's your primary goal?</div>
+      <div style="font-size:14px;color:#ADADAD;margin-bottom:24px">This shapes your entire plan.</div>
+      <div style="display:flex;flex-direction:column;gap:10px;flex:1">
+        <button onclick="obSelectGoal('fat_loss')" id="ob-goal-fat_loss" style="padding:16px;border:2px solid #E8E8E8;border-radius:14px;background:white;text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px">
+          <span style="font-size:28px">🔥</span>
+          <div><div style="font-size:15px;font-weight:700;color:#0F0F0F">Lose Body Fat</div><div style="font-size:12px;color:#ADADAD;margin-top:2px">Reduce BF%, preserve muscle</div></div>
+        </button>
+        <button onclick="obSelectGoal('weight_loss')" id="ob-goal-weight_loss" style="padding:16px;border:2px solid #E8E8E8;border-radius:14px;background:white;text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px">
+          <span style="font-size:28px">⚖️</span>
+          <div><div style="font-size:15px;font-weight:700;color:#0F0F0F">Lose Weight</div><div style="font-size:12px;color:#ADADAD;margin-top:2px">Scale number down</div></div>
+        </button>
+        <button onclick="obSelectGoal('muscle_gain')" id="ob-goal-muscle_gain" style="padding:16px;border:2px solid #E8E8E8;border-radius:14px;background:white;text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px">
+          <span style="font-size:28px">💪</span>
+          <div><div style="font-size:15px;font-weight:700;color:#0F0F0F">Gain Muscle</div><div style="font-size:12px;color:#ADADAD;margin-top:2px">Build strength and mass</div></div>
+        </button>
+        <button onclick="obSelectGoal('maintain')" id="ob-goal-maintain" style="padding:16px;border:2px solid #E8E8E8;border-radius:14px;background:white;text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px">
+          <span style="font-size:28px">⚡</span>
+          <div><div style="font-size:15px;font-weight:700;color:#0F0F0F">Maintain & Perform</div><div style="font-size:12px;color:#ADADAD;margin-top:2px">Optimize nutrition at current weight</div></div>
+        </button>
+      </div>
+    </div>
+    <div style="padding:20px 24px 40px">
+      <button onclick="obNext(1)" style="width:100%;padding:16px;background:#F97316;color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer">Next</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Motivational transition -->
+  <div class="ob-screen" id="ob-step-2" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#F97316;display:none;flex-direction:column;z-index:9999;overflow-y:auto;align-items:center;justify-content:center;padding:32px;text-align:center">
+    <div style="display:flex;gap:4px;margin-bottom:40px;width:100%">
+      <div style="flex:1;height:4px;background:rgba(255,255,255,0.9);border-radius:2px"></div>
+      <div style="flex:1;height:4px;background:rgba(255,255,255,0.9);border-radius:2px"></div>
+      <div style="flex:1;height:4px;background:rgba(255,255,255,0.4);border-radius:2px"></div>
+      <div style="flex:1;height:4px;background:rgba(255,255,255,0.4);border-radius:2px"></div>
+      <div style="flex:1;height:4px;background:rgba(255,255,255,0.4);border-radius:2px"></div>
+      <div style="flex:1;height:4px;background:rgba(255,255,255,0.4);border-radius:2px"></div>
+      <div style="flex:1;height:4px;background:rgba(255,255,255,0.4);border-radius:2px"></div>
+    </div>
+    <div style="font-size:15px;color:rgba(255,255,255,0.8);font-weight:600;margin-bottom:12px">OK, real talk:</div>
+    <div id="ob-motivation-title" style="font-size:32px;font-weight:800;color:white;letter-spacing:-0.5px;line-height:1.2;margin-bottom:16px"></div>
+    <div id="ob-motivation-body" style="font-size:16px;color:rgba(255,255,255,0.85);line-height:1.6;margin-bottom:48px"></div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.7);font-style:italic;margin-bottom:48px">P.S. You've already done the hardest part: getting started 🤙</div>
+    <button onclick="obNext(2)" style="width:100%;padding:16px;background:white;color:#F97316;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer">Let's do this →</button>
+  </div>
+
+  <!-- Step 3: About You -->
+  <div class="ob-screen" id="ob-step-3" style="position:fixed;top:0;left:0;right:0;bottom:0;background:white;display:none;flex-direction:column;z-index:9999;overflow-y:auto">
+    <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
+      <div style="display:flex;gap:4px;margin-bottom:32px">
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">You</div>
+      <div style="font-size:26px;font-weight:800;color:#0F0F0F;letter-spacing:-0.5px;margin-bottom:24px">Tell us about yourself</div>
+
+      <!-- Gender -->
+      <div style="margin-bottom:20px">
+        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:8px">Biological sex (for calorie calculation)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button onclick="obSelectGender('male')" id="ob-gender-male" style="padding:14px;border:2px solid #E8E8E8;border-radius:12px;background:white;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:space-between">Male <span id="ob-gender-male-check" style="display:none;color:#F97316">✓</span></button>
+          <button onclick="obSelectGender('female')" id="ob-gender-female" style="padding:14px;border:2px solid #E8E8E8;border-radius:12px;background:white;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:space-between">Female <span id="ob-gender-female-check" style="display:none;color:#F97316">✓</span></button>
+        </div>
+      </div>
+
+      <!-- Age -->
+      <div style="margin-bottom:20px">
+        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:8px">How old are you?</div>
+        <input id="ob-age" type="number" min="13" max="100" placeholder="Enter your age" inputmode="numeric"
+          style="width:100%;padding:14px 16px;border:2px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
+      </div>
+
+      <!-- Height -->
+      <div style="margin-bottom:20px">
+        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:8px">How tall are you?</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="position:relative">
+            <input id="ob-height-ft" type="number" min="3" max="8" placeholder="5" inputmode="numeric"
+              style="width:100%;padding:14px 16px;border:2px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
+            <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:13px;color:#ADADAD;font-weight:600">ft</span>
+          </div>
+          <div style="position:relative">
+            <input id="ob-height-in" type="number" min="0" max="11" placeholder="9" inputmode="numeric"
+              style="width:100%;padding:14px 16px;border:2px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
+            <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:13px;color:#ADADAD;font-weight:600">in</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="ob-step3-error" style="font-size:13px;color:#EF4444;margin-bottom:8px;display:none"></div>
+    </div>
+    <div style="padding:20px 24px 40px;display:flex;gap:10px">
+      <button onclick="obBack(3)" style="padding:16px 20px;border:1px solid #E8E8E8;border-radius:14px;background:white;font-size:20px;cursor:pointer">←</button>
+      <button onclick="obNext(3)" style="flex:1;padding:16px;background:#F97316;color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer">Next</button>
+    </div>
+  </div>
+
+  <!-- Step 4: Current Stats -->
+  <div class="ob-screen" id="ob-step-4" style="position:fixed;top:0;left:0;right:0;bottom:0;background:white;display:none;flex-direction:column;z-index:9999;overflow-y:auto">
+    <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
+      <div style="display:flex;gap:4px;margin-bottom:32px">
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">You</div>
+      <div style="font-size:26px;font-weight:800;color:#0F0F0F;letter-spacing:-0.5px;margin-bottom:24px">Just a few more questions</div>
+
+      <div style="margin-bottom:20px">
+        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:8px">How much do you weigh?</div>
+        <div style="position:relative">
+          <input id="ob-weight" type="number" min="50" max="500" placeholder="180" inputmode="decimal" step="0.1"
+            style="width:100%;padding:14px 48px 14px 16px;border:2px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
+          <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:13px;color:#ADADAD;font-weight:700">lbs</span>
+        </div>
+        <div style="font-size:12px;color:#ADADAD;margin-top:6px">It's ok to estimate — you can update this later.</div>
+      </div>
+
+      <div style="margin-bottom:20px" id="ob-goal-weight-section">
+        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:8px" id="ob-goal-weight-label">What is your goal weight?</div>
+        <div style="position:relative">
+          <input id="ob-goal-weight" type="number" min="50" max="500" placeholder="170" inputmode="decimal" step="0.1"
+            style="width:100%;padding:14px 48px 14px 16px;border:2px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
+          <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:13px;color:#ADADAD;font-weight:700">lbs</span>
+        </div>
+        <div id="ob-weight-warning" style="font-size:12px;color:#EF4444;margin-top:6px;display:none"></div>
+        <div style="font-size:12px;color:#ADADAD;margin-top:6px">Don't worry, this doesn't affect your daily calorie goal and you can always change it later.</div>
+      </div>
+
+      <div id="ob-step4-error" style="font-size:13px;color:#EF4444;margin-bottom:8px;display:none"></div>
+    </div>
+    <div style="padding:20px 24px 40px;display:flex;gap:10px">
+      <button onclick="obBack(4)" style="padding:16px 20px;border:1px solid #E8E8E8;border-radius:14px;background:white;font-size:20px;cursor:pointer">←</button>
+      <button onclick="obNext(4)" style="flex:1;padding:16px;background:#F97316;color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer">Next</button>
+    </div>
+  </div>
+
+  <!-- Step 5: Activity Level -->
+  <div class="ob-screen" id="ob-step-5" style="position:fixed;top:0;left:0;right:0;bottom:0;background:white;display:none;flex-direction:column;z-index:9999;overflow-y:auto">
+    <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
+      <div style="display:flex;gap:4px;margin-bottom:32px">
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Goals</div>
+      <div style="font-size:26px;font-weight:800;color:#0F0F0F;letter-spacing:-0.5px;margin-bottom:6px">What is your baseline activity level?</div>
+      <div style="font-size:13px;color:#ADADAD;margin-bottom:20px">Not including workouts — we count those separately.</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button onclick="obSelectActivity('sedentary')" id="ob-act-sedentary" style="padding:14px 16px;border:2px solid #E8E8E8;border-radius:12px;background:white;text-align:left;cursor:pointer">
+          <div style="font-size:15px;font-weight:700;color:#0F0F0F">Sedentary</div>
+          <div style="font-size:12px;color:#ADADAD;margin-top:2px">Desk job, little movement outside of exercise</div>
+        </button>
+        <button onclick="obSelectActivity('light')" id="ob-act-light" style="padding:14px 16px;border:2px solid #E8E8E8;border-radius:12px;background:white;text-align:left;cursor:pointer">
+          <div style="font-size:15px;font-weight:700;color:#0F0F0F">Lightly Active</div>
+          <div style="font-size:12px;color:#ADADAD;margin-top:2px">On your feet part of the day (teacher, salesperson)</div>
+        </button>
+        <button onclick="obSelectActivity('moderate')" id="ob-act-moderate" style="padding:14px 16px;border:2px solid #E8E8E8;border-radius:12px;background:white;text-align:left;cursor:pointer">
+          <div style="font-size:15px;font-weight:700;color:#0F0F0F">Moderately Active</div>
+          <div style="font-size:12px;color:#ADADAD;margin-top:2px">Physical job or very active daily life</div>
+        </button>
+        <button onclick="obSelectActivity('active')" id="ob-act-active" style="padding:14px 16px;border:2px solid #E8E8E8;border-radius:12px;background:white;text-align:left;cursor:pointer">
+          <div style="font-size:15px;font-weight:700;color:#0F0F0F">Very Active</div>
+          <div style="font-size:12px;color:#ADADAD;margin-top:2px">Hard physical work or intense training 5+ days/week</div>
+        </button>
+        <button onclick="obSelectActivity('athlete')" id="ob-act-athlete" style="padding:14px 16px;border:2px solid #E8E8E8;border-radius:12px;background:white;text-align:left;cursor:pointer">
+          <div style="font-size:15px;font-weight:700;color:#0F0F0F">Athlete</div>
+          <div style="font-size:12px;color:#ADADAD;margin-top:2px">Training twice a day or professional athlete</div>
+        </button>
+      </div>
+      <div id="ob-step5-error" style="font-size:13px;color:#EF4444;margin-top:8px;display:none"></div>
+    </div>
+    <div style="padding:20px 24px 40px;display:flex;gap:10px">
+      <button onclick="obBack(5)" style="padding:16px 20px;border:1px solid #E8E8E8;border-radius:14px;background:white;font-size:20px;cursor:pointer">←</button>
+      <button onclick="obNext(5)" style="flex:1;padding:16px;background:#F97316;color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer">Next</button>
+    </div>
+  </div>
+
+  <!-- Step 6: Weekly Pace -->
+  <div class="ob-screen" id="ob-step-6" style="position:fixed;top:0;left:0;right:0;bottom:0;background:white;display:none;flex-direction:column;z-index:9999;overflow-y:auto">
+    <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
+      <div style="display:flex;gap:4px;margin-bottom:32px">
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#E8E8E8;border-radius:2px"></div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Goal</div>
+      <div style="font-size:26px;font-weight:800;color:#0F0F0F;letter-spacing:-0.5px;margin-bottom:20px" id="ob-pace-title">What is your weekly goal?</div>
+      <div id="ob-pace-options" style="display:flex;flex-direction:column;gap:8px"></div>
+      <div id="ob-step6-warning" style="font-size:13px;color:#F97316;margin-top:12px;padding:10px 14px;background:#FFF7ED;border-radius:10px;display:none"></div>
+    </div>
+    <div style="padding:20px 24px 40px;display:flex;gap:10px">
+      <button onclick="obBack(6)" style="padding:16px 20px;border:1px solid #E8E8E8;border-radius:14px;background:white;font-size:20px;cursor:pointer">←</button>
+      <button onclick="obNext(6)" style="flex:1;padding:16px;background:#F97316;color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer">Next</button>
+    </div>
+  </div>
+
+  <!-- Step 7: Create Your Account -->
+  <div class="ob-screen" id="ob-step-7" style="position:fixed;top:0;left:0;right:0;bottom:0;background:white;display:none;flex-direction:column;z-index:9999;overflow-y:auto">
+    <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
+      <div style="display:flex;gap:4px;margin-bottom:32px">
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Almost there</div>
+      <div style="font-size:26px;font-weight:800;color:#0F0F0F;letter-spacing:-0.5px;margin-bottom:6px">Create your account</div>
+      <div style="font-size:14px;color:#ADADAD;margin-bottom:24px">Your plan is ready — just need a few details to save it.</div>
+
+      <div style="margin-bottom:12px">
+        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:6px">What should we call you?</div>
+        <input id="ob-signup-name" type="text" placeholder="First name" autocomplete="given-name"
+          style="width:100%;padding:14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:6px">Email</div>
+        <input id="ob-signup-email" type="email" placeholder="you@example.com" autocomplete="email"
+          style="width:100%;padding:14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:6px">Password</div>
+        <input id="ob-signup-password" type="password" placeholder="Min 6 characters"
+          style="width:100%;padding:14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
+      </div>
+      <div style="margin-bottom:16px">
+        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:6px">Confirm password</div>
+        <input id="ob-signup-confirm" type="password" placeholder="Re-enter password"
+          style="width:100%;padding:14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
+      </div>
+      <div id="ob-signup-error" style="font-size:13px;color:#EF4444;margin-bottom:8px;display:none"></div>
+      <div style="font-size:11px;color:#ADADAD;text-align:center;line-height:1.5">By creating an account you agree to our Terms of Service. We'll send a verification email to confirm your address.</div>
+    </div>
+    <div style="padding:20px 24px 40px;display:flex;gap:10px">
+      <button onclick="obBack(7)" style="padding:16px 20px;border:1px solid #E8E8E8;border-radius:14px;background:white;font-size:20px;cursor:pointer">←</button>
+      <button id="ob-signup-btn" onclick="handleSignUp()" style="flex:1;padding:16px;background:#F97316;color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer">Create Account</button>
+    </div>
+  </div>
+
+  <!-- Step 8: Your Plan is Ready -->
+  <div class="ob-screen" id="ob-step-8" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#0F0F0F;display:none;flex-direction:column;z-index:9999;overflow-y:auto;align-items:center;justify-content:center;padding:32px;text-align:center">
+    <div style="font-size:32px;font-weight:800;color:white;letter-spacing:-0.5px;margin-bottom:8px">Your plan is ready! 🎉</div>
+    <div id="ob-plan-name" style="font-size:16px;color:rgba(255,255,255,0.6);margin-bottom:32px"></div>
+    <div style="background:white;border-radius:20px;padding:24px;width:100%;margin-bottom:24px">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="width:44px;height:44px;background:#FFF7ED;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px">🥩</div>
+          <div><div style="font-size:15px;font-weight:700;color:#0F0F0F" id="ob-plan-protein"></div><div style="font-size:12px;color:#ADADAD;margin-top:2px">Protein target daily</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="width:44px;height:44px;background:#FFF7ED;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px">🎯</div>
+          <div><div style="font-size:15px;font-weight:700;color:#0F0F0F" id="ob-plan-calories"></div><div style="font-size:12px;color:#ADADAD;margin-top:2px">Daily calorie target</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="width:44px;height:44px;background:#FFF7ED;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px">📅</div>
+          <div><div style="font-size:15px;font-weight:700;color:#0F0F0F" id="ob-plan-date"></div><div style="font-size:12px;color:#ADADAD;margin-top:2px">Estimated goal date</div></div>
+        </div>
+      </div>
+    </div>
+    <button onclick="obFinish()" style="width:100%;padding:18px;background:#F97316;color:white;border:none;border-radius:14px;font-size:17px;font-weight:800;cursor:pointer;letter-spacing:-0.3px">Let's Start Tracking 🚀</button>
+  </div>
+
+</div>
+
+
+<!-- DAILY CHECK-IN MODAL -->
+<div id="checkin-modal" style="display:none;position:fixed;inset:0;z-index:950;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px)">
+  <div style="background:white;border-radius:28px 28px 0 0;padding:32px 24px 48px;width:100%;max-width:520px;position:relative;max-height:85vh;overflow-y:auto">
+    <!-- Close button -->
+    <button onclick="dismissCheckin()" style="position:absolute;top:16px;right:16px;background:#F4F4F4;border:none;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#666">×</button>
+    <!-- Icon -->
+    <div style="text-align:center;margin-bottom:20px">
+      <div id="checkin-emoji" style="font-size:56px;line-height:1;margin-bottom:12px"></div>
+      <div id="checkin-badge" style="display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:4px 14px;border-radius:20px;margin-bottom:4px"></div>
+    </div>
+    <!-- Yesterday date -->
+    <div id="checkin-date" style="text-align:center;font-size:12px;font-weight:600;color:#ADADAD;margin-bottom:12px"></div>
+    <!-- Main message -->
+    <div id="checkin-message" style="font-size:18px;font-weight:700;color:#0F0F0F;line-height:1.45;text-align:center;margin-bottom:16px;letter-spacing:-0.3px"></div>
+    <!-- Stats row (only shown when data exists) -->
+    <div id="checkin-stats" style="display:none;background:#F9F9F9;border-radius:16px;padding:16px;margin-bottom:20px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
+        <div>
+          <div id="ci-cals-val" style="font-size:22px;font-weight:700;color:#0F0F0F;letter-spacing:-0.5px"></div>
+          <div style="font-size:10px;font-weight:600;color:#ADADAD;text-transform:uppercase;margin-top:2px">Calories</div>
+        </div>
+        <div>
+          <div id="ci-prot-val" style="font-size:22px;font-weight:700;color:#F97316;letter-spacing:-0.5px"></div>
+          <div style="font-size:10px;font-weight:600;color:#ADADAD;text-transform:uppercase;margin-top:2px">Protein</div>
+        </div>
+        <div>
+          <div id="ci-target-val" style="font-size:22px;font-weight:700;color:#ADADAD;letter-spacing:-0.5px"></div>
+          <div style="font-size:10px;font-weight:600;color:#ADADAD;text-transform:uppercase;margin-top:2px">Target</div>
+        </div>
+      </div>
+    </div>
+    <!-- Sub message -->
+    <div id="checkin-sub" style="font-size:14px;color:#666;line-height:1.6;text-align:center;margin-bottom:28px"></div>
+    <!-- Action buttons -->
+    <div id="checkin-actions" style="display:flex;flex-direction:column;gap:10px">
+      <button id="checkin-primary-btn" onclick="dismissCheckin()" style="width:100%;padding:16px;background:#F97316;color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer"></button>
+      <button onclick="dismissCheckin()" style="width:100%;padding:12px;background:none;border:none;font-size:14px;color:#ADADAD;cursor:pointer">Maybe later</button>
+    </div>
+  </div>
+
+
 </div><!-- end app-shell -->
 </body>
 </html>
