@@ -2217,7 +2217,8 @@ async function handleSignUp() {
       document.getElementById('auth-verify-email-text').textContent = `We sent a verification link to ${email}. Click it to activate your account, then sign in.`;
     }
   } catch(e) {
-    if (errEl) { errEl.style.color = '#EF4444'; errEl.textContent = e.message; }
+    console.error('[handleSignUp] error:', e.message, e);
+    if (errEl) { errEl.style.color = '#EF4444'; errEl.style.display = 'block'; errEl.textContent = e.message || 'Sign up failed — please try again'; }
   } finally {
     if (btn) { btn.textContent = 'Create Account'; btn.disabled = false; }
   }
