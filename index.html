@@ -2029,11 +2029,11 @@ async function signIn(email, password) {
   return data;
 }
 
-async function signUp(email, password) {
+async function signUp(email, password, name) {
   const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
     method: 'POST',
     headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password })
+    body: JSON.stringify({ email, password, data: { display_name: name || '' } })
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error_description || data.msg || 'Sign up failed');
@@ -2179,7 +2179,7 @@ async function handleSignUp() {
 
   if (btn) { btn.textContent = 'Creating account...'; btn.disabled = true; }
   try {
-    const data = await signUp(email, password);
+    const data = await signUp(email, password, name);
     // Store name in ob flow
     window._obName = name;
     if (data.access_token) {
