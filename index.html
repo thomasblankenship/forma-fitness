@@ -2406,13 +2406,17 @@ async function dismissWelcome() {
 
 async function appInit() {
   logDate = today;
+  // Make sure app shell is visible and welcome/auth screens are hidden
+  document.getElementById('app-shell').style.display = 'block';
+  document.getElementById('welcome-screen').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'none';
   updateDailyQuote();
   await loadGoals();
 
-  // Check if new user needs onboarding (no goals saved in Supabase yet)
+  // Check if new user needs onboarding (no settings saved in Supabase for this user)
   const hasProfile = await loadSetting('profile');
   const hasGoals = await loadSetting('goals');
-  if (!hasProfile && !hasGoals && document.getElementById('app-shell').style.display === 'none') {
+  if (!hasProfile && !hasGoals) {
     startSignup();
     return; // obFinish() will call appInit() again after onboarding
   }
