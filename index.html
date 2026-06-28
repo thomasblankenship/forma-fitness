@@ -2122,7 +2122,39 @@ async function handleLogin() {
     document.getElementById('auth-screen').style.display = 'none';
     // Check if first-time login (no profile yet)
     const profile = await loadSetting('profile');
-    // Existing users always go straight to the app
+    // Check for pending onboarding plan (new user who just verified email)
+    const pending = localStorage.getItem('pending_onboarding');
+    if (pending) {
+      try {
+        const p = JSON.parse(pending);
+        // Restore ob state so welcome screen can use it
+        window._obName = p.obName || p.name || '';
+        window._obGoalType = p.obGoalType || 'fat_loss';
+        window._obActivity = p.obActivity || 'active';
+        window._obPace = p.obPace || 'lose_1';
+        // Save to Supabase now that we have a valid auth token
+        userProfile = p.profile;
+        userTargets = p.targets;
+        userGoals = p.goals;
+        await Promise.all([
+          saveSetting('profile', p.profile),
+          saveSetting('targets', p.targets),
+          saveSetting('goals', p.goals)
+        ]);
+        // Log starting weight if present
+        if (p.goals.weightStart) {
+          try { await dbPost('scans', { date: today, weight: p.goals.weightStart }); } catch(e) {}
+        }
+        localStorage.removeItem('pending_onboarding');
+        // Show welcome screen
+        document.getElementById('auth-screen').style.display = 'none';
+        await showWelcomeScreen();
+        return;
+      } catch(e) {
+        console.warn('Error applying pending onboarding:', e);
+        localStorage.removeItem('pending_onboarding');
+      }
+    }
     document.getElementById('app-shell').style.display = 'block';
     await appInit();
   } catch(e) {
@@ -2157,7 +2189,26 @@ async function handleSignUp() {
       document.querySelectorAll('.ob-screen').forEach(el => { el.style.display = 'none'; });
       await obSaveAndWelcome();
     } else {
-      // Email confirmation required
+      // Email confirmation required - save plan to localStorage so it can be applied after login
+      try {
+        const pendingPlan = obCalcPlan();
+        const ft = parseInt(document.getElementById('ob-height-ft').value) || 5;
+        const inn = parseInt(document.getElementById('ob-height-in').value) || 9;
+        const age = parseInt(document.getElementById('ob-age').value) || 30;
+        const weight = parseFloat(document.getElementById('ob-weight').value) || 180;
+        const goalWeight = parseFloat(document.getElementById('ob-goal-weight')?.value) || weight;
+        localStorage.setItem('pending_onboarding', JSON.stringify({
+          name,
+          profile: { heightIn: ft * 12 + inn, age, gender: _obGender || 'male', activity: _obActivity || 'active', name, primaryGoal: _obGoalType, weeklyPace: _obPace },
+          targets: { calories: pendingPlan.calories, protein: pendingPlan.protein, carbs: Math.round((pendingPlan.calories * 0.35) / 4), fat: Math.round((pendingPlan.calories * 0.25) / 9) },
+          goals: { weightStart: weight, weightGoal: goalWeight, bfCurrent: null, bfGoal: null, bfTrackingOn: true, muscleCurrent: null, muscleGoal: null, muscleTrackingOn: true, muscleMethod: null, primaryGoal: _obGoalType },
+          plan: pendingPlan,
+          obGoalType: _obGoalType,
+          obName: name,
+          obActivity: _obActivity,
+          obPace: _obPace
+        }));
+      } catch(e) { console.warn('Could not save pending plan:', e); }
       document.querySelectorAll('.ob-screen').forEach(el => { el.style.display = 'none'; });
       document.getElementById('auth-screen').style.display = 'flex';
       document.getElementById('auth-landing').style.display = 'none';
