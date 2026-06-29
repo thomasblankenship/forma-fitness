@@ -5566,11 +5566,11 @@ const CHECKIN_MESSAGES = {
   ],
   low_protein_weight_loss: [
     { msg: "Protein was low yesterday. Even for weight loss, protein keeps you full and preserves muscle.", sub: "Hit {protein}g today and you'll fight cravings all day long.", btn: "Start Strong Today 💪" },
-    { msg: "Yesterday's protein was only {actual}g — aim for {protein}g today.", sub: "Higher protein = fewer cravings, better results on the scale. Let's fix it today.", btn: "Log Breakfast 🍳" },
+    { msg: "Yesterday's protein was only {actualProt}g — aim for {protein}g today.", sub: "Higher protein = fewer cravings, better results on the scale. Let's fix it today.", btn: "Log Breakfast 🍳" },
   ],
   low_protein_muscle_gain: [
     { msg: "Protein was low yesterday — and muscle doesn't build without it.", sub: "You need {protein}g daily to grow. Yesterday you left gains on the table. Let's make up for it today.", btn: "Fix It Today 💪" },
-    { msg: "Building muscle requires protein every single day. Yesterday you fell short at {actual}g.", sub: "Hit {protein}g today. Your muscles are waiting for the signal.", btn: "Feed the Muscle 🥩" },
+    { msg: "Building muscle requires protein every single day. Yesterday you fell short at {actualProt}g.", sub: "Hit {protein}g today. Your muscles are waiting for the signal.", btn: "Feed the Muscle 🥩" },
   ],
   on_track_fat_loss: [
     { msg: "Yesterday was perfect. You hit your targets and stayed consistent.", sub: "That's exactly how body recomposition works — one good day at a time. Stack another today.", btn: "Keep the Streak Going 🔥" },
@@ -5631,7 +5631,7 @@ async function maybeShowCheckin() {
   const ydLabel = yd.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
   let state, msgPool;
-  const vars = { protein: proTarget, actual: totalProt, target: calTarget, gap: proTarget - totalProt };
+  const vars = { protein: proTarget, actual: totalCals, actualProt: totalProt, target: calTarget, gap: proTarget - totalProt };
 
   if (!meals.length) {
     // STATE 1: No meals logged
