@@ -2451,6 +2451,7 @@ async function appInit() {
 
   updateGoalsDisplay();
   updateLogDateDisplay();
+  switchTab('today');
   const todayDateEl = document.getElementById('today-date');
   if (todayDateEl) todayDateEl.textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
   document.getElementById('photo-date').value = today;
