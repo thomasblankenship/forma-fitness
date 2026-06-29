@@ -1174,6 +1174,37 @@
   </div>
 </div>
 
+<!-- Onboarding Numpad Modal -->
+<div id="ob-numpad-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:10000;align-items:flex-end;justify-content:center">
+  <div style="background:white;border-radius:20px 20px 0 0;padding:24px 20px 40px;width:100%;max-width:480px">
+    <div style="text-align:center;margin-bottom:16px">
+      <div id="ob-numpad-title" style="font-size:13px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Weight</div>
+      <div style="display:flex;align-items:baseline;justify-content:center;gap:8px">
+        <div id="ob-numpad-display" style="font-size:52px;font-weight:700;color:#0F0F0F;letter-spacing:-2px;min-height:64px;line-height:1">—</div>
+        <div id="ob-numpad-unit" style="font-size:18px;font-weight:700;color:#ADADAD">lbs</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+      <button class="numpad-btn" onclick="obNumpadPress('1')">1</button>
+      <button class="numpad-btn" onclick="obNumpadPress('2')">2</button>
+      <button class="numpad-btn" onclick="obNumpadPress('3')">3</button>
+      <button class="numpad-btn" onclick="obNumpadPress('4')">4</button>
+      <button class="numpad-btn" onclick="obNumpadPress('5')">5</button>
+      <button class="numpad-btn" onclick="obNumpadPress('6')">6</button>
+      <button class="numpad-btn" onclick="obNumpadPress('7')">7</button>
+      <button class="numpad-btn" onclick="obNumpadPress('8')">8</button>
+      <button class="numpad-btn" onclick="obNumpadPress('9')">9</button>
+      <button class="numpad-btn" onclick="obNumpadPress('.')">.</button>
+      <button class="numpad-btn" onclick="obNumpadPress('0')">0</button>
+      <button class="numpad-btn" onclick="obNumpadPress('del')" style="font-size:18px">⌫</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button onclick="obNumpadCancel()" style="padding:16px;border:1px solid #E8E8E8;border-radius:12px;background:white;font-size:15px;font-weight:600;cursor:pointer">Cancel</button>
+      <button onclick="obNumpadConfirm()" style="padding:16px;border:none;border-radius:12px;background:#F97316;color:white;font-size:15px;font-weight:700;cursor:pointer">Done</button>
+    </div>
+  </div>
+</div>
+
 <div id="log-entry-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:600;align-items:flex-end;justify-content:center">
   <div style="background:white;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:520px">
     <div style="font-size:16px;font-weight:700;margin-bottom:4px" id="log-modal-title">Record Weight</div>
@@ -1735,6 +1766,10 @@ let _obGender = null;
 let _obActivity = null;
 let _obPace = null;
 let _obCurrentStep = 1;
+let _obPhotoFile = null;
+let _obPhotoDate = null;
+let _obNumpadField = null;
+let _obNumpadVal = '';
 
 const OB_ACTIVITY_MULTIPLIERS = {
   sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, athlete: 1.9
@@ -1988,6 +2023,24 @@ function obNext(step) {
     // Handled by handleSignUp()
     return;
   }
+
+  if (step === 8) {
+    const skip = arguments[1] === true;
+    if (!skip) {
+      const photo = document.getElementById('ob-photo-input').files[0];
+      if (photo) {
+        const date = document.getElementById('ob-photo-date').value || new Date().toISOString().slice(0,10);
+        _obPhotoFile = photo;
+        _obPhotoDate = date;
+      }
+    } else {
+      _obPhotoFile = null;
+      _obPhotoDate = null;
+    }
+    obShowPlan();
+    obShowStep(9);
+    return;
+  }
 }
 
 function obBack(step) {
@@ -1997,8 +2050,83 @@ function obBack(step) {
   if (step === 6) { obShowStep(5); return; }
   if (step === 7) { obShowStep(6); return; }
   if (step === 8) { obShowStep(7); return; }
+  if (step === 9) { obShowStep(8); return; }
 }
 
+
+// ONBOARDING NUMPAD
+function obOpenNumpad(field) {
+  _obNumpadField = field;
+  const existing = document.getElementById('ob-' + field).value;
+  _obNumpadVal = (existing && parseFloat(existing) > 0) ? existing : '';
+  const modal = document.getElementById('ob-numpad-modal');
+  const title = document.getElementById('ob-numpad-title');
+  const display = document.getElementById('ob-numpad-display');
+  const unit = document.getElementById('ob-numpad-unit');
+  title.textContent = field === 'weight' ? 'Current Weight' : 'Goal Weight';
+  unit.textContent = 'lbs';
+  display.textContent = _obNumpadVal || '—';
+  modal.style.display = 'flex';
+}
+
+function obNumpadPress(key) {
+  if (key === 'del') {
+    _obNumpadVal = _obNumpadVal.slice(0, -1);
+  } else if (key === '.') {
+    if (_obNumpadVal.includes('.')) return;
+    if (!_obNumpadVal) _obNumpadVal = '0';
+    _obNumpadVal += '.';
+  } else {
+    const dotIdx = _obNumpadVal.indexOf('.');
+    if (dotIdx >= 0 && _obNumpadVal.length - dotIdx > 1) return; // 1 decimal place
+    if (_obNumpadVal === '0') _obNumpadVal = '';
+    if (_obNumpadVal.replace('.','').length >= 5) return;
+    _obNumpadVal += key;
+  }
+  document.getElementById('ob-numpad-display').textContent = _obNumpadVal || '—';
+}
+
+function obNumpadConfirm() {
+  const val = parseFloat(_obNumpadVal);
+  if (!isNaN(val) && val > 0) {
+    document.getElementById('ob-' + _obNumpadField).value = val;
+    const display = document.getElementById('ob-' + _obNumpadField + '-display');
+    if (display) { display.textContent = val + ' lbs'; display.style.color = '#0F0F0F'; }
+    const btn = document.getElementById('ob-' + _obNumpadField + '-btn');
+    if (btn) btn.style.borderColor = '#0F0F0F';
+  }
+  document.getElementById('ob-numpad-modal').style.display = 'none';
+}
+
+function obNumpadCancel() {
+  document.getElementById('ob-numpad-modal').style.display = 'none';
+}
+
+// ONBOARDING PHOTO
+function obPhotoSelected(evt) {
+  const file = evt.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    document.getElementById('ob-photo-img').src = e.target.result;
+    document.getElementById('ob-photo-preview').style.display = 'block';
+    document.getElementById('ob-photo-placeholder').style.display = 'none';
+    document.getElementById('ob-photo-date-row').style.display = 'block';
+    document.getElementById('ob-photo-date').value = new Date().toISOString().slice(0,10);
+    document.getElementById('ob-photo-next-btn').textContent = 'Save & Continue';
+  };
+  reader.readAsDataURL(file);
+}
+
+function obClearPhoto() {
+  document.getElementById('ob-photo-input').value = '';
+  document.getElementById('ob-photo-img').src = '';
+  document.getElementById('ob-photo-preview').style.display = 'none';
+  document.getElementById('ob-photo-placeholder').style.display = 'block';
+  document.getElementById('ob-photo-date-row').style.display = 'none';
+  document.getElementById('ob-photo-next-btn').textContent = 'Next';
+  _obPhotoFile = null;
+}
 
 // AUTH FUNCTIONS
 async function getSession() {
@@ -2356,14 +2484,33 @@ async function obSaveAndWelcome() {
   localStorage.setItem('ff_onboarded', '1');
   if (weight) { try { await dbPost('scans', { date: today, weight }); } catch(e) {} }
 
-  // Show plan summary before account creation (step 8)
-  obShowPlan();
+  // Show photo step first, then plan summary
   obShowStep(8);
 }
 
 async function obFinish() {
-  // Called from step 8 "Let's Start Tracking" button - go to welcome screen
+  // Called from step 9 "Let's Start Tracking" button - upload photo if present, then go to welcome screen
   document.querySelectorAll('.ob-screen').forEach(el => { el.style.display = 'none'; });
+
+  // Upload starting photo if user selected one
+  if (_obPhotoFile && _currentUser) {
+    try {
+      const date = _obPhotoDate || new Date().toISOString().slice(0,10);
+      const ext = _obPhotoFile.name.split('.').pop().toLowerCase() || 'jpg';
+      const path = `${_currentUser.id}/${date}-starting.${ext}`;
+      const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/progress-photos/${path}`, {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${_authToken}`, 'Content-Type': _obPhotoFile.type || 'image/jpeg' },
+        body: _obPhotoFile
+      });
+      if (uploadRes.ok) {
+        const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/progress-photos/${path}`;
+        await dbPost('progress_photos', { date, photo_url: publicUrl, notes: 'Starting photo', user_id: _currentUser.id });
+      }
+    } catch(e) { console.warn('Starting photo upload failed:', e); }
+    _obPhotoFile = null;
+  }
+
   await showWelcomeScreen();
 }
 
@@ -5681,23 +5828,27 @@ init();
       <div style="font-size:13px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">You</div>
       <div style="font-size:26px;font-weight:800;color:#0F0F0F;letter-spacing:-0.5px;margin-bottom:24px">Just a few more questions</div>
 
+      <!-- Hidden inputs to hold actual values -->
+      <input type="hidden" id="ob-weight" value="" />
+      <input type="hidden" id="ob-goal-weight" value="" />
+
       <div style="margin-bottom:20px">
         <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:8px">How much do you weigh?</div>
-        <div style="position:relative">
-          <input id="ob-weight" type="number" min="50" max="500" placeholder="180" inputmode="decimal" step="0.1"
-            style="width:100%;padding:14px 48px 14px 16px;border:2px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
-          <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:13px;color:#ADADAD;font-weight:700">lbs</span>
-        </div>
+        <button onclick="obOpenNumpad('weight')" id="ob-weight-btn"
+          style="width:100%;padding:14px 16px;border:2px solid #E8E8E8;border-radius:12px;font-size:16px;font-weight:600;background:white;cursor:pointer;display:flex;align-items:center;justify-content:space-between;box-sizing:border-box">
+          <span id="ob-weight-display" style="color:#ADADAD">Tap to enter weight</span>
+          <span style="font-size:13px;color:#ADADAD;font-weight:700">lbs</span>
+        </button>
         <div style="font-size:12px;color:#ADADAD;margin-top:6px">It's ok to estimate — you can update this later.</div>
       </div>
 
       <div style="margin-bottom:20px" id="ob-goal-weight-section">
         <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:8px" id="ob-goal-weight-label">What is your goal weight?</div>
-        <div style="position:relative">
-          <input id="ob-goal-weight" type="number" min="50" max="500" placeholder="170" inputmode="decimal" step="0.1"
-            style="width:100%;padding:14px 48px 14px 16px;border:2px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
-          <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:13px;color:#ADADAD;font-weight:700">lbs</span>
-        </div>
+        <button onclick="obOpenNumpad('goal-weight')" id="ob-goal-weight-btn"
+          style="width:100%;padding:14px 16px;border:2px solid #E8E8E8;border-radius:12px;font-size:16px;font-weight:600;background:white;cursor:pointer;display:flex;align-items:center;justify-content:space-between;box-sizing:border-box">
+          <span id="ob-goal-weight-display" style="color:#ADADAD">Tap to enter goal weight</span>
+          <span style="font-size:13px;color:#ADADAD;font-weight:700">lbs</span>
+        </button>
         <div id="ob-weight-warning" style="font-size:12px;color:#EF4444;margin-top:6px;display:none"></div>
         <div style="font-size:12px;color:#ADADAD;margin-top:6px">Don't worry, this doesn't affect your daily calorie goal and you can always change it later.</div>
       </div>
@@ -5823,8 +5974,58 @@ init();
     </div>
   </div>
 
-  <!-- Step 8: Your Plan is Ready -->
-  <div class="ob-screen" id="ob-step-8" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#0F0F0F;display:none;flex-direction:column;z-index:9999;overflow-y:auto;align-items:center;justify-content:center;padding:32px;text-align:center">
+  <!-- Step 8: Starting Photo (optional) -->
+  <div class="ob-screen" id="ob-step-8" style="position:fixed;top:0;left:0;right:0;bottom:0;background:white;display:none;flex-direction:column;z-index:9999;overflow-y:auto">
+    <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
+      <div style="display:flex;gap:4px;margin-bottom:32px">
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+        <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Before photo</div>
+      <div style="font-size:26px;font-weight:800;color:#0F0F0F;letter-spacing:-0.5px;margin-bottom:6px">Add a starting photo</div>
+      <div style="font-size:14px;color:#ADADAD;margin-bottom:28px">See how far you've come. Totally optional — you can always add one later.</div>
+
+      <!-- Upload area -->
+      <input type="file" id="ob-photo-input" accept="image/*" style="display:none" onchange="obPhotoSelected(event)" />
+      <div id="ob-photo-placeholder" onclick="document.getElementById('ob-photo-input').click()"
+        style="border:2px dashed #E8E8E8;border-radius:20px;padding:48px 24px;text-align:center;cursor:pointer;margin-bottom:20px;transition:border-color 0.2s"
+        onmouseenter="this.style.borderColor='#F97316'" onmouseleave="this.style.borderColor='#E8E8E8'">
+        <div style="font-size:48px;margin-bottom:12px">📸</div>
+        <div style="font-size:16px;font-weight:700;color:#0F0F0F;margin-bottom:4px">Tap to add photo</div>
+        <div style="font-size:13px;color:#ADADAD">Front, side, or back — your choice</div>
+      </div>
+
+      <!-- Preview (hidden until selected) -->
+      <div id="ob-photo-preview" style="display:none;margin-bottom:20px;position:relative">
+        <img id="ob-photo-img" style="width:100%;border-radius:16px;max-height:320px;object-fit:cover" />
+        <button onclick="obClearPhoto()" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.55);border:none;color:white;border-radius:50%;width:30px;height:30px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">×</button>
+      </div>
+
+      <!-- Date picker (shown after photo selected) -->
+      <div id="ob-photo-date-row" style="display:none;margin-bottom:16px">
+        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:8px">Photo date</div>
+        <input type="date" id="ob-photo-date" style="width:100%;padding:14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
+      </div>
+
+      <div id="ob-step8-error" style="font-size:13px;color:#EF4444;margin-bottom:8px;display:none"></div>
+    </div>
+    <div style="padding:20px 24px 40px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;gap:10px">
+        <button onclick="obBack(8)" style="padding:16px 20px;border:1px solid #E8E8E8;border-radius:14px;background:white;font-size:20px;cursor:pointer">←</button>
+        <button id="ob-photo-next-btn" onclick="obNext(8)" style="flex:1;padding:16px;background:#F97316;color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer">Next</button>
+      </div>
+      <button onclick="obNext(8, true)" style="width:100%;padding:12px;background:none;border:none;font-size:14px;color:#ADADAD;cursor:pointer">Skip for now</button>
+    </div>
+  </div>
+
+  <!-- Step 9: Your Plan is Ready -->
+  <div class="ob-screen" id="ob-step-9" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#0F0F0F;display:none;flex-direction:column;z-index:9999;overflow-y:auto;align-items:center;justify-content:center;padding:32px;text-align:center">
     <div style="font-size:32px;font-weight:800;color:white;letter-spacing:-0.5px;margin-bottom:8px">Your plan is ready! 🎉</div>
     <div id="ob-plan-name" style="font-size:16px;color:rgba(255,255,255,0.6);margin-bottom:32px"></div>
     <div style="background:white;border-radius:20px;padding:24px;width:100%;margin-bottom:24px">
