@@ -2462,15 +2462,21 @@ async function handleSignUp() {
         localStorage.setItem('pending_onboarding', JSON.stringify(pendingData));
         console.log('[handleSignUp] pending_onboarding saved. weight:', weight, 'calories:', pendingPlan.calories, 'name:', name);
         // Also save to Supabase with the new user's ID so it survives localStorage clearing
-        if (data.user?.id) {
+        const newUserId = data.user?.id || data.id;
+        console.log('[handleSignUp] newUserId:', newUserId);
+        if (newUserId) {
           try {
-            await fetch(`${SUPABASE_URL}/rest/v1/user_settings?on_conflict=user_id,key`, {
+            const sbRes = await fetch(`${SUPABASE_URL}/rest/v1/user_settings?on_conflict=user_id,key`, {
               method: 'POST',
               headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=minimal' },
-              body: JSON.stringify({ user_id: data.user.id, key: 'pending_onboarding', value: pendingData })
+              body: JSON.stringify({ user_id: newUserId, key: 'pending_onboarding', value: pendingData })
             });
-            console.log('[handleSignUp] pending_onboarding also saved to Supabase for uid:', data.user.id);
+            console.log('[handleSignUp] pending_onboarding Supabase save status:', sbRes.status);
+            if (!sbRes.ok) { const t = await sbRes.text(); console.error('[handleSignUp] Supabase save failed:', t); }
+            else { console.log('[handleSignUp] pending_onboarding also saved to Supabase for uid:', newUserId); }
           } catch(e) { console.warn('Could not save pending to Supabase:', e); }
+        } else {
+          console.warn('[handleSignUp] No user ID available for Supabase backup');
         }
       } catch(e) { console.warn('Could not save pending plan:', e); }
       document.querySelectorAll('.ob-screen').forEach(el => { el.style.display = 'none'; });
