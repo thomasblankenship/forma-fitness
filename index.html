@@ -2015,6 +2015,10 @@ async function obNext(step) {
     if (!email) { if (signupErrEl) { signupErrEl.textContent = 'Please enter your email'; signupErrEl.style.display = 'block'; } return; }
     if (!password || password.length < 6) { if (signupErrEl) { signupErrEl.textContent = 'Password must be at least 6 characters'; signupErrEl.style.display = 'block'; } return; }
     if (password !== confirm) { if (signupErrEl) { signupErrEl.textContent = 'Passwords do not match'; signupErrEl.style.display = 'block'; } return; }
+    // Store validated values so handleSignUp can use them after step 8
+    window._obSignupName = name;
+    window._obSignupEmail = email;
+    window._obSignupPassword = password;
     obShowStep(8);
     return;
   }
@@ -2363,9 +2367,9 @@ async function handleLogin() {
 }
 
 async function handleSignUp() {
-  const name = document.getElementById('ob-signup-name')?.value.trim();
-  const email = document.getElementById('ob-signup-email')?.value.trim();
-  const password = document.getElementById('ob-signup-password')?.value;
+  const name = window._obSignupName || document.getElementById('ob-signup-name')?.value.trim();
+  const email = window._obSignupEmail || document.getElementById('ob-signup-email')?.value.trim();
+  const password = window._obSignupPassword || document.getElementById('ob-signup-password')?.value;
   const confirm = document.getElementById('ob-signup-confirm')?.value;
   const btn = document.getElementById('ob-signup-btn');
   const errEl = document.getElementById('ob-signup-error');
@@ -2419,6 +2423,7 @@ async function handleSignUp() {
     if (errEl) { errEl.style.color = '#EF4444'; errEl.style.display = 'block'; errEl.textContent = e.message || 'Sign up failed — please try again'; }
   } finally {
     if (btn) { btn.textContent = 'Create Account'; btn.disabled = false; }
+    window._obSignupName = null; window._obSignupEmail = null; window._obSignupPassword = null;
   }
 }
 
