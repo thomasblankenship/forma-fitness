@@ -1630,7 +1630,8 @@ async function saveSetting(key, value) {
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${_authToken || SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=minimal' },
       body: JSON.stringify(body)
     });
-    if (!res.ok) { const t = await res.text(); console.error('saveSetting error', res.status, t); }
+    if (!res.ok) { const t = await res.text(); console.error('saveSetting error', res.status, t, 'uid:', uid, 'hasToken:', !!_authToken); }
+    else { console.log('[saveSetting] OK', key, 'uid:', uid?.slice(0,8)); }
   } catch(e) { console.error('saveSetting error', e); }
 }
 
@@ -2329,32 +2330,33 @@ async function handleLogin() {
     if (pending) {
       try {
         const p = JSON.parse(pending);
-        // Restore ob state so welcome screen can use it
         window._obName = p.obName || p.name || '';
         window._obGoalType = p.obGoalType || 'fat_loss';
         window._obActivity = p.obActivity || 'active';
         window._obPace = p.obPace || 'lose_1';
-        // Save to Supabase now that we have a valid auth token
         userProfile = p.profile;
         userTargets = p.targets;
         userGoals = p.goals;
-        await Promise.all([
+        console.log('[pending_onboarding] Applying for user:', _currentUser?.id, 'token:', !!_authToken);
+        const results = await Promise.allSettled([
           saveSetting('profile', p.profile),
           saveSetting('targets', p.targets),
           saveSetting('goals', p.goals)
         ]);
-        // Log starting weight if present
-        if (p.goals.weightStart) {
-          try { await dbPost('scans', { date: today, weight: p.goals.weightStart }); } catch(e) {}
+        results.forEach((r, i) => { if (r.status === 'rejected') console.error('[pending_onboarding] saveSetting failed index', i, r.reason); });
+        // Verify at least profile saved
+        const check = await loadSetting('profile');
+        if (!check) throw new Error('Settings did not persist — will retry on next login');
+        if (p.goals?.weightStart) {
+          try { await dbPost('scans', { date: today, weight: p.goals.weightStart }); } catch(e) { console.warn('scan post failed', e); }
         }
         localStorage.removeItem('pending_onboarding');
-        // Show welcome screen
         document.getElementById('auth-screen').style.display = 'none';
         await showWelcomeScreen();
         return;
       } catch(e) {
-        console.warn('Error applying pending onboarding:', e);
-        localStorage.removeItem('pending_onboarding');
+        console.error('Error applying pending onboarding:', e);
+        // Don't remove pending_onboarding — let user try again on next login
       }
     }
     document.getElementById('app-shell').style.display = 'block';
@@ -2621,31 +2623,35 @@ async function appInit() {
     // Check if there's pending onboarding data to apply (email-verified user returning)
     const pending = localStorage.getItem('pending_onboarding');
     if (pending && _currentUser) {
-      try {
-        const p = JSON.parse(pending);
-        window._obName = p.obName || p.name || '';
-        window._obGoalType = p.obGoalType || 'fat_loss';
-        window._obActivity = p.obActivity || 'active';
-        window._obPace = p.obPace || 'lose_1';
-        userProfile = p.profile;
-        userTargets = p.targets;
-        userGoals = p.goals;
-        await Promise.all([
-          saveSetting('profile', p.profile),
-          saveSetting('targets', p.targets),
-          saveSetting('goals', p.goals)
-        ]);
-        if (p.goals?.weightStart) {
-          try { await dbPost('scans', { date: today, weight: p.goals.weightStart }); } catch(e) {}
+        try {
+          const p = JSON.parse(pending);
+          window._obName = p.obName || p.name || '';
+          window._obGoalType = p.obGoalType || 'fat_loss';
+          window._obActivity = p.obActivity || 'active';
+          window._obPace = p.obPace || 'lose_1';
+          userProfile = p.profile;
+          userTargets = p.targets;
+          userGoals = p.goals;
+          console.log('[appInit pending_onboarding] Applying for user:', _currentUser?.id, 'token:', !!_authToken);
+          const results = await Promise.allSettled([
+            saveSetting('profile', p.profile),
+            saveSetting('targets', p.targets),
+            saveSetting('goals', p.goals)
+          ]);
+          results.forEach((r, i) => { if (r.status === 'rejected') console.error('[appInit pending] saveSetting failed index', i, r.reason); });
+          const check = await loadSetting('profile');
+          if (!check) throw new Error('Settings did not persist');
+          if (p.goals?.weightStart) {
+            try { await dbPost('scans', { date: today, weight: p.goals.weightStart }); } catch(e) { console.warn('scan post failed', e); }
+          }
+          localStorage.removeItem('pending_onboarding');
+          await showWelcomeScreen();
+          return;
+        } catch(e) {
+          console.error('Error applying pending onboarding in appInit:', e);
+          // Don't remove — retry on next load
         }
-        localStorage.removeItem('pending_onboarding');
-        await showWelcomeScreen();
-        return;
-      } catch(e) {
-        console.warn('Error applying pending onboarding in appInit:', e);
-        localStorage.removeItem('pending_onboarding');
       }
-    }
     startSignup();
     return;
   }
