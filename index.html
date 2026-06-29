@@ -2435,8 +2435,10 @@ async function handleSignUp() {
       await obSaveAndWelcome();
     } else {
       // Email confirmation required - save plan to localStorage so it can be applied after login
+      console.log('[handleSignUp] email confirm required. data.user:', data.user?.id, 'data keys:', Object.keys(data));
       try {
         const pendingPlan = obCalcPlan();
+        console.log('[handleSignUp] pendingPlan:', pendingPlan?.calories, 'weight:', document.getElementById('ob-weight')?.value);
         const ft = parseInt(document.getElementById('ob-height-ft').value) || 5;
         const inn = parseInt(document.getElementById('ob-height-in').value) || 9;
         const age = parseInt(document.getElementById('ob-age').value) || 30;
@@ -2599,6 +2601,25 @@ async function obSaveAndWelcome() {
   userGoals = { weightStart: weight, weightGoal: goalWeight, bfCurrent, bfGoal, bfTrackingOn: true, muscleCurrent, muscleGoal, muscleTrackingOn: true, muscleMethod: null, primaryGoal: _obGoalType };
 
   await Promise.all([saveSetting('goals', userGoals), saveSetting('targets', userTargets), saveSetting('profile', userProfile)]);
+  console.log('[obSaveAndWelcome] saves fired. uid:', _currentUser?.id?.slice(0,8), 'hasToken:', !!_authToken, 'tokenPrefix:', _authToken?.slice(0,20));
+  // Verify profile saved — if not, the JWT may be invalid (unconfirmed user)
+  const check = await loadSetting('profile');
+  if (!check) {
+    console.error('[obSaveAndWelcome] profile did not persist — token may be invalid. Saving to pending instead.');
+    // Save to pending_onboarding as fallback so it applies on next proper login
+    const pendingData = { name, profile: userProfile, targets: userTargets, goals: userGoals, plan, obGoalType: _obGoalType, obName: name, obActivity: _obActivity, obPace: _obPace };
+    localStorage.setItem('pending_onboarding', JSON.stringify(pendingData));
+    if (_currentUser?.id) {
+      try {
+        await fetch(`${SUPABASE_URL}/rest/v1/user_settings?on_conflict=user_id,key`, {
+          method: 'POST',
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+          body: JSON.stringify({ user_id: _currentUser.id, key: 'pending_onboarding', value: pendingData })
+        });
+        console.log('[obSaveAndWelcome] pending saved to Supabase with anon key');
+      } catch(e) { console.warn('pending Supabase save failed:', e); }
+    }
+  }
   localStorage.setItem('ff_onboarded', '1');
   if (weight) { try { await dbPost('scans', { date: today, weight }); } catch(e) {} }
 
@@ -2683,7 +2704,16 @@ async function appInit() {
   const hasGoals = await loadSetting('goals');
   if (!hasProfile && !hasGoals) {
     // Check if there's pending onboarding data to apply (email-verified user returning)
-    const pending = localStorage.getItem('pending_onboarding');
+    let pending = localStorage.getItem('pending_onboarding');
+    if (!pending && _currentUser) {
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/user_settings?user_id=eq.${_currentUser.id}&key=eq.pending_onboarding&select=value`, {
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${_authToken}` }
+        });
+        const rows = await r.json();
+        if (rows?.[0]?.value) { pending = JSON.stringify(rows[0].value); console.log('[appInit] pending_onboarding recovered from Supabase'); }
+      } catch(e) { console.warn('Could not fetch pending from Supabase:', e); }
+    }
     console.log('[appInit] pending_onboarding exists:', !!pending);
     if (pending && _currentUser) {
         try {
@@ -2708,6 +2738,9 @@ async function appInit() {
             try { await dbPost('scans', { date: today, weight: p.goals.weightStart }); } catch(e) { console.warn('scan post failed', e); }
           }
           localStorage.removeItem('pending_onboarding');
+          fetch(`${SUPABASE_URL}/rest/v1/user_settings?user_id=eq.${_currentUser.id}&key=eq.pending_onboarding`, {
+            method: 'DELETE', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${_authToken}` }
+          }).catch(() => {});
           await showWelcomeScreen();
           return;
         } catch(e) {
