@@ -1604,7 +1604,9 @@ let selectedPhotoFile = null;
 async function dbGet(table, filters = '') {
   try {
     const orderParam = filters.includes('order=') ? '' : '&order=created_at.asc';
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${filters}${orderParam}`, {
+    // Always filter by user_id if logged in (belt-and-suspenders on top of RLS)
+    const userFilter = _currentUser?.id && !filters.includes('user_id=') ? `&user_id=eq.${_currentUser.id}` : '';
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${filters}${orderParam}${userFilter}`, {
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${_authToken || SUPABASE_KEY}` }
     });
     if (!res.ok) { console.error('dbGet failed:', table, res.status); return []; }
