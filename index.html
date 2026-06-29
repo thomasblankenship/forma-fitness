@@ -207,7 +207,10 @@
       <div id="auth-error" style="font-size:13px;color:#EF4444;margin-bottom:12px;min-height:20px;text-align:center"></div>
       <div id="auth-login-form">
         <div style="margin-bottom:12px"><input id="auth-email" type="email" placeholder="Email" autocomplete="email" style="width:100%;padding:14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:15px;outline:none;box-sizing:border-box" /></div>
-        <div style="margin-bottom:20px"><input id="auth-password" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;padding:14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:15px;outline:none;box-sizing:border-box" onkeydown="if(event.key==='Enter')handleLogin()" /></div>
+        <div style="margin-bottom:20px;position:relative">
+          <input id="auth-password" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;padding:14px 48px 14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:15px;outline:none;box-sizing:border-box" onkeydown="if(event.key==='Enter')handleLogin()" />
+          <button type="button" onclick="togglePw('auth-password',this)" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:0;font-size:18px;line-height:1;color:#ADADAD">👁️</button>
+        </div>
         <button id="auth-login-btn" onclick="handleLogin()" style="width:100%;padding:16px;background:#F97316;color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:12px">Sign In</button>
         <button onclick="showResetForm()" style="width:100%;padding:10px;background:none;border:none;font-size:13px;color:#ADADAD;cursor:pointer">Forgot password?</button>
       </div>
@@ -1766,6 +1769,15 @@ function obShowStep(n) {
   }
 }
 
+function togglePw(id, btn) {
+  const input = document.getElementById(id);
+  if (!input) return;
+  const show = input.type === 'password';
+  input.type = show ? 'text' : 'password';
+  btn.style.opacity = show ? '1' : '0.4';
+}
+
+
 function obSelectGoal(type) {
   _obGoalType = type;
   ['fat_loss','weight_loss','muscle_gain','maintain'].forEach(t => {
@@ -2434,8 +2446,8 @@ function showChangePasswordForm(token) {
       <div style="font-size:16px;font-weight:700;margin-bottom:4px">Set New Password</div>
       <div style="font-size:13px;color:#ADADAD">Enter your new password below</div>
     </div>
-    <div style="margin-bottom:12px"><input id="new-password" type="password" placeholder="New password (min 6 chars)" style="width:100%;padding:14px 16px;border:1px solid #E8E8E8;border-radius:12px;font-size:15px;outline:none;box-sizing:border-box" /></div>
-    <div style="margin-bottom:16px"><input id="new-password-confirm" type="password" placeholder="Confirm new password" style="width:100%;padding:14px 16px;border:1px solid #E8E8E8;border-radius:12px;font-size:15px;outline:none;box-sizing:border-box" /></div>
+    <div style="margin-bottom:12px;position:relative"><input id="new-password" type="password" placeholder="New password (min 6 chars)" style="width:100%;padding:14px 48px 14px 16px;border:1px solid #E8E8E8;border-radius:12px;font-size:15px;outline:none;box-sizing:border-box" /><button type="button" onclick="togglePw('new-password',this)" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:0;font-size:18px;line-height:1;color:#ADADAD">👁️</button></div>
+    <div style="margin-bottom:16px;position:relative"><input id="new-password-confirm" type="password" placeholder="Confirm new password" style="width:100%;padding:14px 48px 14px 16px;border:1px solid #E8E8E8;border-radius:12px;font-size:15px;outline:none;box-sizing:border-box" /><button type="button" onclick="togglePw('new-password-confirm',this)" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:0;font-size:18px;line-height:1;color:#ADADAD">👁️</button></div>
     <button onclick="handleChangePassword('${token}')" style="width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer">Update Password</button>
   `;
 }
@@ -5992,13 +6004,19 @@ init();
       </div>
       <div style="margin-bottom:12px">
         <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:6px">Password</div>
-        <input id="ob-signup-password" type="password" placeholder="Min 6 characters"
-          style="width:100%;padding:14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
+        <div style="position:relative">
+          <input id="ob-signup-password" type="password" placeholder="Min 6 characters"
+            style="width:100%;padding:14px 48px 14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
+          <button type="button" onclick="togglePw('ob-signup-password',this)" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:0;font-size:18px;line-height:1;color:#ADADAD">👁️</button>
+        </div>
       </div>
       <div style="margin-bottom:16px">
         <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:6px">Confirm password</div>
-        <input id="ob-signup-confirm" type="password" placeholder="Re-enter password"
-          style="width:100%;padding:14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
+        <div style="position:relative">
+          <input id="ob-signup-confirm" type="password" placeholder="Re-enter password"
+            style="width:100%;padding:14px 48px 14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
+          <button type="button" onclick="togglePw('ob-signup-confirm',this)" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:0;font-size:18px;line-height:1;color:#ADADAD">👁️</button>
+        </div>
       </div>
       <div id="ob-signup-error" style="font-size:13px;color:#EF4444;margin-bottom:8px;display:none"></div>
       <div style="font-size:11px;color:#ADADAD;text-align:center;line-height:1.5">By creating an account you agree to our Terms of Service. We'll send a verification email to confirm your address.</div>
