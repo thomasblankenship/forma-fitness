@@ -2352,7 +2352,18 @@ async function handleLogin() {
     // Check if first-time login (no profile yet)
     const profile = await loadSetting('profile');
     // Check for pending onboarding plan (new user who just verified email)
-    const pending = localStorage.getItem('pending_onboarding');
+    let pending = localStorage.getItem('pending_onboarding');
+    // Fall back to Supabase if localStorage was cleared (e.g. different device/tab)
+    if (!pending && _currentUser) {
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/user_settings?user_id=eq.${_currentUser.id}&key=eq.pending_onboarding&select=value`, {
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${_authToken}` }
+        });
+        const rows = await r.json();
+        if (rows?.[0]?.value) { pending = JSON.stringify(rows[0].value); console.log('[handleLogin] pending_onboarding recovered from Supabase'); }
+      } catch(e) { console.warn('Could not fetch pending from Supabase:', e); }
+    }
+    console.log('[handleLogin] pending_onboarding exists:', !!pending, pending ? JSON.parse(pending)?.profile?.name : 'none');
     if (pending) {
       try {
         const p = JSON.parse(pending);
@@ -2377,6 +2388,10 @@ async function handleLogin() {
           try { await dbPost('scans', { date: today, weight: p.goals.weightStart }); } catch(e) { console.warn('scan post failed', e); }
         }
         localStorage.removeItem('pending_onboarding');
+        // Clean up Supabase pending row too
+        fetch(`${SUPABASE_URL}/rest/v1/user_settings?user_id=eq.${_currentUser.id}&key=eq.pending_onboarding`, {
+          method: 'DELETE', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${_authToken}` }
+        }).catch(() => {});
         document.getElementById('auth-screen').style.display = 'none';
         await showWelcomeScreen();
         return;
@@ -2431,7 +2446,7 @@ async function handleSignUp() {
         const bfGoal = parseFloat(document.getElementById('ob-bf-goal')?.value) || null;
         const muscleCurrent = parseFloat(document.getElementById('ob-muscle-current')?.value) || null;
         const muscleGoal = parseFloat(document.getElementById('ob-muscle-goal')?.value) || null;
-        localStorage.setItem('pending_onboarding', JSON.stringify({
+        const pendingData = {
           name,
           profile: { heightIn: ft * 12 + inn, age, gender: _obGender || 'male', activity: _obActivity || 'active', name, primaryGoal: _obGoalType, weeklyPace: _obPace },
           targets: { calories: pendingPlan.calories, protein: pendingPlan.protein, carbs: Math.round((pendingPlan.calories * 0.35) / 4), fat: Math.round((pendingPlan.calories * 0.25) / 9) },
@@ -2441,7 +2456,20 @@ async function handleSignUp() {
           obName: name,
           obActivity: _obActivity,
           obPace: _obPace
-        }));
+        };
+        localStorage.setItem('pending_onboarding', JSON.stringify(pendingData));
+        console.log('[handleSignUp] pending_onboarding saved. weight:', weight, 'calories:', pendingPlan.calories, 'name:', name);
+        // Also save to Supabase with the new user's ID so it survives localStorage clearing
+        if (data.user?.id) {
+          try {
+            await fetch(`${SUPABASE_URL}/rest/v1/user_settings?on_conflict=user_id,key`, {
+              method: 'POST',
+              headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+              body: JSON.stringify({ user_id: data.user.id, key: 'pending_onboarding', value: pendingData })
+            });
+            console.log('[handleSignUp] pending_onboarding also saved to Supabase for uid:', data.user.id);
+          } catch(e) { console.warn('Could not save pending to Supabase:', e); }
+        }
       } catch(e) { console.warn('Could not save pending plan:', e); }
       document.querySelectorAll('.ob-screen').forEach(el => { el.style.display = 'none'; });
       document.getElementById('auth-screen').style.display = 'flex';
@@ -2656,6 +2684,7 @@ async function appInit() {
   if (!hasProfile && !hasGoals) {
     // Check if there's pending onboarding data to apply (email-verified user returning)
     const pending = localStorage.getItem('pending_onboarding');
+    console.log('[appInit] pending_onboarding exists:', !!pending);
     if (pending && _currentUser) {
         try {
           const p = JSON.parse(pending);
