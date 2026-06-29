@@ -3639,10 +3639,11 @@ async function logFoodFromModal() {
     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   };
   await dbPost('meals', meal);
+  const foodName = activeFoodForModal.name;
   closeFoodModal();
   await loadTodayMeals();
   switchTab('today');
-  toast(`${activeFoodForModal.name} added ✓`);
+  toast(`${foodName} added ✓`);
 }
 
 let _editFoodId = null;
