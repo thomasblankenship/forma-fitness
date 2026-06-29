@@ -1770,6 +1770,29 @@ function obShowStep(n) {
   }
 }
 
+function setPendingOnboarding(data) {
+  const json = JSON.stringify(data);
+  localStorage.setItem('pending_onboarding', json); // primary
+  // Cookie backup - survives iOS Safari clearing localStorage on app switch
+  // 7 day expiry, SameSite=Lax so it works on same-origin redirects
+  const exp = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toUTCString();
+  document.cookie = `pending_ob=${encodeURIComponent(json)};expires=${exp};path=/;SameSite=Lax`;
+}
+
+function getPendingOnboarding() {
+  // Try localStorage first, fall back to cookie
+  const ls = localStorage.getItem('pending_onboarding');
+  if (ls) return ls;
+  const match = document.cookie.match(/(?:^|;)\s*pending_ob=([^;]*)/);
+  if (match) { console.log('[pending] recovered from cookie'); return decodeURIComponent(match[1]); }
+  return null;
+}
+
+function clearPendingOnboarding() {
+  localStorage.removeItem('pending_onboarding');
+  document.cookie = 'pending_ob=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Lax';
+}
+
 function togglePw(id, btn) {
   const input = document.getElementById(id);
   if (!input) return;
@@ -2352,7 +2375,7 @@ async function handleLogin() {
     // Check if first-time login (no profile yet)
     const profile = await loadSetting('profile');
     // Check for pending onboarding plan (new user who just verified email)
-    let pending = localStorage.getItem('pending_onboarding');
+    let pending = getPendingOnboarding();
     // Fall back to Supabase if localStorage was cleared (e.g. different device/tab)
     if (!pending && _currentUser) {
       try {
@@ -2387,7 +2410,7 @@ async function handleLogin() {
         if (p.goals?.weightStart) {
           try { await dbPost('scans', { date: today, weight: p.goals.weightStart }); } catch(e) { console.warn('scan post failed', e); }
         }
-        localStorage.removeItem('pending_onboarding');
+        clearPendingOnboarding();
         // Clean up Supabase pending row too
         fetch(`${SUPABASE_URL}/rest/v1/user_settings?user_id=eq.${_currentUser.id}&key=eq.pending_onboarding`, {
           method: 'DELETE', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${_authToken}` }
@@ -2459,7 +2482,7 @@ async function handleSignUp() {
           obActivity: _obActivity,
           obPace: _obPace
         };
-        localStorage.setItem('pending_onboarding', JSON.stringify(pendingData));
+        setPendingOnboarding(pendingData);
         console.log('[handleSignUp] pending_onboarding saved. weight:', weight, 'calories:', pendingPlan.calories, 'name:', name);
         // Also save to Supabase with the new user's ID so it survives localStorage clearing
         const newUserId = data.user?.id || data.id;
@@ -2614,7 +2637,7 @@ async function obSaveAndWelcome() {
     console.error('[obSaveAndWelcome] profile did not persist — token may be invalid. Saving to pending instead.');
     // Save to pending_onboarding as fallback so it applies on next proper login
     const pendingData = { name, profile: userProfile, targets: userTargets, goals: userGoals, plan, obGoalType: _obGoalType, obName: name, obActivity: _obActivity, obPace: _obPace };
-    localStorage.setItem('pending_onboarding', JSON.stringify(pendingData));
+    setPendingOnboarding(pendingData);
     if (_currentUser?.id) {
       try {
         await fetch(`${SUPABASE_URL}/rest/v1/user_settings?on_conflict=user_id,key`, {
@@ -2710,7 +2733,7 @@ async function appInit() {
   const hasGoals = await loadSetting('goals');
   if (!hasProfile && !hasGoals) {
     // Check if there's pending onboarding data to apply (email-verified user returning)
-    let pending = localStorage.getItem('pending_onboarding');
+    let pending = getPendingOnboarding();
     if (!pending && _currentUser) {
       try {
         const r = await fetch(`${SUPABASE_URL}/rest/v1/user_settings?user_id=eq.${_currentUser.id}&key=eq.pending_onboarding&select=value`, {
@@ -2743,7 +2766,7 @@ async function appInit() {
           if (p.goals?.weightStart) {
             try { await dbPost('scans', { date: today, weight: p.goals.weightStart }); } catch(e) { console.warn('scan post failed', e); }
           }
-          localStorage.removeItem('pending_onboarding');
+          clearPendingOnboarding();
           fetch(`${SUPABASE_URL}/rest/v1/user_settings?user_id=eq.${_currentUser.id}&key=eq.pending_onboarding`, {
             method: 'DELETE', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${_authToken}` }
           }).catch(() => {});
