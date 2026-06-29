@@ -1760,6 +1760,10 @@ function obShowStep(n) {
   el.style.zIndex = '9999';
   el.style.overflowY = 'auto';
   _obCurrentStep = n;
+  if (n === 8) {
+    const dateEl = document.getElementById('ob-photo-date');
+    if (dateEl && !dateEl.value) dateEl.value = new Date().toISOString().slice(0,10);
+  }
 }
 
 function obSelectGoal(type) {
@@ -2005,17 +2009,8 @@ async function obNext(step) {
 
   if (step === 8) {
     const skip = arguments[1] === true;
-    if (!skip) {
-      const photo = document.getElementById('ob-photo-input').files[0];
-      if (photo) {
-        const date = document.getElementById('ob-photo-date').value || new Date().toISOString().slice(0,10);
-        _obPhotoFile = photo;
-        _obPhotoDate = date;
-      }
-    } else {
-      _obPhotoFile = null;
-      _obPhotoDate = null;
-    }
+    if (skip) _obPhotos = {};
+    // _obPhotos is already populated by obPhotoSelected — just proceed
     await handleSignUp();
     return;
   }
@@ -2080,31 +2075,95 @@ function obNumpadCancel() {
   document.getElementById('ob-numpad-modal').style.display = 'none';
 }
 
-// ONBOARDING PHOTO
+// ONBOARDING PHOTO — Front/Side/Back
+let _obCurrentAngle = 'front';
+let _obPhotos = {}; // { front: File, side: File, back: File }
+
+function obSelectAngle(angle, btn) {
+  _obCurrentAngle = angle;
+  document.querySelectorAll('.ob-angle-btn').forEach(b => {
+    b.style.background = 'white'; b.style.color = '#0F0F0F'; b.style.borderColor = '#E8E8E8';
+  });
+  btn.style.background = '#0F0F0F'; btn.style.color = 'white'; btn.style.borderColor = '#0F0F0F';
+  obRefreshPhotoUI();
+}
+
+function obRefreshPhotoUI() {
+  const file = _obPhotos[_obCurrentAngle];
+  const preview = document.getElementById('ob-photo-preview');
+  const box = document.getElementById('ob-upload-box');
+  const img = document.getElementById('ob-photo-img');
+  if (file) {
+    img.src = file._previewUrl;
+    preview.style.display = 'block';
+    box.style.display = 'none';
+  } else {
+    preview.style.display = 'none';
+    box.style.display = 'block';
+  }
+  obRenderThumbs();
+  obUpdatePhotoBtn();
+}
+
+function obRenderThumbs() {
+  const container = document.getElementById('ob-photo-thumbs');
+  if (!container) return;
+  const angles = ['front','side','back'];
+  container.innerHTML = angles.map((a, i) => {
+    const f = _obPhotos[a];
+    const active = a === _obCurrentAngle;
+    if (f) {
+      return `<div onclick="obSelectAngle('${a}', document.querySelectorAll('.ob-angle-btn')[${i}])"
+        style="position:relative;width:72px;height:72px;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid ${active ? '#F97316' : '#E8E8E8'}">
+        <img src="${f._previewUrl}" style="width:100%;height:100%;object-fit:cover" />
+        <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.45);color:white;font-size:9px;font-weight:700;text-align:center;padding:3px;text-transform:uppercase">${a}</div>
+      </div>`;
+    }
+    return `<div onclick="obSelectAngle('${a}', document.querySelectorAll('.ob-angle-btn')[${i}])"
+      style="width:72px;height:72px;border-radius:8px;border:2px dashed ${active ? '#F97316' : '#D1D5DB'};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:4px">
+      <div style="font-size:18px">📷</div>
+      <div style="font-size:9px;font-weight:700;color:#ADADAD;text-transform:uppercase">${a}</div>
+    </div>`;
+  }).join('');
+}
+
+function obUpdatePhotoBtn() {
+  const count = Object.keys(_obPhotos).length;
+  const btn = document.getElementById('ob-photo-next-btn');
+  if (!btn) return;
+  btn.textContent = count > 0 ? `Create Account (${count} photo${count > 1 ? 's' : ''} added)` : 'Create Account';
+}
+
 function obPhotoSelected(evt) {
   const file = evt.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = (e) => {
-    document.getElementById('ob-photo-img').src = e.target.result;
-    document.getElementById('ob-photo-preview').style.display = 'block';
-    document.getElementById('ob-photo-placeholder').style.display = 'none';
-    document.getElementById('ob-photo-date-row').style.display = 'block';
-    document.getElementById('ob-photo-date').value = new Date().toISOString().slice(0,10);
-    document.getElementById('ob-photo-next-btn').textContent = 'Save Photo & Create Account';
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const MAX_WIDTH = 800;
+      const scale = img.width > MAX_WIDTH ? MAX_WIDTH / img.width : 1;
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width * scale; canvas.height = img.height * scale;
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(blob => {
+        const compressed = new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' });
+        compressed._previewUrl = canvas.toDataURL('image/jpeg', 0.8);
+        _obPhotos[_obCurrentAngle] = compressed;
+        document.getElementById('ob-photo-input').value = '';
+        obRefreshPhotoUI();
+      }, 'image/jpeg', 0.8);
+    };
+    img.src = ev.target.result;
   };
   reader.readAsDataURL(file);
 }
 
-function obClearPhoto() {
-  document.getElementById('ob-photo-input').value = '';
-  document.getElementById('ob-photo-img').src = '';
-  document.getElementById('ob-photo-preview').style.display = 'none';
-  document.getElementById('ob-photo-placeholder').style.display = 'block';
-  document.getElementById('ob-photo-date-row').style.display = 'none';
-  document.getElementById('ob-photo-next-btn').textContent = 'Create Account';
-  _obPhotoFile = null;
+function obClearCurrentAngle() {
+  delete _obPhotos[_obCurrentAngle];
+  obRefreshPhotoUI();
 }
+function obClearPhoto() { obClearCurrentAngle(); }
 
 // AUTH FUNCTIONS
 async function getSession() {
@@ -2468,26 +2527,23 @@ async function obSaveAndWelcome() {
 }
 
 async function obFinish() {
-  // Called from step 9 "Let's Start Tracking" button - upload photo if present, then go to welcome screen
+  // Called from step 9 "Let's Start Tracking" button - upload starting photos then go to welcome screen
   document.querySelectorAll('.ob-screen').forEach(el => { el.style.display = 'none'; });
 
-  // Upload starting photo if user selected one
-  if (_obPhotoFile && _currentUser) {
-    try {
-      const date = _obPhotoDate || new Date().toISOString().slice(0,10);
-      const ext = _obPhotoFile.name.split('.').pop().toLowerCase() || 'jpg';
-      const path = `${_currentUser.id}/${date}-starting.${ext}`;
-      const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/progress-photos/${path}`, {
-        method: 'POST',
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${_authToken}`, 'Content-Type': _obPhotoFile.type || 'image/jpeg' },
-        body: _obPhotoFile
-      });
-      if (uploadRes.ok) {
-        const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/progress-photos/${path}`;
-        await dbPost('progress_photos', { date, photo_url: publicUrl, notes: 'Starting photo', user_id: _currentUser.id });
-      }
-    } catch(e) { console.warn('Starting photo upload failed:', e); }
-    _obPhotoFile = null;
+  // Upload each angle photo collected during onboarding
+  if (_currentUser && Object.keys(_obPhotos).length > 0) {
+    const date = document.getElementById('ob-photo-date')?.value || new Date().toISOString().slice(0,10);
+    for (const [angle, file] of Object.entries(_obPhotos)) {
+      try {
+        const path = `${date}/${angle}.jpg`;
+        const uploadRes = await storageUpload('progress-photos', path, file);
+        if (!uploadRes.error) {
+          const url = storageUrl('progress-photos', path) + '?t=' + Date.now();
+          await dbPost('progress_photos', { date, photo_url: url, angle, notes: 'Starting photo' });
+        }
+      } catch(e) { console.warn(`Starting photo upload failed (${angle}):`, e); }
+    }
+    _obPhotos = {};
   }
 
   await showWelcomeScreen();
@@ -5953,7 +6009,7 @@ init();
     </div>
   </div>
 
-  <!-- Step 8: Starting Photo (optional) -->
+  <!-- Step 8: Starting Photos (optional) -->
   <div class="ob-screen" id="ob-step-8" style="position:fixed;top:0;left:0;right:0;bottom:0;background:white;display:none;flex-direction:column;z-index:9999;overflow-y:auto">
     <div style="padding:24px 24px 0;flex:1;overflow-y:auto">
       <div style="display:flex;gap:4px;margin-bottom:32px">
@@ -5966,33 +6022,45 @@ init();
         <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
         <div style="flex:1;height:4px;background:#F97316;border-radius:2px"></div>
       </div>
-      <div style="font-size:13px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Before photo</div>
-      <div style="font-size:26px;font-weight:800;color:#0F0F0F;letter-spacing:-0.5px;margin-bottom:6px">Add a starting photo</div>
-      <div style="font-size:14px;color:#ADADAD;margin-bottom:28px">See how far you've come. Totally optional — you can always add one later.</div>
+      <div style="font-size:13px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Progress photos</div>
+      <div style="font-size:26px;font-weight:800;color:#0F0F0F;letter-spacing:-0.5px;margin-bottom:8px">Capture your starting point</div>
+      <div style="font-size:14px;color:#6B7280;margin-bottom:24px;line-height:1.5">Take a photo now, or already a few weeks in? Upload one you already have and set the date it was taken — your journey, your timeline.</div>
 
-      <!-- Upload area -->
+      <!-- Angle selector -->
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="ob-angle-btn ob-angle-selected" onclick="obSelectAngle('front', this)" style="flex:1;padding:10px;border:1.5px solid #0F0F0F;border-radius:10px;background:#0F0F0F;color:white;font-size:14px;font-weight:700;cursor:pointer">Front</button>
+        <button class="ob-angle-btn" onclick="obSelectAngle('side', this)" style="flex:1;padding:10px;border:1.5px solid #E8E8E8;border-radius:10px;background:white;color:#0F0F0F;font-size:14px;font-weight:700;cursor:pointer">Side</button>
+        <button class="ob-angle-btn" onclick="obSelectAngle('back', this)" style="flex:1;padding:10px;border:1.5px solid #E8E8E8;border-radius:10px;background:white;color:#0F0F0F;font-size:14px;font-weight:700;cursor:pointer">Back</button>
+      </div>
+
+      <!-- Date picker -->
+      <div style="margin-bottom:16px">
+        <div style="font-size:12px;font-weight:700;color:#ADADAD;margin-bottom:6px">When was this taken?</div>
+        <input type="date" id="ob-photo-date" style="width:100%;padding:12px 14px;border:1.5px solid #E8E8E8;border-radius:10px;font-size:15px;outline:none;box-sizing:border-box;color:#0F0F0F" />
+        <div style="font-size:12px;color:#ADADAD;margin-top:6px">Change this if you're uploading a photo from earlier in your journey.</div>
+      </div>
+
+      <!-- Hidden file input -->
       <input type="file" id="ob-photo-input" accept="image/*" style="display:none" onchange="obPhotoSelected(event)" />
-      <div id="ob-photo-placeholder" onclick="document.getElementById('ob-photo-input').click()"
-        style="border:2px dashed #E8E8E8;border-radius:20px;padding:48px 24px;text-align:center;cursor:pointer;margin-bottom:20px;transition:border-color 0.2s"
-        onmouseenter="this.style.borderColor='#F97316'" onmouseleave="this.style.borderColor='#E8E8E8'">
-        <div style="font-size:48px;margin-bottom:12px">📸</div>
-        <div style="font-size:16px;font-weight:700;color:#0F0F0F;margin-bottom:4px">Tap to add photo</div>
-        <div style="font-size:13px;color:#ADADAD">Front, side, or back — your choice</div>
+
+      <!-- Upload box / preview per angle -->
+      <div id="ob-upload-box" onclick="document.getElementById('ob-photo-input').click()"
+        style="border:2px dashed #D1D5DB;border-radius:12px;padding:36px 24px;text-align:center;cursor:pointer;margin-bottom:16px;transition:border-color 0.15s"
+        onmouseenter="this.style.borderColor='#F97316'" onmouseleave="this.style.borderColor='#D1D5DB'">
+        <div style="font-size:32px;margin-bottom:8px">📷</div>
+        <div style="font-size:15px;color:#6B7280;margin-bottom:4px">Tap to select photo</div>
+        <div style="font-size:12px;color:#ADADAD">JPG or PNG</div>
       </div>
 
-      <!-- Preview (hidden until selected) -->
-      <div id="ob-photo-preview" style="display:none;margin-bottom:20px;position:relative">
-        <img id="ob-photo-img" style="width:100%;border-radius:16px;max-height:320px;object-fit:cover" />
-        <button onclick="obClearPhoto()" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.55);border:none;color:white;border-radius:50%;width:30px;height:30px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">×</button>
+      <div id="ob-photo-preview" style="display:none;margin-bottom:16px;position:relative">
+        <img id="ob-photo-img" style="width:100%;border-radius:12px;max-height:280px;object-fit:cover" />
+        <button onclick="obClearCurrentAngle()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.55);border:none;color:white;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">×</button>
       </div>
 
-      <!-- Date picker (shown after photo selected) -->
-      <div id="ob-photo-date-row" style="display:none;margin-bottom:16px">
-        <div style="font-size:13px;font-weight:700;color:#666;margin-bottom:8px">Photo date</div>
-        <input type="date" id="ob-photo-date" style="width:100%;padding:14px 16px;border:1.5px solid #E8E8E8;border-radius:12px;font-size:16px;outline:none;box-sizing:border-box" />
-      </div>
+      <!-- Thumbnails row showing what's been added -->
+      <div id="ob-photo-thumbs" style="display:flex;gap:8px;margin-bottom:8px"></div>
 
-      <div id="ob-step8-error" style="font-size:13px;color:#EF4444;margin-bottom:8px;display:none"></div>
+      <div id="ob-step8-error" style="font-size:13px;color:#EF4444;margin-top:4px;display:none"></div>
     </div>
     <div style="padding:20px 24px 40px;display:flex;flex-direction:column;gap:10px">
       <div style="display:flex;gap:10px">
