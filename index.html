@@ -1906,7 +1906,7 @@ function obShowPlan() {
   document.getElementById('ob-plan-date').textContent = plan.goalDateStr;
 }
 
-function obNext(step) {
+async function obNext(step) {
   const errEl = document.getElementById('ob-step' + step + '-error');
   if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
 
@@ -1989,7 +1989,17 @@ function obNext(step) {
   }
 
   if (step === 7) {
-    // Handled by handleSignUp()
+    // Validate form fields first before advancing to photo step
+    const name = document.getElementById('ob-signup-name')?.value.trim();
+    const email = document.getElementById('ob-signup-email')?.value.trim();
+    const password = document.getElementById('ob-signup-password')?.value;
+    const confirm = document.getElementById('ob-signup-confirm')?.value;
+    const signupErrEl = document.getElementById('ob-signup-error');
+    if (!name) { if (signupErrEl) { signupErrEl.textContent = 'Please enter your name'; signupErrEl.style.display = 'block'; } return; }
+    if (!email) { if (signupErrEl) { signupErrEl.textContent = 'Please enter your email'; signupErrEl.style.display = 'block'; } return; }
+    if (!password || password.length < 6) { if (signupErrEl) { signupErrEl.textContent = 'Password must be at least 6 characters'; signupErrEl.style.display = 'block'; } return; }
+    if (password !== confirm) { if (signupErrEl) { signupErrEl.textContent = 'Passwords do not match'; signupErrEl.style.display = 'block'; } return; }
+    obShowStep(8);
     return;
   }
 
@@ -2006,8 +2016,7 @@ function obNext(step) {
       _obPhotoFile = null;
       _obPhotoDate = null;
     }
-    obShowPlan();
-    obShowStep(9);
+    await handleSignUp();
     return;
   }
 }
@@ -2082,7 +2091,7 @@ function obPhotoSelected(evt) {
     document.getElementById('ob-photo-placeholder').style.display = 'none';
     document.getElementById('ob-photo-date-row').style.display = 'block';
     document.getElementById('ob-photo-date').value = new Date().toISOString().slice(0,10);
-    document.getElementById('ob-photo-next-btn').textContent = 'Save & Continue';
+    document.getElementById('ob-photo-next-btn').textContent = 'Save Photo & Create Account';
   };
   reader.readAsDataURL(file);
 }
@@ -2093,7 +2102,7 @@ function obClearPhoto() {
   document.getElementById('ob-photo-preview').style.display = 'none';
   document.getElementById('ob-photo-placeholder').style.display = 'block';
   document.getElementById('ob-photo-date-row').style.display = 'none';
-  document.getElementById('ob-photo-next-btn').textContent = 'Next';
+  document.getElementById('ob-photo-next-btn').textContent = 'Create Account';
   _obPhotoFile = null;
 }
 
@@ -2453,8 +2462,9 @@ async function obSaveAndWelcome() {
   localStorage.setItem('ff_onboarded', '1');
   if (weight) { try { await dbPost('scans', { date: today, weight }); } catch(e) {} }
 
-  // Show photo step first, then plan summary
-  obShowStep(8);
+  // Show plan summary (step 9)
+  obShowPlan();
+  obShowStep(9);
 }
 
 async function obFinish() {
@@ -5939,7 +5949,7 @@ init();
     </div>
     <div style="padding:20px 24px 40px;display:flex;gap:10px">
       <button onclick="obBack(7)" style="padding:16px 20px;border:1px solid #E8E8E8;border-radius:14px;background:white;font-size:20px;cursor:pointer">←</button>
-      <button id="ob-signup-btn" onclick="handleSignUp()" style="flex:1;padding:16px;background:#F97316;color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer">Create Account</button>
+      <button id="ob-signup-btn" onclick="obNext(7)" style="flex:1;padding:16px;background:#F97316;color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer">Next →</button>
     </div>
   </div>
 
@@ -5987,7 +5997,7 @@ init();
     <div style="padding:20px 24px 40px;display:flex;flex-direction:column;gap:10px">
       <div style="display:flex;gap:10px">
         <button onclick="obBack(8)" style="padding:16px 20px;border:1px solid #E8E8E8;border-radius:14px;background:white;font-size:20px;cursor:pointer">←</button>
-        <button id="ob-photo-next-btn" onclick="obNext(8)" style="flex:1;padding:16px;background:#F97316;color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer">Next</button>
+        <button id="ob-photo-next-btn" onclick="obNext(8)" style="flex:1;padding:16px;background:#F97316;color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer">Create Account</button>
       </div>
       <button onclick="obNext(8, true)" style="width:100%;padding:12px;background:none;border:none;font-size:14px;color:#ADADAD;cursor:pointer">Skip for now</button>
     </div>
