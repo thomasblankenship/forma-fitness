@@ -4,9 +4,6 @@
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
   <script>eruda.init();</script>
   <meta charset="UTF-8" />
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ratio</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -2643,7 +2640,10 @@ async function handleChangePassword(token) {
 // ONBOARDING PROGRESS PERSISTENCE
 // Saves current step + all field values so the app can resume mid-onboarding
 // if iOS reclaims the WebView memory while backgrounded (common during app switches).
+let _obRestoring = false;
+
 function obSaveProgress() {
+  if (_obRestoring) return; // don't save while we're in the middle of restoring
   if (!_obCurrentStep || _obCurrentStep < 1) return;
   try {
     const fieldIds = [
@@ -2660,19 +2660,23 @@ function obSaveProgress() {
       savedAt: Date.now()
     };
     localStorage.setItem('ob_progress', JSON.stringify(snapshot));
+    console.log('[ob_progress] saved at step', _obCurrentStep, fields);
   } catch(e) { console.warn('obSaveProgress failed:', e); }
 }
 
 function obRestoreProgress() {
   try {
     const raw = localStorage.getItem('ob_progress');
+    console.log('[ob_progress] checking for saved progress:', !!raw);
     if (!raw) return false;
     const snap = JSON.parse(raw);
+    console.log('[ob_progress] found snapshot:', snap);
     // Discard stale progress (older than 24h) to avoid resuming a long-abandoned signup
     if (!snap.savedAt || Date.now() - snap.savedAt > 24 * 60 * 60 * 1000) {
       localStorage.removeItem('ob_progress');
       return false;
     }
+    _obRestoring = true;
     _obGoalType = snap.obGoalType || null;
     _obGender = snap.obGender || null;
     _obActivity = snap.obActivity || null;
@@ -2695,14 +2699,17 @@ function obRestoreProgress() {
         display.style.color = '#0F0F0F';
       }
     });
-    // Re-apply selected-goal / gender / activity / pace button highlighting if those builders exist
-    if (_obGoalType && typeof obSelectGoal === 'function') {
+    // Re-apply selected-goal button highlighting
+    if (_obGoalType) {
       const btn = document.getElementById('ob-goal-' + _obGoalType);
       if (btn) { btn.style.border = '2px solid #F97316'; btn.style.background = '#FFF7ED'; }
     }
+    _obRestoring = false;
+    // Now that fields are restored, save again so the snapshot reflects the restored state
+    obSaveProgress();
     console.log('[ob_progress] restored to step', snap.step);
     return true;
-  } catch(e) { console.warn('obRestoreProgress failed:', e); return false; }
+  } catch(e) { console.warn('obRestoreProgress failed:', e); _obRestoring = false; return false; }
 }
 
 function obClearProgress() {
