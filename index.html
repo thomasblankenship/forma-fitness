@@ -6046,7 +6046,14 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
-init();
+// Defer init() until the full document (including onboarding screens that live
+// after this script block) has been parsed, otherwise obShowStep can fail to
+// find step elements that haven't been added to the DOM yet.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
 </script>
 </div><!-- end app-shell -->
 
