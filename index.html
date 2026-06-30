@@ -1768,42 +1768,95 @@ function obShowStep(n) {
     const dateEl = document.getElementById('ob-photo-date');
     if (dateEl && !dateEl.value) dateEl.value = new Date().toISOString().slice(0,10);
   }
+  obSaveProgress();
 }
 
-function setPendingOnboarding(data) {
-  const json = JSON.stringify(data);
-  localStorage.setItem('pending_onboarding', json); // primary
-  // Cookie backup - survives iOS Safari clearing localStorage on app switch
-  // Store minimal version to stay under 4KB cookie limit
-  const mini = JSON.stringify({
-    name: data.name,
-    profile: data.profile,
-    targets: data.targets,
-    goals: data.goals,
-    obGoalType: data.obGoalType,
-    obActivity: data.obActivity,
-    obPace: data.obPace
+// IndexedDB-backed storage for pending onboarding data.
+// iOS Safari can clear localStorage AND cookies when switching apps (e.g. to check email),
+// but IndexedDB survives this far more reliably.
+function _obIdbOpen() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('ratio_pending_db', 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains('kv')) db.createObjectStore('kv');
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
   });
-  console.log('[pending] cookie size will be:', encodeURIComponent(mini).length, 'bytes');
-  const exp = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toUTCString();
-  document.cookie = `pending_ob=${encodeURIComponent(mini)};expires=${exp};path=/;SameSite=Lax`;
-  // Verify it was set
-  const check = document.cookie.includes('pending_ob=');
-  console.log('[pending] cookie set successfully:', check);
 }
 
-function getPendingOnboarding() {
-  // Try localStorage first, fall back to cookie
+async function _obIdbSet(key, value) {
+  try {
+    const db = await _obIdbOpen();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('kv', 'readwrite');
+      tx.objectStore('kv').put(value, key);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch(e) { console.warn('[idb] set failed:', e); return false; }
+}
+
+async function _obIdbGet(key) {
+  try {
+    const db = await _obIdbOpen();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('kv', 'readonly');
+      const req = tx.objectStore('kv').get(key);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error);
+    });
+  } catch(e) { console.warn('[idb] get failed:', e); return null; }
+}
+
+async function _obIdbDelete(key) {
+  try {
+    const db = await _obIdbOpen();
+    return new Promise((resolve) => {
+      const tx = db.transaction('kv', 'readwrite');
+      tx.objectStore('kv').delete(key);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+    });
+  } catch(e) { return false; }
+}
+
+async function setPendingOnboarding(data) {
+  const json = JSON.stringify(data);
+  // Primary: IndexedDB — most resilient to iOS Safari clearing storage on app switch
+  const idbOk = await _obIdbSet('pending_onboarding', json);
+  console.log('[pending] IndexedDB save:', idbOk);
+  // Secondary: localStorage (works if same tab/session)
+  try { localStorage.setItem('pending_onboarding', json); } catch(e) {}
+  // Tertiary: cookie backup, minimal payload to stay under 4KB
+  try {
+    const mini = JSON.stringify({
+      name: data.name, profile: data.profile, targets: data.targets, goals: data.goals,
+      obGoalType: data.obGoalType, obActivity: data.obActivity, obPace: data.obPace
+    });
+    const exp = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toUTCString();
+    document.cookie = `pending_ob=${encodeURIComponent(mini)};expires=${exp};path=/;SameSite=Lax`;
+  } catch(e) {}
+}
+
+async function getPendingOnboarding() {
+  // Try IndexedDB first — most likely to have survived
+  const idbVal = await _obIdbGet('pending_onboarding');
+  if (idbVal) { console.log('[pending] recovered from IndexedDB'); return idbVal; }
+  // Fall back to localStorage
   const ls = localStorage.getItem('pending_onboarding');
-  if (ls) return ls;
-  console.log('[pending] localStorage empty, checking cookie. All cookies:', document.cookie.slice(0,200));
+  if (ls) { console.log('[pending] recovered from localStorage'); return ls; }
+  // Fall back to cookie
+  console.log('[pending] IndexedDB+localStorage empty, checking cookie. All cookies:', document.cookie.slice(0,200));
   const match = document.cookie.match(/(?:^|;)\s*pending_ob=([^;]*)/);
   if (match) { console.log('[pending] recovered from cookie'); return decodeURIComponent(match[1]); }
-  console.log('[pending] no cookie found either');
+  console.log('[pending] no pending data found in any storage');
   return null;
 }
 
-function clearPendingOnboarding() {
+async function clearPendingOnboarding() {
+  await _obIdbDelete('pending_onboarding');
   localStorage.removeItem('pending_onboarding');
   document.cookie = 'pending_ob=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Lax';
 }
@@ -2390,7 +2443,7 @@ async function handleLogin() {
     // Check if first-time login (no profile yet)
     const profile = await loadSetting('profile');
     // Check for pending onboarding plan (new user who just verified email)
-    let pending = getPendingOnboarding();
+    let pending = await getPendingOnboarding();
     // Fall back to Supabase if localStorage was cleared (e.g. different device/tab)
     if (!pending && _currentUser) {
       try {
@@ -2425,8 +2478,7 @@ async function handleLogin() {
         if (p.goals?.weightStart) {
           try { await dbPost('scans', { date: today, weight: p.goals.weightStart }); } catch(e) { console.warn('scan post failed', e); }
         }
-        clearPendingOnboarding();
-        // Clean up Supabase pending row too
+        await clearPendingOnboarding(); obClearProgress();
         fetch(`${SUPABASE_URL}/rest/v1/user_settings?user_id=eq.${_currentUser.id}&key=eq.pending_onboarding`, {
           method: 'DELETE', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${_authToken}` }
         }).catch(() => {});
@@ -2497,7 +2549,7 @@ async function handleSignUp() {
           obActivity: _obActivity,
           obPace: _obPace
         };
-        setPendingOnboarding(pendingData);
+        await setPendingOnboarding(pendingData);
         console.log('[handleSignUp] pending_onboarding saved. weight:', weight, 'calories:', pendingPlan.calories, 'name:', name);
         // Also save to Supabase with the new user's ID so it survives localStorage clearing
         const newUserId = data.user?.id || data.id;
@@ -2517,6 +2569,7 @@ async function handleSignUp() {
           console.warn('[handleSignUp] No user ID available for Supabase backup');
         }
       } catch(e) { console.warn('Could not save pending plan:', e); }
+      obClearProgress();
       document.querySelectorAll('.ob-screen').forEach(el => { el.style.display = 'none'; });
       document.getElementById('auth-screen').style.display = 'flex';
       document.getElementById('auth-landing').style.display = 'none';
@@ -2587,6 +2640,75 @@ async function handleChangePassword(token) {
 
 
 // INIT
+// ONBOARDING PROGRESS PERSISTENCE
+// Saves current step + all field values so the app can resume mid-onboarding
+// if iOS reclaims the WebView memory while backgrounded (common during app switches).
+function obSaveProgress() {
+  if (!_obCurrentStep || _obCurrentStep < 1) return;
+  try {
+    const fieldIds = [
+      'ob-height-ft','ob-height-in','ob-age','ob-weight','ob-goal-weight',
+      'ob-bf-current','ob-bf-goal','ob-muscle-current','ob-muscle-goal',
+      'ob-signup-name','ob-signup-email'
+    ];
+    const fields = {};
+    fieldIds.forEach(id => { const el = document.getElementById(id); if (el) fields[id] = el.value; });
+    const snapshot = {
+      step: _obCurrentStep,
+      obGoalType: _obGoalType, obGender: _obGender, obActivity: _obActivity, obPace: _obPace,
+      fields,
+      savedAt: Date.now()
+    };
+    localStorage.setItem('ob_progress', JSON.stringify(snapshot));
+  } catch(e) { console.warn('obSaveProgress failed:', e); }
+}
+
+function obRestoreProgress() {
+  try {
+    const raw = localStorage.getItem('ob_progress');
+    if (!raw) return false;
+    const snap = JSON.parse(raw);
+    // Discard stale progress (older than 24h) to avoid resuming a long-abandoned signup
+    if (!snap.savedAt || Date.now() - snap.savedAt > 24 * 60 * 60 * 1000) {
+      localStorage.removeItem('ob_progress');
+      return false;
+    }
+    _obGoalType = snap.obGoalType || null;
+    _obGender = snap.obGender || null;
+    _obActivity = snap.obActivity || null;
+    _obPace = snap.obPace || null;
+    document.querySelectorAll('.ob-screen').forEach(el => { el.style.display = 'none'; });
+    document.getElementById('auth-screen').style.display = 'none';
+    obShowStep(snap.step || 1);
+    // Restore field values once the right screen is visible
+    Object.entries(snap.fields || {}).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el && val) el.value = val;
+    });
+    // Restore numpad display labels for weight/bf/muscle fields
+    ['weight','goal-weight','bf-current','bf-goal','muscle-current','muscle-goal'].forEach(f => {
+      const input = document.getElementById('ob-' + f);
+      const display = document.getElementById('ob-' + f + '-display');
+      if (input?.value && display) {
+        const unit = f.includes('bf') ? '%' : 'lbs';
+        display.textContent = input.value + ' ' + unit;
+        display.style.color = '#0F0F0F';
+      }
+    });
+    // Re-apply selected-goal / gender / activity / pace button highlighting if those builders exist
+    if (_obGoalType && typeof obSelectGoal === 'function') {
+      const btn = document.getElementById('ob-goal-' + _obGoalType);
+      if (btn) { btn.style.border = '2px solid #F97316'; btn.style.background = '#FFF7ED'; }
+    }
+    console.log('[ob_progress] restored to step', snap.step);
+    return true;
+  } catch(e) { console.warn('obRestoreProgress failed:', e); return false; }
+}
+
+function obClearProgress() {
+  localStorage.removeItem('ob_progress');
+}
+
 async function init() {
   updateDailyQuote();
   // Parse URL hash for Supabase auth redirects
@@ -2622,7 +2744,10 @@ async function init() {
     document.getElementById('app-shell').style.display = 'block';
     await appInit();
   } else {
-    showAuthScreen();
+    // No session yet — check if there's an in-progress onboarding to resume
+    // (e.g. user was mid-signup and iOS reclaimed the WebView while backgrounded)
+    const resumed = obRestoreProgress();
+    if (!resumed) showAuthScreen();
   }
 }
 
@@ -2652,7 +2777,7 @@ async function obSaveAndWelcome() {
     console.error('[obSaveAndWelcome] profile did not persist — token may be invalid. Saving to pending instead.');
     // Save to pending_onboarding as fallback so it applies on next proper login
     const pendingData = { name, profile: userProfile, targets: userTargets, goals: userGoals, plan, obGoalType: _obGoalType, obName: name, obActivity: _obActivity, obPace: _obPace };
-    setPendingOnboarding(pendingData);
+    await setPendingOnboarding(pendingData);
     if (_currentUser?.id) {
       try {
         await fetch(`${SUPABASE_URL}/rest/v1/user_settings?on_conflict=user_id,key`, {
@@ -2665,6 +2790,7 @@ async function obSaveAndWelcome() {
     }
   }
   localStorage.setItem('ff_onboarded', '1');
+  obClearProgress();
   if (weight) { try { await dbPost('scans', { date: today, weight }); } catch(e) {} }
 
   // Show plan summary (step 9)
@@ -2748,7 +2874,7 @@ async function appInit() {
   const hasGoals = await loadSetting('goals');
   if (!hasProfile && !hasGoals) {
     // Check if there's pending onboarding data to apply (email-verified user returning)
-    let pending = getPendingOnboarding();
+    let pending = await getPendingOnboarding();
     if (!pending && _currentUser) {
       try {
         const r = await fetch(`${SUPABASE_URL}/rest/v1/user_settings?user_id=eq.${_currentUser.id}&key=eq.pending_onboarding&select=value`, {
@@ -2781,7 +2907,7 @@ async function appInit() {
           if (p.goals?.weightStart) {
             try { await dbPost('scans', { date: today, weight: p.goals.weightStart }); } catch(e) { console.warn('scan post failed', e); }
           }
-          clearPendingOnboarding();
+          await clearPendingOnboarding(); obClearProgress();
           fetch(`${SUPABASE_URL}/rest/v1/user_settings?user_id=eq.${_currentUser.id}&key=eq.pending_onboarding`, {
             method: 'DELETE', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${_authToken}` }
           }).catch(() => {});
@@ -5888,6 +6014,11 @@ function dismissCheckin() {
   document.getElementById('checkin-modal').style.display = 'none';
 }
 
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden' && _obCurrentStep && _obCurrentStep > 0) {
+    obSaveProgress();
+  }
+});
 
 init();
 </script>
