@@ -1876,6 +1876,7 @@ function obSelectGoal(type) {
       btn.style.background = t === type ? '#FFF7ED' : 'white';
     }
   });
+  obSaveProgress();
 }
 
 function obSelectGender(g) {
@@ -1889,6 +1890,7 @@ function obSelectGender(g) {
     }
     if (check) check.style.display = s === g ? 'inline' : 'none';
   });
+  obSaveProgress();
 }
 
 function obSelectActivity(a) {
@@ -1900,6 +1902,7 @@ function obSelectActivity(a) {
       btn.style.background = act === a ? '#FFF7ED' : 'white';
     }
   });
+  obSaveProgress();
 }
 
 function obSelectPace(pace) {
@@ -1918,6 +1921,7 @@ function obSelectPace(pace) {
   } else {
     warnEl.style.display = 'none';
   }
+  obSaveProgress();
 }
 
 function obBuildPaceOptions() {
@@ -2200,6 +2204,7 @@ function obNumpadConfirm() {
     if (btn) btn.style.borderColor = '#0F0F0F';
   }
   document.getElementById('ob-numpad-modal').style.display = 'none';
+  obSaveProgress();
 }
 
 function obNumpadCancel() {
@@ -6020,6 +6025,14 @@ async function maybeShowCheckin() {
 function dismissCheckin() {
   document.getElementById('checkin-modal').style.display = 'none';
 }
+
+let _obSaveDebounce = null;
+document.addEventListener('input', (e) => {
+  if (e.target && e.target.id && e.target.id.startsWith('ob-') && e.target.closest('.ob-screen')) {
+    clearTimeout(_obSaveDebounce);
+    _obSaveDebounce = setTimeout(obSaveProgress, 400);
+  }
+});
 
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden' && _obCurrentStep && _obCurrentStep > 0) {
