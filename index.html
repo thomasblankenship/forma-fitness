@@ -1774,17 +1774,32 @@ function setPendingOnboarding(data) {
   const json = JSON.stringify(data);
   localStorage.setItem('pending_onboarding', json); // primary
   // Cookie backup - survives iOS Safari clearing localStorage on app switch
-  // 7 day expiry, SameSite=Lax so it works on same-origin redirects
+  // Store minimal version to stay under 4KB cookie limit
+  const mini = JSON.stringify({
+    name: data.name,
+    profile: data.profile,
+    targets: data.targets,
+    goals: data.goals,
+    obGoalType: data.obGoalType,
+    obActivity: data.obActivity,
+    obPace: data.obPace
+  });
+  console.log('[pending] cookie size will be:', encodeURIComponent(mini).length, 'bytes');
   const exp = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toUTCString();
-  document.cookie = `pending_ob=${encodeURIComponent(json)};expires=${exp};path=/;SameSite=Lax`;
+  document.cookie = `pending_ob=${encodeURIComponent(mini)};expires=${exp};path=/;SameSite=Lax`;
+  // Verify it was set
+  const check = document.cookie.includes('pending_ob=');
+  console.log('[pending] cookie set successfully:', check);
 }
 
 function getPendingOnboarding() {
   // Try localStorage first, fall back to cookie
   const ls = localStorage.getItem('pending_onboarding');
   if (ls) return ls;
+  console.log('[pending] localStorage empty, checking cookie. All cookies:', document.cookie.slice(0,200));
   const match = document.cookie.match(/(?:^|;)\s*pending_ob=([^;]*)/);
   if (match) { console.log('[pending] recovered from cookie'); return decodeURIComponent(match[1]); }
+  console.log('[pending] no cookie found either');
   return null;
 }
 
