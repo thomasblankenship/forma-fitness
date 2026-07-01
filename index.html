@@ -2692,8 +2692,20 @@ function obRestoreProgress() {
     // Onboarding step screens live inside #app-shell — must be visible or they're invisible too
     const shellEl = document.getElementById('app-shell');
     if (shellEl) shellEl.style.display = 'block';
-    console.log('[ob_progress] calling obShowStep with', snap.step || 1);
-    obShowStep(snap.step || 1);
+    const stepToRestore = snap.step === 8 ? 7 : (snap.step || 1);
+    console.log('[ob_progress] calling obShowStep with', stepToRestore, snap.step === 8 ? '(backed up from 8 — password needs re-entry)' : '');
+    obShowStep(stepToRestore);
+    // If we backed up from step 8, show a hint that password needs re-entering
+    if (snap.step === 8) {
+      setTimeout(() => {
+        const errEl = document.getElementById('ob-signup-error');
+        if (errEl) {
+          errEl.textContent = 'Welcome back! Just re-enter your password to continue.';
+          errEl.style.color = '#F97316';
+          errEl.style.display = 'block';
+        }
+      }, 100);
+    }
     console.log('[ob_progress] obShowStep returned, current display:', document.getElementById('ob-step-' + (snap.step || 1))?.style.display);
     // Restore field values once the right screen is visible
     Object.entries(snap.fields || {}).forEach(([id, val]) => {
