@@ -1551,8 +1551,10 @@ async function _dashMealSearchExec(query) {
     if (!savedMeals.length) { savedMeals = await dbGet('saved_meals', 'order=created_at.desc') || []; console.log('[dashSearch] loaded savedMeals:', savedMeals.length); }
     const mealMatches = (savedMeals || []).filter(m => m.name.toLowerCase().includes(q));
     const foodMatches = (savedFoods || []).filter(f => f.name.toLowerCase().includes(q));
-    const usdaData = await fetch(`${WORKER_URL}/search?q=${encodeURIComponent(query)}`).then(r => r.json()).catch(() => ({ results: [] }));
+    console.log('[dashSearch] mealMatches:', mealMatches.length, 'foodMatches:', foodMatches.length, 'sample food keys:', savedFoods[0] ? Object.keys(savedFoods[0]) : 'none');
+    const usdaData = await fetch(`${WORKER_URL}/search?q=${encodeURIComponent(query)}`).then(r => r.json()).catch(e => { console.error('[dashSearch] USDA fetch failed:', e); return { results: [] }; });
     const usdaResults = (usdaData.results || []).slice(0, 6);
+    console.log('[dashSearch] usdaResults:', usdaResults.length);
 
     if (!mealMatches.length && !foodMatches.length && !usdaResults.length) { el.style.display = 'none'; return; }
 
@@ -1589,9 +1591,11 @@ async function _dashMealSearchExec(query) {
         return row(f.name, `${f.calories} kcal · ${f.protein}g P · ${f.serving_size}`, k);
       }).join('');
     }
+    console.log('[dashSearch] setting html, length:', html.length);
     el.innerHTML = html;
     el.style.display = 'block';
-  } catch(e) { el.style.display = 'none'; }
+    console.log('[dashSearch] el display:', el.style.display, 'html set');
+  } catch(e) { console.error('[dashSearch] ERROR:', e); el.style.display = 'none'; }
 }
 
 function _dashPick(key) {
