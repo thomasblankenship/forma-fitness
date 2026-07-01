@@ -640,7 +640,7 @@
               <input type="number" id="food-fiber" placeholder="0" min="0" step="0.1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value*10)/10||0">
             </div>
             <div class="form-group">
-              <label class="form-label">Cholesterol (mg)</label>
+              <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Cholesterol (mg)</div>
               <input type="number" id="food-cholesterol" placeholder="0" min="0" step="1" onblur="if(+this.value<0)this.value=0;this.value=Math.round(+this.value)||0">
             </div>
           </div>
@@ -1521,12 +1521,16 @@ function toggleMealForm() {
     window._foodModalType = 'breakfast';
     selectMealType('breakfast', null);
     document.getElementById('dash-meal-results').style.display = 'none';
+    // Clear all fields for a fresh form each time
+    ['meal-name','meal-cals','meal-protein','meal-carbs','meal-fat','meal-fiber','meal-cholesterol'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
   }
 }
 
 let _dashMealSearchTimeout = null;
 function dashMealSearch(query) {
-  console.log('[dashMealSearch] called with:', query);
   clearTimeout(_dashMealSearchTimeout);
   const el = document.getElementById('dash-meal-results');
   if (!query || query.length < 2) { el.style.display = 'none'; return; }
@@ -1543,18 +1547,14 @@ function _dashCache(obj) {
 
 async function _dashMealSearchExec(query) {
   const el = document.getElementById('dash-meal-results');
-  console.log('[_dashMealSearchExec] query:', query, 'savedFoods:', savedFoods.length, 'savedMeals:', savedMeals.length);
   const q = query.toLowerCase();
   try {
-    // Ensure data is loaded — may not be if user types before appInit finishes
-    if (!savedFoods.length) { savedFoods = await dbGet('saved_foods', 'order=name.asc') || []; console.log('[dashSearch] loaded savedFoods:', savedFoods.length); }
-    if (!savedMeals.length) { savedMeals = await dbGet('saved_meals', 'order=created_at.desc') || []; console.log('[dashSearch] loaded savedMeals:', savedMeals.length); }
+    if (!savedFoods.length) { savedFoods = await dbGet('saved_foods', 'order=name.asc') || []; }
+    if (!savedMeals.length) { savedMeals = await dbGet('saved_meals', 'order=created_at.desc') || []; }
     const mealMatches = (savedMeals || []).filter(m => m.name.toLowerCase().includes(q));
     const foodMatches = (savedFoods || []).filter(f => f.name.toLowerCase().includes(q));
-    console.log('[dashSearch] mealMatches:', mealMatches.length, 'foodMatches:', foodMatches.length, 'sample food keys:', savedFoods[0] ? Object.keys(savedFoods[0]) : 'none');
-    const usdaData = await fetch(`${WORKER_URL}/search?q=${encodeURIComponent(query)}`).then(r => r.json()).catch(e => { console.error('[dashSearch] USDA fetch failed:', e); return { results: [] }; });
+    const usdaData = await fetch(`${WORKER_URL}/search?q=${encodeURIComponent(query)}`).then(r => r.json()).catch(() => ({ results: [] }));
     const usdaResults = (usdaData.results || []).slice(0, 6);
-    console.log('[dashSearch] usdaResults:', usdaResults.length);
 
     if (!mealMatches.length && !foodMatches.length && !usdaResults.length) { el.style.display = 'none'; return; }
 
@@ -1591,11 +1591,9 @@ async function _dashMealSearchExec(query) {
         return row(f.name, `${f.calories} kcal · ${f.protein}g P · ${f.serving_size}`, k);
       }).join('');
     }
-    console.log('[dashSearch] setting html, length:', html.length);
     el.innerHTML = html;
     el.style.display = 'block';
-    console.log('[dashSearch] el display:', el.style.display, 'html set');
-  } catch(e) { console.error('[dashSearch] ERROR:', e); el.style.display = 'none'; }
+  } catch(e) { console.error('[dashSearch] error:', e); el.style.display = 'none'; }
 }
 
 function _dashPick(key) {
@@ -4213,9 +4211,10 @@ function _mbOpenKey(key) {
 function mbOpenServingObj(food) {
   _mbActiveFood = food;
   const baseUnit = food.unit || 'g';
+  const defaultQty = food.unit_size || 1;
   document.getElementById('mb-serving-name').textContent = food.name;
-  document.getElementById('mb-serving-per').textContent = food.calories + ' kcal per ' + baseUnit;
-  document.getElementById('mb-serving-qty').value = '1';
+  document.getElementById('mb-serving-per').textContent = food.calories + ' kcal per ' + defaultQty + ' ' + baseUnit;
+  document.getElementById('mb-serving-qty').value = defaultQty;
   document.getElementById('mb-serving-unit-select').value = baseUnit;
   // Build unit wheel the same way as food-modal
   const container = document.getElementById('mb-serving-unit-scroll');
@@ -4247,12 +4246,20 @@ function mbOpenServingObj(food) {
   document.getElementById('mb-serving-modal').style.display = 'flex';
 }
 
+// Parse a stored unit string like "114g" or "5 oz" into { qty, unit }
+function _parseUnitString(storedUnit) {
+  const s = (storedUnit || '1 serving').toString().trim();
+  const match = s.match(/^([\d.]+)\s*(.+)$/);
+  if (match) return { qty: parseFloat(match[1]) || 1, unit: match[2].trim() };
+  return { qty: 1, unit: s };
+}
+
 function mbRenderSavedFoods() {
   const el = document.getElementById('mb-saved-foods');
   if (!savedFoods.length) { el.innerHTML = '<div style="font-size:13px;color:#ADADAD">No saved foods yet</div>'; return; }
   let html = '<div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">Your Saved Foods</div>';
   savedFoods.forEach(f => {
-    const food = {id:f.id, name:f.name, calories:f.cals_per_unit||f.calories_per_unit||0, protein:f.protein_per_unit, carbs:f.carbs_per_unit||0, fat:f.fat_per_unit||0, fiber:f.fiber_per_unit||0, unit:f.unit};
+    const _p = _parseUnitString(f.unit); const food = {id:f.id, name:f.name, calories:f.cals_per_unit||f.calories_per_unit||0, protein:f.protein_per_unit, carbs:f.carbs_per_unit||0, fat:f.fat_per_unit||0, fiber:f.fiber_per_unit||0, unit:_p.unit, unit_size:_p.qty};
     html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #F4F4F4"><div><div style="font-size:14px;font-weight:500">' + f.name + '</div><div style="font-size:11px;color:#ADADAD">' + food.calories + ' kcal · ' + food.protein + 'g P per ' + food.unit + '</div></div>' + mbFoodBtn(food) + '</div>';
   });
   el.innerHTML = html;
@@ -4291,7 +4298,7 @@ async function mbSearchDB(query) {
     if (localMatches.length) {
       html += '<div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">Your Saved Foods</div>';
       localMatches.forEach(f => {
-        const food = {id:f.id, name:f.name, calories:f.cals_per_unit||f.calories_per_unit||0, protein:f.protein_per_unit, carbs:f.carbs_per_unit||0, fat:f.fat_per_unit||0, fiber:f.fiber_per_unit||0, unit:f.unit};
+        const _p = _parseUnitString(f.unit); const food = {id:f.id, name:f.name, calories:f.cals_per_unit||f.calories_per_unit||0, protein:f.protein_per_unit, carbs:f.carbs_per_unit||0, fat:f.fat_per_unit||0, fiber:f.fiber_per_unit||0, unit:_p.unit, unit_size:_p.qty};
         html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #F4F4F4"><div><div style="font-size:14px;font-weight:500">' + f.name + '</div><div style="font-size:11px;color:#ADADAD">' + food.calories + ' kcal · ' + food.protein + 'g P per ' + food.unit + '</div></div>' + mbFoodBtn(food) + '</div>';
       });
     }
@@ -4400,10 +4407,12 @@ function mbUpdateServingPreview() {
   const unit = document.getElementById('mb-serving-unit-select')?.value || '';
   const f = _mbActiveFood;
   if (!f) return;
-  // Scale by qty; if unit differs from base unit and base unit is g, convert
-  let scale = qty;
-  if (unit === 'oz' && f.unit === 'g') scale = qty * 28.35 / (f.unit_size || 1);
-  else if (unit === 'g' && f.unit === 'oz') scale = qty / 28.35 / (f.unit_size || 1);
+  const baseSize = f.unit_size || 1;
+  let scale;
+  if (unit === f.unit) scale = qty / baseSize;
+  else if (unit === 'oz' && f.unit === 'g') scale = (qty * 28.35) / baseSize;
+  else if (unit === 'g' && f.unit === 'oz') scale = (qty / 28.35) / baseSize;
+  else scale = qty / baseSize;
   const r = v => Math.round(v * scale * 10) / 10;
   document.getElementById('mb-preview-cals').textContent = Math.round(f.calories * scale);
   document.getElementById('mb-preview-protein').textContent = r(f.protein);
@@ -4416,9 +4425,12 @@ function mbAddIngredient() {
   const unit = document.getElementById('mb-serving-unit-select')?.value || _mbActiveFood?.unit || 'serving';
   const f = _mbActiveFood;
   if (!f) return;
-  let scale = qty;
-  if (unit === 'oz' && f.unit === 'g') scale = qty * 28.35 / (f.unit_size || 1);
-  else if (unit === 'g' && f.unit === 'oz') scale = qty / 28.35 / (f.unit_size || 1);
+  const baseSize = f.unit_size || 1;
+  let scale;
+  if (unit === f.unit) scale = qty / baseSize;
+  else if (unit === 'oz' && f.unit === 'g') scale = (qty * 28.35) / baseSize;
+  else if (unit === 'g' && f.unit === 'oz') scale = (qty / 28.35) / baseSize;
+  else scale = qty / baseSize;
   const r = v => Math.round(v * scale * 10) / 10;
   _mbIngredients.push({
     name: f.name,
@@ -7105,7 +7117,8 @@ if (document.readyState === 'loading') {
 
 
 <!-- MEAL BUILDER MODAL -->
-<div id="meal-builder-modal" style="display:none;position:fixed;inset:0;background:white;z-index:800;flex-direction:column">
+<div id="meal-builder-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:800;flex-direction:column;align-items:center">
+  <div style="background:white;width:100%;max-width:520px;height:100%;display:flex;flex-direction:column;overflow:hidden">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #F4F4F4">
     <button onclick="closeMealBuilder()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#0F0F0F;padding:0">←</button>
     <div style="font-size:16px;font-weight:700">Create Meal</div>
@@ -7156,6 +7169,7 @@ if (document.readyState === 'loading') {
     </div>
     <div id="mb-search-results" style="display:none;margin-bottom:12px"></div>
     <div id="mb-saved-foods" style="margin-bottom:12px"></div>
+  </div>
   </div>
 </div>
 
