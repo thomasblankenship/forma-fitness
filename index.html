@@ -3046,6 +3046,9 @@ async function appInit() {
   document.getElementById('auth-screen').style.display = 'none';
   updateDailyQuote();
   await loadGoals();
+  // Load saved foods and meals eagerly so dashboard search works immediately
+  dbGet('saved_foods', 'order=name.asc').then(r => { if (r) savedFoods = r; }).catch(() => {});
+  dbGet('saved_meals', 'order=created_at.desc').then(r => { if (r) savedMeals = r; }).catch(() => {});
 
   // Check if new user needs onboarding (no settings saved in Supabase for this user)
   const hasProfile = await loadSetting('profile');
@@ -4162,19 +4165,37 @@ function _mbOpenKey(key) {
 }
 function mbOpenServingObj(food) {
   _mbActiveFood = food;
+  const baseUnit = food.unit || 'g';
   document.getElementById('mb-serving-name').textContent = food.name;
-  document.getElementById('mb-serving-per').textContent = food.calories + ' kcal per ' + food.unit;
+  document.getElementById('mb-serving-per').textContent = food.calories + ' kcal per ' + baseUnit;
   document.getElementById('mb-serving-qty').value = '1';
-  document.getElementById('mb-serving-unit-select').value = food.unit;
-  // Populate unit scroll picker
-  const units = [food.unit];
-  if (food.unit !== 'g') units.push('g');
-  if (food.unit !== 'oz') units.push('oz');
-  const scrollEl = document.getElementById('mb-serving-unit-scroll');
-  scrollEl.innerHTML = units.map(u =>
-    `<div onclick="document.getElementById('mb-serving-unit-select').value='${u}';mbUpdateServingPreview()"
-      style="height:40px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;scroll-snap-align:center;cursor:pointer">${u}</div>`
-  ).join('');
+  document.getElementById('mb-serving-unit-select').value = baseUnit;
+  // Build unit wheel the same way as food-modal
+  const container = document.getElementById('mb-serving-unit-scroll');
+  container.innerHTML = '';
+  const units = [...FOOD_ALL_UNITS];
+  if (!units.includes(baseUnit)) units.unshift(baseUnit);
+  const itemH = 40;
+  const top = document.createElement('div'); top.style.minHeight = itemH + 'px'; container.appendChild(top);
+  units.forEach(u => {
+    const el = document.createElement('div');
+    el.style.cssText = `min-height:${itemH}px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;scroll-snap-align:center;color:#0F0F0F;`;
+    el.textContent = u;
+    container.appendChild(el);
+  });
+  const bot = document.createElement('div'); bot.style.minHeight = itemH + 'px'; container.appendChild(bot);
+  const startIdx = units.indexOf(baseUnit);
+  if (startIdx >= 0) setTimeout(() => { container.scrollTop = startIdx * itemH; }, 100);
+  container.onscroll = null;
+  let scrollT;
+  container.addEventListener('scroll', () => {
+    clearTimeout(scrollT);
+    scrollT = setTimeout(() => {
+      const idx = Math.min(Math.round(container.scrollTop / itemH), units.length - 1);
+      document.getElementById('mb-serving-unit-select').value = units[idx];
+      mbUpdateServingPreview();
+    }, 80);
+  });
   mbUpdateServingPreview();
   document.getElementById('mb-serving-modal').style.display = 'flex';
 }
