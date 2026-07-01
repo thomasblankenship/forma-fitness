@@ -383,7 +383,11 @@
               <button class="meal-type-btn" type="button" data-type="snack" onclick="selectMealType('snack',this)" style="padding:8px 4px;border:1px solid #E8E8E8;border-radius:8px;background:white;color:#666;font-size:11px;font-weight:600;cursor:pointer">🍎 Snack</button>
             </div>
           </div>
-          <div class="form-group"><input type="text" id="meal-name" placeholder="Meal name (e.g. Chicken + Rice)" /></div>
+          <div class="form-group" style="position:relative">
+            <input type="text" id="meal-name" placeholder="Meal name (e.g. Chicken + Rice)" autocomplete="off"
+              oninput="dashMealSearch(this.value)" onblur="setTimeout(()=>{ document.getElementById('dash-meal-results').style.display='none'; },200)" />
+            <div id="dash-meal-results" style="display:none;position:absolute;left:0;right:0;top:100%;background:white;border:1px solid #E8E8E8;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.1);z-index:200;max-height:280px;overflow-y:auto;margin-top:4px"></div>
+          </div>
           <div class="form-row form-group">
             <div>
               <div style="font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Calories</div>
@@ -1512,11 +1516,97 @@ function toggleMealForm() {
   form.style.display = isOpen ? 'none' : 'block';
   btn.style.display = isOpen ? 'block' : 'none';
   if (!isOpen) {
-    // Reset meal type to breakfast when opening
     window._selectedMealType = 'breakfast';
-window._foodModalType = 'breakfast';
+    window._foodModalType = 'breakfast';
     selectMealType('breakfast', null);
+    document.getElementById('dash-meal-results').style.display = 'none';
   }
+}
+
+let _dashMealSearchTimeout = null;
+function dashMealSearch(query) {
+  clearTimeout(_dashMealSearchTimeout);
+  const el = document.getElementById('dash-meal-results');
+  if (!query || query.length < 2) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.innerHTML = '<div style="padding:10px 12px;font-size:13px;color:#ADADAD">Searching...</div>';
+  _dashMealSearchTimeout = setTimeout(() => _dashMealSearchExec(query), 350);
+}
+
+const _dashPickCache = {};
+let _dashPickIdx = 0;
+function _dashCache(obj) {
+  const k = 'd' + (_dashPickIdx++);
+  _dashPickCache[k] = obj;
+  return k;
+}
+
+async function _dashMealSearchExec(query) {
+  const el = document.getElementById('dash-meal-results');
+  const q = query.toLowerCase();
+  try {
+    const mealMatches = (savedMeals || []).filter(m => m.name.toLowerCase().includes(q));
+    const foodMatches = (savedFoods || []).filter(f => f.name.toLowerCase().includes(q));
+    const usdaData = await fetch(`${WORKER_URL}/search?q=${encodeURIComponent(query)}`).then(r => r.json()).catch(() => ({ results: [] }));
+    const usdaResults = (usdaData.results || []).slice(0, 6);
+
+    if (!mealMatches.length && !foodMatches.length && !usdaResults.length) { el.style.display = 'none'; return; }
+
+    const row = (name, sub, key) => `
+      <div onclick="_dashPick('${key}')" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid #F4F4F4;display:flex;justify-content:space-between;align-items:center"
+        onmouseenter="this.style.background='#FFF7ED'" onmouseleave="this.style.background='white'">
+        <div>
+          <div style="font-size:14px;font-weight:500;color:#0F0F0F">${name}</div>
+          <div style="font-size:11px;color:#ADADAD">${sub}</div>
+        </div>
+        <div style="font-size:11px;color:#F97316;font-weight:600">Fill ▸</div>
+      </div>`;
+
+    let html = '';
+    if (mealMatches.length) {
+      html += `<div style="padding:6px 12px;font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.8px;background:#F9FAFB">My Meals</div>`;
+      html += mealMatches.map(m => {
+        const k = _dashCache({name:m.name,cals:m.calories,protein:m.protein,carbs:m.carbs,fat:m.fat,fiber:m.fiber||0,chol:0});
+        return row(m.name, `${m.calories} kcal · ${m.protein}g P · ${m.carbs}g C · ${m.fat}g F`, k);
+      }).join('');
+    }
+    if (foodMatches.length) {
+      html += `<div style="padding:6px 12px;font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.8px;background:#F9FAFB">Saved Foods</div>`;
+      html += foodMatches.slice(0,5).map(f => {
+        const cals = f.cals_per_unit || f.calories_per_unit || 0;
+        const k = _dashCache({name:f.name,cals,protein:f.protein_per_unit,carbs:f.carbs_per_unit||0,fat:f.fat_per_unit||0,fiber:f.fiber_per_unit||0,chol:0});
+        return row(f.name, `${cals} kcal · ${f.protein_per_unit}g P per ${f.unit}`, k);
+      }).join('');
+    }
+    if (usdaResults.length) {
+      html += `<div style="padding:6px 12px;font-size:10px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:0.8px;background:#F9FAFB">Food Database</div>`;
+      html += usdaResults.map(f => {
+        const k = _dashCache({name:f.name,cals:f.calories,protein:f.protein,carbs:f.carbs,fat:f.fat,fiber:f.fiber||0,chol:f.cholesterol||0});
+        return row(f.name, `${f.calories} kcal · ${f.protein}g P · ${f.serving_size}`, k);
+      }).join('');
+    }
+    el.innerHTML = html;
+    el.style.display = 'block';
+  } catch(e) { el.style.display = 'none'; }
+}
+
+function _dashPick(key) {
+  const d = _dashPickCache[key];
+  if (!d) return;
+  document.getElementById('meal-name').value = d.name;
+  document.getElementById('meal-cals').value = d.cals;
+  document.getElementById('meal-protein').value = d.protein;
+  document.getElementById('meal-carbs').value = d.carbs;
+  document.getElementById('meal-fat').value = d.fat;
+  document.getElementById('meal-fiber').value = d.fiber;
+  const cholEl = document.getElementById('meal-chol');
+  if (cholEl) cholEl.value = d.chol;
+  document.getElementById('dash-meal-results').style.display = 'none';
+}
+
+function dashMealPick(name, cals, protein, carbs, fat, fiber, chol) {
+  // Legacy fallback
+  _dashPick(_dashCache({name,cals,protein,carbs,fat,fiber,chol}));
 }
 
 function toggleWorkoutForm() {
