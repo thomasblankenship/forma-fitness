@@ -1526,6 +1526,7 @@ function toggleMealForm() {
 
 let _dashMealSearchTimeout = null;
 function dashMealSearch(query) {
+  console.log('[dashMealSearch] called with:', query);
   clearTimeout(_dashMealSearchTimeout);
   const el = document.getElementById('dash-meal-results');
   if (!query || query.length < 2) { el.style.display = 'none'; return; }
@@ -1542,11 +1543,12 @@ function _dashCache(obj) {
 
 async function _dashMealSearchExec(query) {
   const el = document.getElementById('dash-meal-results');
+  console.log('[_dashMealSearchExec] query:', query, 'savedFoods:', savedFoods.length, 'savedMeals:', savedMeals.length);
   const q = query.toLowerCase();
   try {
     // Ensure data is loaded — may not be if user types before appInit finishes
-    if (!savedFoods.length) savedFoods = await dbGet('saved_foods', 'order=name.asc') || [];
-    if (!savedMeals.length) savedMeals = await dbGet('saved_meals', 'order=created_at.desc') || [];
+    if (!savedFoods.length) { savedFoods = await dbGet('saved_foods', 'order=name.asc') || []; console.log('[dashSearch] loaded savedFoods:', savedFoods.length); }
+    if (!savedMeals.length) { savedMeals = await dbGet('saved_meals', 'order=created_at.desc') || []; console.log('[dashSearch] loaded savedMeals:', savedMeals.length); }
     const mealMatches = (savedMeals || []).filter(m => m.name.toLowerCase().includes(q));
     const foodMatches = (savedFoods || []).filter(f => f.name.toLowerCase().includes(q));
     const usdaData = await fetch(`${WORKER_URL}/search?q=${encodeURIComponent(query)}`).then(r => r.json()).catch(() => ({ results: [] }));
