@@ -191,7 +191,7 @@
     </div>
     <div style="width:100%;max-width:380px">
       <button onclick="startSignup()" style="width:100%;padding:18px;background:#F97316;color:white;border:none;border-radius:14px;font-size:17px;font-weight:800;cursor:pointer;margin-bottom:12px;box-shadow:0 4px 16px rgba(249,115,22,0.3)">Get Started</button>
-      <button onclick="showSignIn()" style="width:100%;padding:14px;background:none;border:none;font-size:15px;color:#666;cursor:pointer;font-weight:500">Already have an account? <span style="color:#F97316;font-weight:700">Sign In</span></button>
+      <button onclick="obClearProgress();showSignIn()" style="width:100%;padding:14px;background:none;border:none;font-size:15px;color:#666;cursor:pointer;font-weight:500">Already have an account? <span style="color:#F97316;font-weight:700">Sign In</span></button>
     </div>
   </div>
 
@@ -2821,8 +2821,16 @@ function obRestoreProgress() {
     if (!raw) return false;
     const snap = JSON.parse(raw);
     console.log('[ob_progress] found snapshot:', snap);
-    // Discard stale progress (older than 24h) to avoid resuming a long-abandoned signup
+    // Discard stale progress (older than 24h)
     if (!snap.savedAt || Date.now() - snap.savedAt > 24 * 60 * 60 * 1000) {
+      localStorage.removeItem('ob_progress');
+      return false;
+    }
+    // Only restore if user had actually made meaningful progress:
+    // must have selected a goal AND be past step 1, OR be on step 7+ (account creation)
+    const hasProgress = snap.obGoalType && (snap.step > 1 || snap.step === 7 || snap.step === 8);
+    if (!hasProgress) {
+      console.log('[ob_progress] snapshot has no meaningful progress, discarding');
       localStorage.removeItem('ob_progress');
       return false;
     }
