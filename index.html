@@ -421,8 +421,9 @@
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
             <button class="btn" onclick="saveFoodFromForm()" style="background:var(--gray-100);color:var(--black)">Save Food</button>
-            <button class="btn" onclick="addMeal()">Log Meal</button>
+            <button class="btn" onclick="saveMealFromForm()" style="background:var(--gray-100);color:var(--black)">Save as Meal</button>
           </div>
+          <button class="btn" onclick="addMeal()" style="margin-top:8px">Log Food</button>
           <button class="btn" onclick="toggleMealForm()" style="background:#FEF2F2;color:#DC2626;margin-top:8px">Cancel</button>
         </div>
       </div>
@@ -559,8 +560,9 @@
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
               <button class="btn" onclick="saveHistFoodFromForm()" style="background:var(--gray-100);color:var(--black)">Save Food</button>
-              <button class="btn" onclick="addMealToHistoryDay()">Log Meal</button>
+              <button class="btn" onclick="saveHistMealFromForm()" style="background:var(--gray-100);color:var(--black)">Save as Meal</button>
             </div>
+            <button class="btn" onclick="addMealToHistoryDay()" style="margin-top:8px">Log Food</button>
             <button class="btn" onclick="toggleHistoryAddForm('meal')" style="background:#FEF2F2;color:#DC2626;margin-top:8px">Cancel</button>
           </div>
         </div>
@@ -1649,11 +1651,37 @@ async function _runFoodSearch(query, ctx) {
   } catch(e) { console.error('[foodSearch] error:', e); }
 }
 
+function _closeManualForm(ctx) {
+  if (ctx === 'dash') {
+    const form = document.getElementById('meal-form');
+    const btn = document.getElementById('add-meal-btn');
+    if (form) form.style.display = 'none';
+    if (btn) btn.style.display = 'block';
+    ['meal-name','meal-cals','meal-protein','meal-carbs','meal-fat','meal-fiber','meal-cholesterol'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+  } else {
+    const form = document.getElementById('hist-add-meal-form');
+    const btn = document.getElementById('hist-add-meal-btn');
+    if (form) form.style.display = 'none';
+    if (btn) btn.style.display = 'block';
+    ['hist-meal-name','hist-meal-cals','hist-meal-protein','hist-meal-carbs','hist-meal-fat','hist-meal-fiber','hist-meal-cholesterol'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+  }
+}
+
 function _searchPick(key, ctx) {
   const d = _dashPickCache[key];
   if (!d) return;
   const resultsEl = document.getElementById(ctx === 'dash' ? 'dash-meal-results' : 'hist-meal-results');
   resultsEl.style.display = 'none';
+
+  // Picking a result always resolves through a modal or a direct log —
+  // the manual entry form underneath is no longer needed, so close it now.
+  _closeManualForm(ctx);
 
   // Set up context: history logs use window._historyDate + hist meal type, dashboard uses today
   if (ctx === 'hist') {
@@ -3835,6 +3863,27 @@ async function saveHistFoodFromForm() {
   toast(`"${name}" saved to My Foods ✓`);
 }
 
+async function saveHistMealFromForm() {
+  const name = document.getElementById('hist-meal-name').value.trim();
+  const cals = +document.getElementById('hist-meal-cals').value;
+  if (!name) { toast('Fill in meal details first'); return; }
+  const protein = +document.getElementById('hist-meal-protein').value || 0;
+  const carbs = +document.getElementById('hist-meal-carbs').value || 0;
+  const fat = +document.getElementById('hist-meal-fat').value || 0;
+  const fiber = +document.getElementById('hist-meal-fiber').value || 0;
+  await dbPost('saved_meals', {
+    name,
+    ingredients: [{ name, qty: 1, unit: 'serving', calories: cals, protein, carbs, fat, fiber }],
+    calories: cals,
+    protein,
+    carbs,
+    fat,
+    fiber
+  });
+  savedMeals = await dbGet('saved_meals', 'order=created_at.desc') || [];
+  toast(`"${name}" saved to My Meals ✓`);
+}
+
 // SCANS
 
 // PHOTOS
@@ -4690,11 +4739,32 @@ async function saveFoodFromForm() {
     protein_per_unit: +document.getElementById('meal-protein').value || 0,
     carbs_per_unit: +document.getElementById('meal-carbs').value || 0,
     fat_per_unit: +document.getElementById('meal-fat').value || 0,
-    fiber_per_unit: 0,
-    cholesterol_per_unit: 0,
+    fiber_per_unit: +document.getElementById('meal-fiber').value || 0,
+    cholesterol_per_unit: +document.getElementById('meal-cholesterol').value || 0,
   });
   savedFoods = await dbGet('saved_foods', 'order=name.asc');
   toast(`"${name}" saved to My Foods ✓`);
+}
+
+async function saveMealFromForm() {
+  const name = document.getElementById('meal-name').value.trim();
+  const cals = +document.getElementById('meal-cals').value;
+  if (!name) { toast('Fill in meal details first'); return; }
+  const protein = +document.getElementById('meal-protein').value || 0;
+  const carbs = +document.getElementById('meal-carbs').value || 0;
+  const fat = +document.getElementById('meal-fat').value || 0;
+  const fiber = +document.getElementById('meal-fiber').value || 0;
+  await dbPost('saved_meals', {
+    name,
+    ingredients: [{ name, qty: 1, unit: 'serving', calories: cals, protein, carbs, fat, fiber }],
+    calories: cals,
+    protein,
+    carbs,
+    fat,
+    fiber
+  });
+  savedMeals = await dbGet('saved_meals', 'order=created_at.desc') || [];
+  toast(`"${name}" saved to My Meals ✓`);
 }
 
 // Food modal
