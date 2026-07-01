@@ -2769,6 +2769,9 @@ async function init() {
   if (session) {
     _authToken = session.access_token;
     _currentUser = session.user;
+    // User is logged in — clear any in-progress onboarding state so they
+    // never get accidentally bounced back into the onboarding flow on resume
+    obClearProgress();
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('app-shell').style.display = 'block';
     await appInit();
@@ -5965,6 +5968,12 @@ async function maybeShowCheckin() {
   const key = 'ci_shown_' + today;
   if (localStorage.getItem(key)) return;
   localStorage.setItem(key, '1');
+
+  // Don't show on the user's first day — they have no yesterday data
+  if (_currentUser?.created_at) {
+    const accountDate = _currentUser.created_at.slice(0, 10);
+    if (accountDate === today) return;
+  }
 
   // Get yesterday's date string
   const yd = new Date(todayLocal);
